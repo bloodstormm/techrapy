@@ -9,8 +9,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: "#F8EBEE",
+        foreground: "161616",
+        primary: "#0C3934",
+        secondary: "#3D615D",
+        stroke: "#B4C2C0",
+        lightText: "#647372",
+      },
+      fontFamily: {
+        cabinetGrotesk: ['var(--font-cabinet-grotesk)'],
       },
     },
   },

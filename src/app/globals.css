@@ -2,26 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+  body {
+    @apply text-foreground bg-background font-cabinetGrotesk;
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
+  .patient-type-card {
+    @apply flex flex-col items-center justify-center min-h-56 h-56 bg-stroke/20 rounded-xl gap-4 p-4 border-stroke border hover:border-secondary/50 hover:bg-stroke/50 hover:cursor-pointer transition-all duration-300;
+  }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  @layer utilities {
+    .text-balance {
+      text-wrap: balance;
+    }
   }
 }
