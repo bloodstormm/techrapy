@@ -11,6 +11,10 @@
     @apply flex flex-col items-center justify-center min-h-56 h-56 bg-stroke/20 rounded-xl gap-4 p-4 border-stroke border hover:border-secondary/50 hover:bg-stroke/50 hover:cursor-pointer transition-all duration-300;
   }
 
+  input {
+    @apply ring-0 !important;
+  }
+
   @layer utilities {
     .text-balance {
       text-wrap: balance;

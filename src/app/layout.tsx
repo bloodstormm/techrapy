@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${cabinetGrotesk.variable} font-cabinetGrotesk`}>
+      <body className={`${cabinetGrotesk.variable} font-cabinetGrotesk container mx-auto`}>
       <Navbar />
         {children}
       </body>
