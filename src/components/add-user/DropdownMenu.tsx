@@ -13,7 +13,6 @@ import {
   TrashIcon,
   Building2,
   UserCircleIcon,
-  SettingsIcon,
   ChevronRightIcon,
   BellIcon,
 } from "lucide-react";
