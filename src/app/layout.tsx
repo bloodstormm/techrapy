@@ -1,12 +1,19 @@
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Manrope } from "next/font/google";
 
 // Adicione sua nova fonte aqui
 const cabinetGrotesk = localFont({
   src: "./fonts/CabinetGrotesk-Variable.woff2",
   variable: "--font-cabinet-grotesk",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
 });
 
 export default function RootLayout({
@@ -16,9 +23,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${cabinetGrotesk.variable} font-cabinetGrotesk container mx-auto`}>
-      <Navbar />
-        {children}
+      
+      <body
+        className={`${cabinetGrotesk.variable} ${manrope.variable} font-manrope container mx-auto`}
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

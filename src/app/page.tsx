@@ -1,8 +1,7 @@
 "use client";
 
 import Search from "@/components/Search";
-import { Toaster, toast } from 'sonner'
-
+import { Toaster, toast } from "sonner";
 
 export default function Home() {
   return (
@@ -12,7 +11,10 @@ export default function Home() {
         <Search />
         <div>
           <Toaster closeButton richColors position="top-center" />
-          <button onClick={() => toast.success('My first toast')}>
+          <button
+            className="bg-primary p-4 rounded-xl text-white font-alata"
+            onClick={() => toast.success("My first toast")}
+          >
             Give me a toast
           </button>
         </div>
