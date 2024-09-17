@@ -8,13 +8,13 @@ export default function AddUser() {
       <p className="text-lightText text-2xl font-light mb-8">Escolha o tipo de paciente que deseja adicionar</p>
 
       <div className="grid sm:grid-cols-2 gap-4 items-center rounded-xl p-6 mx-auto max-w-2xl">
-        <PatientTypeCard src={Child} alt="Criança" />
-        <PatientTypeCard src={Adult} alt="Adulto" />
-        <PatientTypeCard src={Teens} alt="Adolescente" />
-        <PatientTypeCard src={Couple} alt="Casal" />
+        <PatientTypeCard src={Child} alt="Criança" type="child" />
+        <PatientTypeCard src={Adult} alt="Adulto" type="adult" />
+        <PatientTypeCard src={Teens} alt="Adolescente" type="teen" />
+        <PatientTypeCard src={Couple} alt="Casal" type="couple" />
       </div>
 
-      <FormSteps />
+      <FormSteps patientType="child" />
     </div>
   )
 }
