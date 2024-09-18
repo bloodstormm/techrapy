@@ -3,11 +3,7 @@
 
 import { useState } from "react";
 
-import { motion } from "framer-motion";
-
 import { cn } from "@/lib/utils";
-
-import { InputForm } from "./InputForm";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -17,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,33 +27,31 @@ const formSchema = z.object({
   birthdate: z.string().min(2, {
     message: "Data de nascimento deve conter pelo menos 2 caracteres.",
   }),
+  health_insurance: z.string().min(1, {
+    message: "Escolha um convenio.",
+  }),
+  ppl_in_charge: z.string().min(2, {
+    message: "Nome deve conter pelo menos 2 caracteres.",
+  }),
+  ppl_in_charge_phone: z.string().min(2, {
+    message: "Telefone deve conter pelo menos 2 caracteres.",
+  }),
+  phone: z.string().min(2, {
+    message: "Telefone deve conter pelo menos 2 caracteres.",
+  }),
 });
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
 
 type AnimatedTabsProps = {
   patientType: string;
   containerClassName?: string;
-  activeTabClassName?: string;
-  tabClassName?: string;
 };
 export default function FormSteps({
   patientType,
   containerClassName,
-  activeTabClassName,
-  tabClassName,
 }: AnimatedTabsProps) {
-  const [activeIdx, setActiveIdx] = useState<number>(0);
-  const [birthdate, setBirthdate] = useState<string>("");
 
   const tabs = [
     {
@@ -74,6 +67,10 @@ export default function FormSteps({
     defaultValues: {
       name: "",
       birthdate: "",
+      health_insurance: "",
+      ppl_in_charge: "",
+      ppl_in_charge_phone: "",
+      phone: "",
     },
   });
 
@@ -82,6 +79,7 @@ export default function FormSteps({
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
+     
   }
 
   return (
@@ -93,40 +91,119 @@ export default function FormSteps({
           containerClassName
         )}
       >
-        <Tabs defaultValue="account" className="w-full">
-          <TabsList>
-            <TabsTrigger value="info">Informações Básicas</TabsTrigger>
-            <TabsTrigger value="historic">Histórico</TabsTrigger>
+        <Tabs defaultValue="info" className="w-full">
+          <TabsList className="w-full">
+            <TabsTrigger value="info" className="w-full ">Informações Básicas</TabsTrigger>
+            <TabsTrigger value="historic" className="w-full">Histórico</TabsTrigger>
           </TabsList>
           <TabsContent value="info">
-          <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome Completo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Digite o nome completo do paciente" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="birthdate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Nascimento</FormLabel>
-                <FormControl>
-                  <Input type="date" placeholder="Digite a data de nascimento do paciente" {...field} />
-                </FormControl>
-                <FormMessage />
-                  </FormItem>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-x-8 gap-y-4 grid-cols-2 items-center justify-center">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome Completo</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Digite o nome completo do paciente" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="birthdate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data de Nascimento</FormLabel>
+                      <FormControl>
+                        <Input type="date" placeholder="Digite a data de nascimento do paciente" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="health_insurance"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo de pagamento</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma forma de pagamento" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Convênios</SelectLabel>
+                            <SelectItem value="sulamerica">Sulamerica</SelectItem>
+                            <SelectItem value="bradesco">Bradesco</SelectItem>
+                            <SelectItem value="unimed">Unimed</SelectItem>
+                          </SelectGroup>
+                          <SelectGroup>
+                            <SelectLabel></SelectLabel>
+                            <SelectLabel>Particular</SelectLabel>
+                            <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                            <SelectItem value="Crédito">Crédito</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {patientType === "child" && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="ppl_in_charge"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nome do responsável</FormLabel>
+                          <FormControl>
+                            <Input type="text" placeholder="Digite o nome do responsável pela criança" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="ppl_in_charge_phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Telefone do responsável</FormLabel>
+                          <FormControl>
+                            <Input type="tel" placeholder="Digite o telefone do paciente" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
                 )}
-              />
+                {patientType !== "child" && (
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Telefone do paciente</FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder="Digite a data de nascimento do paciente" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              <Button>Submit</Button>
+
               </form>
             </Form>
           </TabsContent>
@@ -136,7 +213,7 @@ export default function FormSteps({
               <Button type="submit">Submit</Button>
             </div>
 
-            </TabsContent>
+          </TabsContent>
         </Tabs>
 
       </div>

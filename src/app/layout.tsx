@@ -22,10 +22,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      
+    <html lang="pt-BR">
       <body
-        className={`${cabinetGrotesk.variable} ${manrope.variable} font-manrope container mx-auto`}
+        className={`${cabinetGrotesk.variable} ${manrope.variable} font-manrope`}
       >
         <ThemeProvider
           attribute="class"

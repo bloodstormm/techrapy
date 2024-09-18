@@ -14,7 +14,7 @@ export default function AddUser() {
         <PatientTypeCard src={Couple} alt="Casal" type="couple" />
       </div>
 
-      <FormSteps patientType="child" />
+      <FormSteps patientType="adult" />
     </div>
   )
 }

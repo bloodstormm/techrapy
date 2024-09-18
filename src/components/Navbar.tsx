@@ -20,7 +20,7 @@ import { Button } from "./ui/button";
 export default function Navbar() {
   const { setTheme } = useTheme();
   return (
-    <nav className="fixed bottom-4 left-0 right-0 sm:w-2/5 max-w-[70%] mx-auto flex justify-center items-center rounded-xl bg-white/20 backdrop-blur-lg p-2 h-20 border border-[#472417]/30 z-10">
+    <nav className="fixed bottom-4 left-0 right-0 sm:w-[500px] max-w-[70%] mx-auto flex justify-center items-center rounded-xl bg-white/20 backdrop-blur-lg p-2 h-20 border border-[#472417]/30 z-10">
       <ul className="flex justify-around items-center w-full">
         <Link href="/">
           <li className="p-4 hover:bg-primary/20 hover:text-[#071F1D] rounded-xl transition-all duration-300">
@@ -44,7 +44,7 @@ export default function Navbar() {
         </Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
+            <Button variant={"ghost"} size="icon">
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">Toggle theme</span>
