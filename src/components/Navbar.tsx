@@ -27,7 +27,7 @@ export default function Navbar() {
             <HomeIcon className="w-7 h-7" />
           </li>
         </Link>
-        <Link href="/">
+        <Link href="/all-users">
           <li className="p-4 hover:bg-primary/20 hover:text-[#071F1D] rounded-xl transition-all duration-300">
             <GlobeAltIcon className="w-7 h-7" />
           </li>

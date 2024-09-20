@@ -67,6 +67,11 @@ const formSchema = z.object({
   diseases_history: z.string().min(2, {
     message: "Histórico de doenças deve conter pelo menos 2 caracteres.",
   }),
+  family_diseases_history: z.string().min(2, {
+    message: "Histórico de doenças deve conter pelo menos 2 caracteres.",
+  }),
+  
+  
 });
 
 type AnimatedTabsProps = {
@@ -105,6 +110,7 @@ export default function FormSteps({
       phone: "",
       more_info: "",
       diseases_history: "",
+      family_diseases_history: "",
     },
   });
 
@@ -113,6 +119,7 @@ export default function FormSteps({
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
+    console.log(selectedPatientType);
   }
 
   const handleNext = (type?: string) => {
@@ -138,58 +145,55 @@ export default function FormSteps({
   };
 
   return (
-    <div className="flex flex-col container gap-4">
-      <div
-        onSubmit={(e) => e.preventDefault()}
-        className={cn("relative flex flex-wrap w-full", containerClassName)}
-      >
-        <Tabs value={selectedTab} className="w-full">
-          <TabsList className="w-full">
-            {tabs.map((tab) => (
-              <TabsTrigger
-                key={tab.title}
-                value={tab.title}
-                className="w-full"
-                onClick={() => setSelectedTab(tab.title)}
-              >
-                {tab.title}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          <TabsContent value="Tipo de Paciente">
-            <div className="grid sm:grid-cols-2 gap-4 items-center rounded-xl p-6 mx-auto max-w-2xl">
-              <PatientTypeCard
-                src={Child}
-                alt="Criança"
-                type="child"
-                onClick={handlePatientTypeClick("child")}
-              />
-              <PatientTypeCard
-                src={Adult}
-                alt="Adulto"
-                type="adult"
-                onClick={handlePatientTypeClick("adult")}
-              />
-              <PatientTypeCard
-                src={Teens}
-                alt="Adolescente"
-                type="teen"
-                onClick={handlePatientTypeClick("teen")}
-              />
-              <PatientTypeCard
-                src={Couple}
-                alt="Casal"
-                type="couple"
-                onClick={handlePatientTypeClick("couple")}
-              />
-            </div>
-          </TabsContent>
-          <TabsContent value="Informações Básicas">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="grid gap-x-8 gap-y-4 grid-cols-2 items-center justify-center"
-              >
+    <div className={`flex flex-col container gap-4 ${containerClassName || ''}`}>
+      <Tabs value={selectedTab} className="w-full">
+        <TabsList className="w-full">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.title}
+              value={tab.title}
+              className="w-full"
+              onClick={() => setSelectedTab(tab.title)}
+            >
+              {tab.title}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full"
+          >
+            <TabsContent value="Tipo de Paciente">
+              <div className="grid sm:grid-cols-2 gap-4 items-center rounded-xl p-6 mx-auto max-w-2xl">
+                <PatientTypeCard
+                  src={Child}
+                  alt="Criança"
+                  type="child"
+                  onClick={handlePatientTypeClick("child")}
+                />
+                <PatientTypeCard
+                  src={Adult}
+                  alt="Adulto"
+                  type="adult"
+                  onClick={handlePatientTypeClick("adult")}
+                />
+                <PatientTypeCard
+                  src={Teens}
+                  alt="Adolescente"
+                  type="teen"
+                  onClick={handlePatientTypeClick("teen")}
+                />
+                <PatientTypeCard
+                  src={Couple}
+                  alt="Casal"
+                  type="couple"
+                  onClick={handlePatientTypeClick("couple")}
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value="Informações Básicas">
+              <div className="grid gap-x-8 gap-y-4 grid-cols-2 items-center justify-center">
                 <FormField
                   control={form.control}
                   name="name"
@@ -283,35 +287,65 @@ export default function FormSteps({
                     </FormItem>
                   )}
                 />
+
+                {selectedPatientType === "child" && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="ppl_in_charge"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nome do responsável</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="Digite o nome do responsável pela criança"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="ppl_in_charge_phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Telefone do responsável</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              placeholder="Digite o telefone do paciente"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+
                 <FormField
                   control={form.control}
-                  name="civil_status"
+                  name="more_info"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Estado Civil</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o estado civil" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="solteiro">Solteiro</SelectItem>
-                            <SelectItem value="casado">Casado</SelectItem>
-                            <SelectItem value="divorciado">
-                              Divorciado
-                            </SelectItem>
-                            <SelectItem value="viuvo">Viuvo</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Mais informações</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Digite mais informações sobre o paciente"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 {selectedPatientType !== "child" && (
                   <>
                     <FormField
@@ -331,83 +365,49 @@ export default function FormSteps({
                         </FormItem>
                       )}
                     />
-
-                    {selectedPatientType === "child" && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name="ppl_in_charge"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nome do responsável</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="text"
-                                  placeholder="Digite o nome do responsável pela criança"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="ppl_in_charge_phone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Telefone do responsável</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="tel"
-                                  placeholder="Digite o telefone do paciente"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </>
-                    )}
-
                     <FormField
                       control={form.control}
-                      name="more_info"
+                      name="civil_status"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Mais informações</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Digite mais informações sobre o paciente"
-                              className="resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
+                          <FormLabel>Estado Civil</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione o estado civil" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="solteiro">Solteiro</SelectItem>
+                                <SelectItem value="casado">Casado</SelectItem>
+                                <SelectItem value="divorciado">
+                                  Divorciado
+                                </SelectItem>
+                                <SelectItem value="viuvo">Viuvo</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
                         </FormItem>
                       )}
                     />
                   </>
                 )}
-                <div className="col-span-2 flex justify-between">
-                  <Button type="button" onClick={handleBack}>
-                    Voltar
-                  </Button>
-                  <Button type="button" onClick={() => handleNext()}>
-                    Próximo
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </TabsContent>
-          <TabsContent value="Histórico">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="grid gap-x-8 gap-y-4 grid-cols-2 items-center justify-center"
-              >
+              </div>
+              <div className="col-span-2 flex justify-between">
+                <Button type="button" onClick={handleBack}>
+                  Voltar
+                </Button>
+                <Button type="button" onClick={() => handleNext()}>
+                  Próximo
+                </Button>
+              </div>
+            </TabsContent>
+            <TabsContent value="Histórico">
+              <div className="grid gap-x-8 gap-y-4 grid-cols-2 items-center justify-center">
                 <FormField
                   control={form.control}
                   name="diseases_history"
@@ -457,17 +457,90 @@ export default function FormSteps({
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="family_diseases_history"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Histórico de doenças na familia</FormLabel>
+
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue="none"
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o histórico de doenças" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="none">Nenhum</SelectItem>
+                            <SelectItem value="depressao">Depressão</SelectItem>
+                            <SelectItem value="ansiedade">Ansiedade</SelectItem>
+                            <SelectItem value="transtorno_bipolar">
+                              Transtorno Bipolar
+                            </SelectItem>
+
+                            <SelectItem value="esquizofrenia">
+                              Esquizofrenia
+                            </SelectItem>
+
+                            <SelectItem value="toc">
+                              Transtorno Obsessivo-Compulsivo (TOC)
+                            </SelectItem>
+                            <SelectItem value="transtorno_estresse_pos_traumatico">
+                              Transtorno de Estresse Pós-Traumático (TEPT)
+                            </SelectItem>
+                            <SelectItem value="transtorno_personalidade">
+                              Transtorno de Personalidade
+                            </SelectItem>
+                            <SelectItem value="transtorno_alimentar">
+                              Transtorno Alimentar
+                            </SelectItem>
+                            <SelectItem value="transtorno_somatoforme">
+                              Transtorno Somatoforme
+                            </SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+
+
+                <FormField
+                  control={form.control}
+                  name="more_info"
+
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mais informações</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Digite mais informações sobre o paciente"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <div className="col-span-2 flex justify-between">
                   <Button type="button" onClick={handleBack}>
                     Voltar
                   </Button>
                   <Button type="submit">Salvar</Button>
                 </div>
-              </form>
-            </Form>
-          </TabsContent>
-        </Tabs>
-      </div>
+              </div>
+            </TabsContent>
+          </form>
+        </Form>
+      </Tabs>
     </div>
   );
 }
