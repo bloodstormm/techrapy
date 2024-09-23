@@ -18,9 +18,7 @@ const AllUsers = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 mt-16 gap-4 container mx-auto">
       {patients.map(patient => (
-        <Link key={patient.patientName} href={`/patient-summaries/${patient.patientName}`}>
-          <PatientCard patientData={patients} lastSession={patient.lastSession} />
-        </Link>
+        <PatientCard key={patient.patientName} patientData={patient} lastSession={patient.lastSession} />
       ))}
     </div>
   );
