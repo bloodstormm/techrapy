@@ -7,6 +7,8 @@ import Image from "next/image";
 import { PatientData } from "@/types/patientData";
 import Link from "next/link";
 
+
+
 interface PatientCardProps {
     patientData: PatientData;
     lastSession: string;
@@ -21,7 +23,7 @@ const PatientCard = ({ patientData, lastSession }: PatientCardProps) => {
             </div>
             {lastSession ? (
                 <div className="flex p-4 rounded-xl bg-white/20 backdrop-blur-lg items-center">
-                    <p className="text-sm line-clamp-2"><b>Última resumo: </b> {lastSession}</p>
+                    <p className="text-sm line-clamp-2 overflow-ellipsis"><b>Última resumo: </b> {lastSession}</p>
                 </div>
             ) : (
                 <div className="w-full border-b flex flex-col items-center border-orange-900/20 my-4 pb-4">
@@ -47,12 +49,12 @@ const PatientCard = ({ patientData, lastSession }: PatientCardProps) => {
             </div>
 
             <div className="flex w-full justify-between items-center gap-4 my-4">
-                <Button variant="outline" className="bg-transparent w-full hover:bg-orange-400/20">
-                    <PlusIcon className="w-4 h-4 text-orange-400 gap-2" />
-                    <p className="text-orange-400 font-medium">Adicionar nota</p>
+                <Button variant="outline" className="w-full bg-transparent hover:bg-orange-400/20 text-orange-400 hover:text-orange-400 gap-2">
+                    <PlusIcon className="w-4 h-4" />
+                    <p className="font-medium">Adicionar nota</p>
                 </Button>
                 <Link href={`/patient-summaries/${patientData.patientName}`} className="w-full">
-                    <Button className="w-full hover:bg-orange-500 gap-2">
+                    <Button className="w-full gap-2">
                         <DocumentIcon className="w-4 h-4" />
                         <p className="font-medium">Ver resumos</p>
                     </Button>
