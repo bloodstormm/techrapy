@@ -4,7 +4,7 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import Placeholder from '@tiptap/extension-placeholder'
 import StarterKit from '@tiptap/starter-kit'
 
-const Tiptap = () => {
+const Tiptap = ({ onChange }: { onChange: (value: string) => void }) => {
     const editor = useEditor({
         extensions: [
           StarterKit,
@@ -18,13 +18,10 @@ const Tiptap = () => {
           },
         },
         content: ``,
-        
+        onUpdate: ({ editor }) => {
+            onChange(editor.getHTML())
+        }
       })
-
-    const json = editor?.getJSON()
-
-    console.log(json)
-
 
 
   return <EditorContent editor={editor} />

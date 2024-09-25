@@ -333,7 +333,7 @@ export default function FormSteps({
                   name="more_info"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mais informações</FormLabel>
+                      <FormLabel>Mais informações sobre o paciente</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Digite mais informações sobre o paciente"
@@ -517,7 +517,7 @@ export default function FormSteps({
 
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mais informações</FormLabel>
+                      <FormLabel>Mais informações sobre o historico de doenças do paciente</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Digite mais informações sobre o paciente"

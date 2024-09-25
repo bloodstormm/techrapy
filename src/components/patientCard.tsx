@@ -18,7 +18,7 @@ const PatientCard = ({ patientData, lastSession }: PatientCardProps) => {
     return (
         <div className="bg-white/20 backdrop-blur-lg p-4 rounded-xl w-full border border-[#472417]/30">
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-lg font-medium capitalize">{patientData.patientName}</h1>
+                <h1 className="text-lg font-medium capitalize">{patientData.patient_name}</h1>
                 <p className="text-sm text-gray-500">Patient ID</p>
             </div>
             {lastSession ? (
@@ -49,11 +49,13 @@ const PatientCard = ({ patientData, lastSession }: PatientCardProps) => {
             </div>
 
             <div className="flex w-full justify-between items-center gap-4 my-4">
-                <Button variant="outline" className="w-full bg-transparent hover:bg-orange-400/20 text-orange-400 hover:text-orange-400 gap-2">
-                    <PlusIcon className="w-4 h-4" />
-                    <p className="font-medium">Adicionar nota</p>
-                </Button>
-                <Link href={`/patient-summaries/${patientData.patientName}`} className="w-full">
+                <Link href={`/add-note/${patientData.patient_name}`}>
+                    <Button variant="outline" className="w-full bg-transparent hover:bg-orange-400/20 text-orange-400 hover:text-orange-400 gap-2">
+                        <PlusIcon className="w-4 h-4" />
+                        <p className="font-medium">Adicionar nota</p>
+                    </Button>
+                </Link>
+                <Link href={`/patient-summaries/${patientData.patient_name}`} className="w-full">
                     <Button className="w-full gap-2">
                         <DocumentIcon className="w-4 h-4" />
                         <p className="font-medium">Ver resumos</p>

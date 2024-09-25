@@ -1,4 +1,4 @@
 export interface PatientData {
-    patientName: string;
-    lastSession: string;
+    patient_name: string;
+    last_session: string;
 }

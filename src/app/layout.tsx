@@ -22,9 +22,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning={true}>
       <body
         className={`${cabinetGrotesk.variable} ${manrope.variable} font-manrope`}
+        suppressHydrationWarning={true}
       >
         <ThemeProvider
           attribute="class"
