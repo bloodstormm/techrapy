@@ -49,13 +49,13 @@ const PatientCard = ({ patientData, lastSession }: PatientCardProps) => {
             </div>
 
             <div className="flex w-full justify-between items-center gap-4 my-4">
-                <Link href={`/add-note/${patientData.patient_name}`}>
+                <Link href={`/add-note/${patientData.patient_id}`}>
                     <Button variant="outline" className="w-full bg-transparent hover:bg-orange-400/20 text-orange-400 hover:text-orange-400 gap-2">
                         <PlusIcon className="w-4 h-4" />
                         <p className="font-medium">Adicionar nota</p>
                     </Button>
                 </Link>
-                <Link href={`/patient-summaries/${patientData.patient_name}`} className="w-full">
+                <Link href={`/patient-summaries/${patientData.patient_id}`} className="w-full">
                     <Button className="w-full gap-2">
                         <DocumentIcon className="w-4 h-4" />
                         <p className="font-medium">Ver resumos</p>

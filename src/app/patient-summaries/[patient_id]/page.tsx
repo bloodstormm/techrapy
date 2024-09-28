@@ -16,16 +16,35 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { useEffect, useState } from "react";
+import { PatientData } from "@/types/patientData";
 
+const PatientSummaries = ({patientData}: {patientData: PatientData}) => {
 
-const patientSummaries = ({ params }: { params: { patientName: string } }) => {
+  const {
+    payment_type,
+    patient_name,
+    patient_type,
+    last_session,
+    birthdate,
+    phone_number,
+    marital_status,
+    diseases_history,
+    family_diseases_history,
+    guardian_name,
+    guardian_phone_number,
+    guardian_relationship,
+    more_info_about_patient,
+    more_info_about_guardian,
+    created_at
+  } = patientData;
+
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
     setIsOpen(true); // Defina o valor inicial baseado no defaultOpen
   }, []);
-  return (
 
+  return (
     <div className="container mx-auto flex gap-10 mt-10 mb-32">
       {/* Lado esquerdo */}
       <div className="flex relative flex-col h-fit bg-white p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-96">
@@ -34,46 +53,50 @@ const patientSummaries = ({ params }: { params: { patientName: string } }) => {
           Voltar
         </Link>
         <div>
-          <h2 className="text-2xl font-bold capitalize">{params.patientName}</h2>
-          <p className="text-sm text-gray-500">Tipo de paciente: Adulto</p>
+          <h2 className="text-2xl font-bold capitalize">{patient_name}</h2>
+          <p className="text-sm text-gray-500">Tipo de paciente: {patient_type}</p>
         </div>
 
         <div className="flex flex-col">
           <span className=" text-orange-400">Histórico de doenças</span>
           <div className="flex gap-2 gap-y-3 mt-2 flex-wrap">
-            <p className="text-sm px-3 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-300">Depressão</p>
-            <p className="text-sm px-3 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-300">Ansiedade</p>
-            <p className="text-sm px-3 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-300">TOC</p>
+            {diseases_history.split(',').map((disease, index) => (
+              <p key={index} className="text-sm px-3 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-300">
+                {disease.trim()}
+              </p>
+            ))}
           </div>
         </div>
         <div className="flex flex-col">
           <span className="text-orange-400">Dia da consulta</span>
-          <p className="text-sm text-gray-500">Segundas-feiras</p>
+          <p className="text-sm text-gray-500">{last_session}</p>
         </div>
         <div className="flex flex-col">
           <span className="text-orange-400">Idade</span>
-          <p className="text-sm text-gray-500">30 anos</p>
+          <p className="text-sm text-gray-500">
+            {new Date().getFullYear() - new Date(birthdate).getFullYear()} anos
+          </p>
         </div>
         <div className="flex flex-col">
           <span className="text-orange-400">Telefone</span>
-          <p className="text-sm text-gray-500">(12) 99999-9999</p>
+          <p className="text-sm text-gray-500">{phone_number}</p>
         </div>
         <div className="flex flex-col">
           <span className="text-orange-400">Estado civil</span>
-          <p className="text-sm text-gray-500">Solteiro</p>
+          <p className="text-sm text-gray-500">{marital_status}</p>
         </div>
         <div className="flex flex-col">
           <span className="text-orange-400">Tipo de pagamento</span>
-          <p className="text-sm text-gray-500">Sulamerica</p>
+          <p className="text-sm text-gray-500">{payment_type}</p>
         </div>
         <Separator className="bg-orange-200" />
         <div className="flex flex-col">
-          <span className="text-orange-400">Presença nas ultimas 3 consultas</span>
+          <span className="text-orange-400">Presença nas últimas 3 consultas</span>
           <div className="flex gap-2 items-center">
             <CheckIcon className="w-4 h-4 text-green-500" />
             <p className="text-sm text-gray-500">Presente - 20/05/2024</p>
           </div>
-          <div className="flex gap-2 items-center ">
+          <div className="flex gap-2 items-center">
             <CheckIcon className="w-4 h-4 text-green-500" />
             <p className="text-sm text-gray-500">Presente - 13/05/2024</p>
           </div>
@@ -91,7 +114,7 @@ const patientSummaries = ({ params }: { params: { patientName: string } }) => {
               <TabsTrigger value="notes">Notas da Sessão</TabsTrigger>
               <TabsTrigger value="notes_summary">Resumo de notas (IA)</TabsTrigger>
             </TabsList>
-            <Link href={`/add-note/${params.patientName}`}>
+            <Link href={`/add-note/${patient_name}`}>
               <Button variant="outline" className="bg-transparent flex items-center justify-center hover:bg-orange-400/20">
                 <PlusIcon className="w-4 h-4 text-orange-400 gap-2" />
                 <p className="text-orange-400 font-medium">Adicionar uma nova nota</p>
@@ -140,9 +163,7 @@ const patientSummaries = ({ params }: { params: { patientName: string } }) => {
         </Tabs>
       </div>
     </div>
-
   );
 };
 
-
-export default patientSummaries;
+export default PatientSummaries;
