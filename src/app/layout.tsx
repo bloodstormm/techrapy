@@ -3,6 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Manrope } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 // Adicione sua nova fonte aqui
 const cabinetGrotesk = localFont({
@@ -16,19 +18,23 @@ const manrope = Manrope({
   variable: "--font-manrope",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const locale = await getLocale();
+
   return (
-    <html lang="pt-BR" suppressHydrationWarning={true}>
+    <html lang={locale} suppressHydrationWarning={true}>
       <body
         className={`${cabinetGrotesk.variable} ${manrope.variable} font-manrope`}
         suppressHydrationWarning={true}
       >
-        <ThemeProvider
-          attribute="class"
+        <NextIntlClientProvider>
+          <ThemeProvider
+            attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
@@ -36,6 +42,7 @@ export default function RootLayout({
           <Navbar />
           {children}
         </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

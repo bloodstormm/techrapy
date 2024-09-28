@@ -15,4 +15,5 @@ export interface PatientData {
     more_info_about_patient: string;
     more_info_about_guardian: string;
     created_at: string;
+    session_day: string;
 }

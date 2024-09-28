@@ -1,8 +1,7 @@
 import Search from "@/components/Search";
-import { createClient } from "@/utils/server";
+import { supabase } from "@/lib/supabaseClient";
 
 export default async function Home() {
-  const supabase = createClient();
   const { data: patients } = await supabase.from("patients").select();
 
   console.log(patients);

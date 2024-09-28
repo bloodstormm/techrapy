@@ -1,11 +1,8 @@
 import PatientCard from "@/components/patientCard";
 import { PatientData } from "@/types/patientData";
-import { createClient } from "@/utils/server";
-import Link from "next/link";
+import { supabase } from "@/lib/supabaseClient";
 
 const AllUsers = async () => {
-
-  const supabase = createClient();
 
   const { data, error } = await supabase
     .from('patients')
