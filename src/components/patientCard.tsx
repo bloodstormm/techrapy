@@ -9,7 +9,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { PatientNote } from "@/types/patientNotes";
 import { useEffect } from "react";
-import { fetchLastNote } from "@/services/patientService";
+import { fetchLastNote, fetchPatientNotesCount } from "@/services/patientService";
 
 interface PatientCardProps {
     patientData: PatientData;
@@ -17,6 +17,7 @@ interface PatientCardProps {
 
 const PatientCard = async ({ patientData }: PatientCardProps) => {
     const lastNote = await fetchLastNote(patientData.patient_id);
+    const patientNotesCount = await fetchPatientNotesCount(patientData.patient_id);
     return (
         <div className="bg-white/20 backdrop-blur-lg p-4 rounded-xl w-full border border-[#472417]/30">
             <div className="flex justify-between items-center mb-4">
@@ -41,7 +42,7 @@ const PatientCard = async ({ patientData }: PatientCardProps) => {
                 <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2">
                         <DocumentIcon className="w-4 h-4" />
-                        <p className="text-sm"><b>0</b></p>
+                        <p className="text-sm"><b>{patientNotesCount}</b></p>
                     </div>
                     <div className="flex items-center gap-2">
                         <SparklesIcon className="w-4 h-4" />

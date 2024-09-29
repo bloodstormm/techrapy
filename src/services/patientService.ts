@@ -20,7 +20,7 @@ export const fetchPatientNotes = async (patient_id: string) => {
     .from("patient_notes")
     .select("*")
     .eq("patient_id", patient_id)
-    .order("session_date", { ascending: false });
+    .order("note_date", { ascending: false });
 
   if (error) {
     throw new Error(error.message);
@@ -40,4 +40,13 @@ export const fetchLastNote = async (patient_id: string): Promise<PatientNote | n
   console.log('segue as notas aqui patrao', data);
 
   return data![0] || null;
+}
+
+export const fetchPatientNotesCount = async (patient_id: string): Promise<number> => {
+  const { count } = await supabase
+    .from("patient_notes")
+    .select("*", { count: "exact" })
+    .eq("patient_id", patient_id)
+
+  return count || 0;
 }
