@@ -19,15 +19,14 @@ import { PatientData } from "@/types/patientData";
 
 import {
   fetchPatientById,
-  fetchPatientSessions,
 } from "@/services/patientService";
 import { useEffect, useState } from "react";
-import { PatientSession } from "@/types/patientSession";
+import { PatientNote } from "@/types/patientNotes";
 
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const format = useFormatter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
-  const [patientSessions, setPatientSessions] = useState<PatientSession[]>([]);
+  const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,20 +45,6 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     getPatientData();
   }, [params.patient_id]);
 
-  useEffect(() => {
-    const getPatientSessions = async () => {
-      try {
-        const data = await fetchPatientSessions(params.patient_id);
-        setPatientSessions(data);
-      } catch (err) {
-        setError(err as string);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getPatientSessions();
-  }, [params.patient_id]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -181,18 +166,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
       <div className="flex flex-col w-full">
         <p className="text-orange-400 text-xl font-medium mb-6">Sessões do paciente</p>
         <div className="flex flex-col gap-6">
-          {patientSessions.map((session) => (
-            <div key={session.session_id} className="flex w-full flex-col bg-[#FCF6F7] border border-[#E6E6E6] p-8 px-12 rounded-3xl">
-              <div className="flex justify-between border-b border-orange-200 pb-4 mb-4">
-                <h1 className="text-orange-900 text-xl font-medium">Resumo de sessão</h1>
-                <div className="flex items-center gap-2 text-orange-400">
-                  <CalendarIcon className="w-4 h-4 " />
-                  <p>{formatDate(new Date(session.session_date))}</p>
-                </div>
-              </div>
-              <p>{session.session_type}</p>
-            </div>
-          ))}
+          
         </div>
       </div>
     </div>

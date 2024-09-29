@@ -1,10 +1,11 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from "@/lib/supabaseClient";
+import { PatientNote } from "@/types/patientNotes";
 
-export async function fetchPatientById(patient_id: string) {
+export const fetchPatientById = async (patient_id: string) => {
   const { data, error } = await supabase
-    .from('patients')
-    .select('*')
-    .eq('patient_id', patient_id)
+    .from("patients")
+    .select("*")
+    .eq("patient_id", patient_id)
     .single();
 
   if (error) {
@@ -14,15 +15,29 @@ export async function fetchPatientById(patient_id: string) {
   return data;
 }
 
-export async function fetchPatientSessions(patient_id: string) {
+export const fetchPatientNotes = async (patient_id: string) => {
   const { data, error } = await supabase
-    .from('patient_sessions')
-    .select('*')
-    .eq('patient_id', patient_id);
+    .from("patient_notes")
+    .select("*")
+    .eq("patient_id", patient_id)
+    .order("session_date", { ascending: false });
 
   if (error) {
     throw new Error(error.message);
   }
 
   return data;
+}
+
+export const fetchLastNote = async (patient_id: string): Promise<PatientNote | null> => {
+  const { data, error } = await supabase
+    .from("patient_notes")
+    .select("*")
+    .eq("patient_id", patient_id)
+    .order("note_date", { ascending: false })
+    .limit(1);
+
+  console.log('segue as notas aqui patrao', data);
+
+  return data![0] || null;
 }

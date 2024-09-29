@@ -16,12 +16,10 @@ const AllUsers = async () => {
   // Tipagem da resposta
   const patients: PatientData[] = data;
 
-  console.log(patients)
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 mt-16 gap-4 container mx-auto">
       {patients.map(patient => (
-        <PatientCard key={patient.patient_id} patientData={patient} lastSession={patient.last_session} />
+        <PatientCard key={patient.patient_id} patientData={patient}/>
       ))}
     </div>
   );
