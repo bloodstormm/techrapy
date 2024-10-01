@@ -4,24 +4,20 @@ import { Button } from "@/components/ui/button";
 import { useFormatter } from "next-intl";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { ArrowTopLeftIcon, SizeIcon } from "@radix-ui/react-icons";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import { ArrowTopLeftIcon } from "@radix-ui/react-icons";
 import { CheckIcon, XIcon } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { PatientData } from "@/types/patientData";
-
 import {
+  deleteNoteById,
   fetchPatientById,
   fetchPatientNotes,
 } from "@/services/patientService";
 import { useEffect, useState } from "react";
 import { PatientNote } from "@/types/patientNotes";
+import PatientNoteItem from "@/components/patientNoteItem";
+import { toast, Toaster } from 'sonner';
 
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const format = useFormatter();
@@ -30,6 +26,16 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const successMessage = localStorage.getItem('successMessage');
+    if (successMessage) {
+      toast.success(successMessage);
+      localStorage.removeItem('successMessage');
+    }
+  }, []);
+
+  // Pegar dados do paciente
   useEffect(() => {
     const getPatientData = async () => {
       try {
@@ -43,36 +49,37 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     };
 
     getPatientData();
-  }, [params.patient_id]);
+  }, [params.patient_id, patientNotes]);
 
+  // Pegar todas as notas do paciente
   useEffect(() => {
     const getPatientNotes = async () => {
       const data = await fetchPatientNotes(params.patient_id);
       setPatientNotes(data);
-
-      // Inicializa todas as notas como fechadas
-      const initialOpenNotes = data.reduce((acc, note) => {
-        acc[note.id] = false;
-        return acc;
-      }, {} as { [key: string]: boolean });
-      setOpenNotes(initialOpenNotes);
-    };
-
+    }
     getPatientNotes();
   }, [params.patient_id]);
 
-  const [openNotes, setOpenNotes] = useState<{ [key: string]: boolean }>({});
-
-  const toggleNote = (noteId: string) => {
-    setOpenNotes((prev) => ({
-      ...prev,
-      [noteId]: !prev[noteId],
-    }));
-  };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!patientData) return <p>No patient data found</p>;
+  if (loading) return <>
+    <div className="flex justify-center items-center h-screen">
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-center items-center">
+          <div className="w-16 h-16 border-t-2 border-orange-400 border-solid rounded-full animate-spin"></div>
+        </div>
+        <p className="text-center text-orange-400 text-xl font-medium">Carregando...</p>
+      </div>
+    </div>
+  </>;
+  if (error) return <>
+    <div className="flex justify-center items-center h-screen">
+      <p className="text-center text-orange-400 text-xl font-medium">Error: {error}</p>
+    </div>
+  </>;
+  if (!patientData) return <>
+    <div className="flex justify-center items-center h-screen">
+      <p className="text-center text-orange-400 text-xl font-medium">No patient data found</p>
+    </div>
+  </>;
 
   const {
     patient_name,
@@ -94,10 +101,20 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
       year: "numeric",
     });
 
+  const handleDeleteNote = async (noteId: string) => {
+    try {
+      await deleteNoteById(noteId);
+      setPatientNotes((prevNotes) => prevNotes.filter(note => note.note_id !== noteId));
+      toast.success('Nota excluída com sucesso');
+    } catch (err) {
+      toast.error('Erro ao excluir a nota: ' + err);
+    }
+  };
+
   return (
-    <div className="container mx-auto flex gap-10 mt-10 mb-32">
+    <div className="container mx-auto flex lg:flex-row flex-col gap-10 mt-10 mb-32">
       {/* Lado esquerdo */}
-      <div className="flex relative flex-col h-fit bg-white p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-96">
+      <div className="flex relative flex-col h-fit bg-white p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
         <Link
           href="/all-users"
           className="flex items-center gap-1 hover:gap-3 transition-all"
@@ -112,62 +129,64 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           </p>
         </div>
 
-        <div className="flex flex-col">
-          <span className=" text-orange-400">Histórico de doenças</span>
-          <div className="flex gap-2 gap-y-3 mt-2 flex-wrap">
-            {diseases_history ? (
-              diseases_history.split(",").map((disease, index) => (
-                <p
-                  key={index}
-                  className="text-sm px-3 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-300"
-                >
-                  {disease.trim()}
-                </p>
-              ))
-            ) : (
-              <p className="text-sm text-gray-500">
-                Não há histórico de doenças
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-orange-400">Dia da consulta</span>
-          <p className="text-sm text-gray-500">{session_day}</p>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-orange-400">Idade</span>
-          <p className="text-sm text-gray-500">
-            {new Date().getFullYear() - new Date(birthdate).getFullYear()} anos
-          </p>
-        </div>
-        {patient_type === "criança" && (
-          <div className="flex flex-col space-y-2">
-            <span className="text-orange-400">Nome do responsável</span>
-            <p className="text-sm text-gray-500">{guardian_name}</p>
-            <span className="text-orange-400">Telefone do responsável</span>
-            {guardian_phone_number ? (
-              <p className="text-sm text-gray-500">{guardian_phone_number}</p>
-            ) : (
-              <p className="text-sm text-gray-500">Sem telefone cadastrado</p>
-            )}
-          </div>
-        )}
-        {patient_type !== "criança" && (
+        <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
           <div className="flex flex-col">
-            <span className="text-orange-400">Telefone</span>
-            <p className="text-sm text-gray-500">{phone_number}</p>
+            <span className=" text-orange-400">Histórico de doenças</span>
+            <div className="flex gap-2 gap-y-3 mt-2 flex-wrap">
+              {diseases_history ? (
+                diseases_history.split(",").map((disease, index) => (
+                  <p
+                    key={index}
+                    className="text-sm px-3 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-300"
+                  >
+                    {disease.trim()}
+                  </p>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Não há histórico de doenças
+                </p>
+              )}
+            </div>
           </div>
-        )}
-        <div className="flex flex-col">
-          <span className="text-orange-400">Estado civil</span>
-          <p className="text-sm text-gray-500">{marital_status}</p>
+          <div className="flex flex-col">
+            <span className="text-orange-400">Dia da consulta</span>
+            <p className="text-sm text-gray-500">{session_day}</p>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-orange-400">Idade</span>
+            <p className="text-sm text-gray-500">
+              {new Date().getFullYear() - new Date(birthdate).getFullYear()} anos
+            </p>
+          </div>
+          {patient_type === "criança" && (
+            <div className="flex flex-col space-y-2">
+              <span className="text-orange-400">Nome do responsável</span>
+              <p className="text-sm text-gray-500">{guardian_name}</p>
+              <span className="text-orange-400">Telefone do responsável</span>
+              {guardian_phone_number ? (
+                <p className="text-sm text-gray-500">{guardian_phone_number}</p>
+              ) : (
+                <p className="text-sm text-gray-500">Sem telefone cadastrado</p>
+              )}
+            </div>
+          )}
+          {patient_type !== "criança" && (
+            <div className="flex flex-col">
+              <span className="text-orange-400">Telefone</span>
+              <p className="text-sm text-gray-500">{phone_number}</p>
+            </div>
+          )}
+          <div className="flex flex-col">
+            <span className="text-orange-400">Estado civil</span>
+            <p className="text-sm text-gray-500">{marital_status}</p>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-orange-400">Tipo de pagamento</span>
+            <p className="text-sm text-gray-500">{payment_type}</p>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-orange-400">Tipo de pagamento</span>
-          <p className="text-sm text-gray-500">{payment_type}</p>
-        </div>
-        <Separator className="bg-orange-200" />
+          <Separator className="bg-orange-200" />
         <div className="flex flex-col">
           <span className="text-orange-400">
             Presença nas últimas 3 consultas
@@ -199,7 +218,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                   <TabsTrigger value="notes">Notas da Sessão</TabsTrigger>
                   <TabsTrigger value="notes_summary">Resumo de notas (IA)</TabsTrigger>
                 </TabsList>
-                <Link href={`/add-note/${patient_name}`}>
+                <Link href={`/add-note/${patientData.patient_id}`}>
                   <Button variant="outline" className="bg-transparent flex items-center justify-center hover:bg-orange-400/20">
                     <PlusIcon className="w-4 h-4 text-orange-400 gap-2" />
                     <p className="text-orange-400 font-medium">Adicionar uma nova nota</p>
@@ -208,29 +227,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
               </div>
               <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
                 {patientNotes.map((note) => (
-                  <div className="flex flex-col bg-[#FCF6F7] border border-[#E6E6E6] p-8 px-12 rounded-3xl w-full">
-                    <div className="flex justify-between border-b border-orange-200 pb-4">
-                      <h1 className="text-orange-900 text-xl font-medium">Resumo de sessão</h1>
-                      <div className="flex items-center gap-2 text-orange-400">
-                        <CalendarIcon className="w-4 h-4 " />
-                        <p>{formatDate(new Date(note.note_date))}</p>
-                      </div>
-                    </div>
-                    <Collapsible defaultOpen={false} className="pt-4">
-                      <CollapsibleTrigger onClick={() => toggleNote(note.note_id)} className="flex items-center gap-2 text-orange-400">
-                        {openNotes[note.note_id] ? (<><SizeIcon className="w-4 h-4" /> <p>Fechar</p></>) : (<><PlusIcon className="w-4 h-4" /> <p>Abrir</p></>)}
-                      </CollapsibleTrigger>
-                      {openNotes[note.note_id] && (
-                        <CollapsibleContent>
-                          <p className="mt-6">{note.note}</p>
-
-                          {note.image_url && (  
-                            <Image src={note.image_url} alt="session" width={1000} height={1000} className="mt-8 border border-stroke rounded-xl" />
-                          )}
-                        </CollapsibleContent>
-                      )}
-                    </Collapsible>
-                  </div>
+                  <PatientNoteItem key={note.note_id} note={note} onDelete={handleDeleteNote} />
                 ))}
               </TabsContent>
               <TabsContent value="notes_summary"><p className="font-medium text-center text-xl">Resumos de IA ficarão por aqui. (Parte 2 do projeto)</p></TabsContent>

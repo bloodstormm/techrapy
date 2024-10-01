@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Manrope } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { Toaster } from "sonner";
 
 // Adicione sua nova fonte aqui
 const cabinetGrotesk = localFont({
@@ -35,13 +36,14 @@ export default async function RootLayout({
         <NextIntlClientProvider>
           <ThemeProvider
             attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Navbar />
-          {children}
-        </ThemeProvider>
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster position="top-right" closeButton />
+            <Navbar />
+            {children}
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

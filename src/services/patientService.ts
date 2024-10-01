@@ -50,3 +50,14 @@ export const fetchPatientNotesCount = async (patient_id: string): Promise<number
 
   return count || 0;
 }
+
+export const deleteNoteById = async (note_id: string) => {
+  const { error } = await supabase
+    .from("patient_notes")
+    .delete()
+    .eq("note_id", note_id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

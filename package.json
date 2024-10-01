@@ -24,7 +24,11 @@
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
     "@tailwindcss/forms": "^0.5.9",
-    "@tiptap/extension-placeholder": "^2.7.2",
+    "@tiptap/extension-character-count": "^2.8.0",
+    "@tiptap/extension-color": "^2.8.0",
+    "@tiptap/extension-placeholder": "^2.8.0",
+    "@tiptap/extension-text-style": "^2.8.0",
+    "@tiptap/extension-underline": "^2.8.0",
     "@tiptap/pm": "^2.7.2",
     "@tiptap/react": "^2.7.2",
     "@tiptap/starter-kit": "^2.7.2",
@@ -41,11 +45,14 @@
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-input-mask": "^2.0.4",
+    "react-textarea-autosize": "^8.5.3",
+    "remixicon": "^4.3.0",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwind-variants": "^0.2.1",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.4",
+    "web": "^0.0.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -56,6 +63,8 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.9",
     "postcss": "^8",
+    "postcss-import": "^16.1.0",
+    "postcss-nesting": "^13.0.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

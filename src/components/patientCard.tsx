@@ -1,3 +1,5 @@
+"use client"
+
 import {
     SparklesIcon, DocumentIcon, CalendarIcon, PlusIcon
 } from "@heroicons/react/24/outline";
@@ -10,6 +12,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { PatientNote } from "@/types/patientNotes";
 import { useEffect } from "react";
 import { fetchLastNote, fetchPatientNotesCount } from "@/services/patientService";
+import ReadOnlyNote from "./tiptap/ReadOnlyNote";
 
 interface PatientCardProps {
     patientData: PatientData;
@@ -26,7 +29,7 @@ const PatientCard = async ({ patientData }: PatientCardProps) => {
             </div>
             {lastNote ? (
                 <div className="flex p-4 rounded-xl bg-white/20 backdrop-blur-lg items-center">
-                    <p className="text-sm line-clamp-2 overflow-ellipsis"><b>Último resumo: </b> {lastNote.note}</p>
+                    <p className="text-sm line-clamp-2 overflow-ellipsis"><b>Último resumo: </b> <ReadOnlyNote content={lastNote.note} /></p>
                 </div>
             ) : (
                 <div className="w-full border-b flex flex-col items-center border-orange-900/20 my-4 pb-4">
