@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { navigate } from './actions';
 import Link from 'next/link';
@@ -34,19 +33,14 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 				<ArrowTopLeftIcon className="w-4 h-4" />
 				Voltar
 			</Link>
-			<h1 className="text-2xl font-medium">Adicionar uma nova nota</h1>
+			<div className="flex flex-col items-center gap-1">
+				<h1 className="text-4xl font-cabinetGrotesk mb-1">Adicionar Nota</h1>
+				<p className="text-lightText text-2xl font-light mb-8">Escolha o tipo de paciente que deseja adicionar</p>
+			</div>
 
-
-			<div className="w-full h-full flex flex-col justify-center mt-12">
-				<p className="">Digite sua nota abaixo:</p>
-				<TipTap onChange={setNote} />
-				<Button
-					type="submit"
-					className="btn-primary"
-					disabled={isSaving}
-				>
-					{isSaving ? 'Salvando...' : 'Salvar'}
-				</Button>
+			<div className="w-full h-full flex flex-col bg-white/20 border border-orange-900/20 rounded-xl p-8 justify-center mt-12">
+				<p className="text-foreground text-xl mb-4">Digite sua nota abaixo:</p>
+				<TipTap onChange={setNote} isSaving={isSaving} />
 			</div>
 		</form>
 	);

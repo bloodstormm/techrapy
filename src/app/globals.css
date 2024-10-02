@@ -107,10 +107,11 @@
 }
 
 .ProseMirror {
-  padding: 10px;
-  background: transparent;
-  border-radius: 0 0 5px 5px;
-  min-height: 100px;
+  @apply p-4 bg-transparent min-h-[150px];
+}
+
+.ProseMirror:focus {
+  outline: none;
 }
 
 .ProseMirror > * + * {
@@ -147,6 +148,7 @@
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
 }
+
 .ProseMirror code {
   color: inherit;
   padding: 0;

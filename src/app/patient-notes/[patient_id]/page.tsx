@@ -18,6 +18,8 @@ import { useEffect, useState } from "react";
 import { PatientNote } from "@/types/patientNotes";
 import PatientNoteItem from "@/components/patientNoteItem";
 import { toast, Toaster } from 'sonner';
+import { Empty_Notes } from "../../../../public/images";
+import Image from "next/image";
 
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const format = useFormatter();
@@ -186,7 +188,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
             <p className="text-sm text-gray-500">{payment_type}</p>
           </div>
         </div>
-          <Separator className="bg-orange-200" />
+        <Separator className="bg-orange-200" />
         <div className="flex flex-col">
           <span className="text-orange-400">
             Presença nas últimas 3 consultas
@@ -210,7 +212,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
         <p className="text-orange-400 text-xl font-medium mb-6">Sessões do paciente</p>
         <div className="flex flex-col gap-6">
 
-          {/* Lado direito */}
+
           <div className="flex flex-col gap-8 w-full overflow-y-auto hide-scrollbar">
             <Tabs defaultValue="notes" className="w-full">
               <div className="flex justify-between items-center mb-6">
@@ -225,11 +227,23 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                   </Button>
                 </Link>
               </div>
-              <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
-                {patientNotes.map((note) => (
-                  <PatientNoteItem key={note.note_id} note={note} onDelete={handleDeleteNote} />
-                ))}
-              </TabsContent>
+              {patientNotes.length === 0 ? (
+                <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
+                  <div className="flex flex-col mt-20 w-full justify-center items-center overflow-y-auto hide-scrollbar">
+                    <Image src={Empty_Notes} alt="Empty Notes" className="w-72 h-72" />
+                    <h2 className="text-foreground text-xl mt-4 font-medium">Nenhuma nota adicionada</h2>
+                    <p className="text-foreground text-sm mt-2 font-normal">Adicione uma nota clicando no botão acima para começar a registrar os dados da sessão</p>
+                  </div>
+                </TabsContent>
+              ) : (
+                <>
+                  <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
+                    {patientNotes.map((note) => (
+                      <PatientNoteItem key={note.note_id} note={note} onDelete={handleDeleteNote} />
+                    ))}
+                  </TabsContent>
+                </>
+              )}
               <TabsContent value="notes_summary"><p className="font-medium text-center text-xl">Resumos de IA ficarão por aqui. (Parte 2 do projeto)</p></TabsContent>
             </Tabs>
           </div>

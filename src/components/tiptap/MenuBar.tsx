@@ -15,22 +15,25 @@ import {
   Redo,
   Code,
 } from "lucide-react";
+import { Button } from "../ui/button";
 
-type Props = {
-  editor: Editor | null;
+type MenuBarProps = {
+  editor: any;
   content: string;
+  isContentEmpty: boolean;
+  isSaving: boolean; // Adicione esta linha
 };
 
-const MenuBar = ({ editor, content }: Props) => {
+const MenuBar = ({ editor, content, isContentEmpty, isSaving }: MenuBarProps) => {
   if (!editor) {
     return null;
   }
   return (
     <div
-      className="px-4 py-3 rounded-tl-md rounded-tr-md flex justify-between items-start
-    gap-5 w-full flex-wrap border border-gray-700"
+      className="px-4 py-3 h-16 border-b border-orange-700 flex justify-between items-center
+    gap-5 w-full flex-wrap"
     >
-      <div className="flex justify-start items-center gap-5 w-full lg:w-10/12 flex-wrap ">
+      <div className="flex items-center gap-5 w-full lg:w-10/12 flex-wrap ">
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -38,8 +41,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("bold")
-              ? "bg-orange-700 text-white p-2 rounded-lg"
-              : "text-orange-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <Bold className="w-5 h-5" />
@@ -51,8 +54,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("italic")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <Italic className="w-5 h-5" />
@@ -65,8 +68,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("underline")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <Underline className="w-5 h-5" />
@@ -78,8 +81,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("strike")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <Strikethrough className="w-5 h-5" />
@@ -91,8 +94,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("heading", { level: 2 })
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <Heading2 className="w-5 h-5" />
@@ -105,8 +108,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("bulletList")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <List className="w-5 h-5" />
@@ -118,8 +121,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("orderedList")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <ListOrdered className="w-5 h-5" />
@@ -131,8 +134,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("blockquote")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <Quote className="w-5 h-5" />
@@ -144,8 +147,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("code")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
           }
         >
           <Code className="w-5 h-5" />
@@ -157,8 +160,8 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("undo")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400 hover:bg-sky-700 hover:text-white p-1 hover:rounded-lg"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1 hover:bg-orange-700 hover:text-white p-1 hover:rounded-lg"
           }
         >
           <Undo className="w-5 h-5" />
@@ -170,20 +173,22 @@ const MenuBar = ({ editor, content }: Props) => {
           }}
           className={
             editor.isActive("redo")
-              ? "bg-sky-700 text-white p-2 rounded-lg"
-              : "text-sky-400 hover:bg-sky-700 hover:text-white p-1 hover:rounded-lg"
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 hover:bg-orange-700 hover:text-white p-1 hover:rounded-lg"
           }
         >
           <Redo className="w-5 h-5" />
         </button>
       </div>
-      {content && (
-        <button
-          type="submit"
-          className="px-4 bg-sky-700 text-white py-2 rounded-md"
-        >
-          Add
-        </button>
+      
+      {!isContentEmpty && (
+				<Button
+        type="submit"
+        disabled={isSaving}
+        className="w-32"
+      >
+          {isSaving ? 'Salvando...' : 'Salvar'}
+        </Button>
       )}
     </div>
   );
