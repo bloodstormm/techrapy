@@ -9,6 +9,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import underline from "@tiptap/extension-underline";
 
 import MenuBar from "./MenuBar";
+import Heading from "@tiptap/extension-heading";
 
 type EditorProps = {
   content?: string;
@@ -28,10 +29,18 @@ export default ({ content = "", onChange, isSaving }: EditorProps & { isSaving: 
       Placeholder.configure({
         placeholder: "Comece aqui digitando...",
       }),
+      Heading.configure({
+        levels: [1, 2, 3],
+      }),
       underline,
     ],
     content,
     immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl focus:outline-none px-4 min-h-52',
+      },
+    },
     onUpdate: ({ editor, transaction }) => {
       const newContent = editor.getHTML();
       setCurrentContent(newContent);
@@ -45,7 +54,7 @@ export default ({ content = "", onChange, isSaving }: EditorProps & { isSaving: 
   };
 
   return (
-    <div className="w-full mt-4 editor border border-orange-700 rounded-xl focus:outline-non h-full">
+    <div className="w-full mt-2 editor border border-orange-700 rounded-xl focus:outline-non h-full">
       {editor && <MenuBar editor={editor} content={currentContent} isContentEmpty={isContentEmpty(currentContent)} isSaving={isSaving} />}
       <EditorContent editor={editor} />
     </div>

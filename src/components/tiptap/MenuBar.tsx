@@ -161,7 +161,7 @@ const MenuBar = ({ editor, content, isContentEmpty, isSaving }: MenuBarProps) =>
           className={
             editor.isActive("undo")
               ? "bg-orange-700 text-white p-1 rounded-lg"
-              : "text-orange-400 p-1 hover:bg-orange-700 hover:text-white p-1 hover:rounded-lg"
+              : "text-orange-400 hover:bg-orange-700 hover:text-white p-1 hover:rounded-lg"
           }
         >
           <Undo className="w-5 h-5" />

@@ -36,7 +36,7 @@ const PatientCard = ({ patientData }: PatientCardProps) => {
         <div className="bg-white/20 backdrop-blur-lg p-4 rounded-xl flex flex-col justify-between w-full border border-[#472417]/30">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-lg font-medium capitalize">{patientData.patient_name}</h1>
-                <p className="text-sm text-gray-500">Patient ID</p>
+                <p className="text-sm text-gray-500 capitalize">{patientData.patient_type}</p>
             </div>
             {lastNote ? (
                 <div className="flex p-4 max-h-28 flex-col text-sm rounded-xl line-clamp-2 overflow-hidden overflow-ellipsis bg-white/20 backdrop-blur-lg card-border">
@@ -51,7 +51,7 @@ const PatientCard = ({ patientData }: PatientCardProps) => {
             <div className="flex justify-between items-center my-2">
                 <div className="flex items-center gap-2">
                     <CalendarIcon className="w-4 h-4" />
-                    <p className="text-sm"><b>Consultas: Terça Feira</b></p>
+                    <p className="text-sm capitalize"><b>Consultas: {patientData.session_day}</b></p>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2">

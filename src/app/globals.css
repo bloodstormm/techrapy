@@ -14,6 +14,9 @@
   input {
     @apply ring-0 !important;
   }
+  .rdp-vhidden {
+    @apply hidden;
+  }
 
   @layer utilities {
     .text-balance {
@@ -107,7 +110,7 @@
 }
 
 .ProseMirror {
-  @apply p-4 bg-transparent min-h-[150px];
+  @apply pt-8 pb-2 bg-transparent;
 }
 
 .ProseMirror:focus {
@@ -135,6 +138,13 @@
 .ProseMirror h6 {
   line-height: 1.1;
 }
+
+  h2 { 
+    font-size: 1.3rem; 
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+  }
+
 
 .ProseMirror code {
   background-color: rgba(#616161, 0.1);

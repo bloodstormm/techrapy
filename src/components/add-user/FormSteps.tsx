@@ -35,44 +35,11 @@ import {
 import PatientTypeCard from "./PatientTypeCard";
 import { Textarea } from "../ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import React from "react";
+import { createPatient } from "@/services/patientService";
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Nome deve conter pelo menos 2 caracteres.",
-  }),
-  birthdate: z.date({
-    required_error: "A data de nascimento é obrigatória.",
-  }),
-  health_insurance: z.string().min(1, {
-    message: "Escolha um convenio.",
-  }),
-  ppl_in_charge: z.string().min(2, {
-    message: "Nome deve conter pelo menos 2 caracteres.",
-  }),
-  ppl_in_charge_phone: z.string().min(2, {
-    message: "Telefone deve conter pelo menos 2 caracteres.",
-  }),
-  phone: z.string().min(2, {
-    message: "Telefone deve conter pelo menos 2 caracteres.",
-  }),
-  civil_status: z.string().min(2, {
-    message: "Estado civil deve conter pelo menos 2 caracteres.",
-  }),
-  more_info: z.string().min(2, {
-    message: "Mais informações deve conter pelo menos 2 caracteres.",
-  }),
-  diseases_history: z.string().min(2, {
-    message: "Histórico de doenças deve conter pelo menos 2 caracteres.",
-  }),
-  family_diseases_history: z.string().min(2, {
-    message: "Histórico de doenças deve conter pelo menos 2 caracteres.",
-  }),
-  
-  
-});
 
 type AnimatedTabsProps = {
   patientType: string;
@@ -81,7 +48,8 @@ type AnimatedTabsProps = {
 export default function FormSteps({
   patientType,
   containerClassName,
-}: AnimatedTabsProps) {
+  className = "", // Adicione um valor padrão se necessário
+}: AnimatedTabsProps & { className?: string }) {
   const tabs = [
     {
       title: "Tipo de Paciente",
@@ -93,33 +61,40 @@ export default function FormSteps({
       title: "Histórico",
     },
   ];
+  const [date, setDate] = React.useState<Date>()
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
   const [selectedPatientType, setSelectedPatientType] =
     useState<string>(patientType);
   const [selectedTab, setSelectedTab] = useState(tabs[0].title);
-  const [date, setDate] = React.useState<Date>();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm({
     defaultValues: {
-      name: "",
+      patient_name: "",
       birthdate: new Date(),
-      health_insurance: "",
-      civil_status: "",
-      ppl_in_charge: "",
-      ppl_in_charge_phone: "",
-      phone: "",
-      more_info: "",
-      diseases_history: "",
+      marital_status: "",
+      session_day: "",
+      guardian_name: "",
+      patient_type: "",
+      payment_type: "",
+      guardian_phone_number: "",
+      phone_number: "",
+      more_info_about_patient: "",
+      more_info_about_diseases: "",
       family_diseases_history: "",
+      diseases_history: "",
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
-    console.log(selectedPatientType);
+    const patientData = form.getValues();
+    patientData.birthdate = date!;
+    patientData.patient_type = selectedPatientType;
+    console.log(patientData)
+    createPatient(patientData);
+    window.location.href = "/all-users";
   }
 
   const handleNext = (type?: string) => {
@@ -161,6 +136,7 @@ export default function FormSteps({
         </TabsList>
         <Form {...form}>
           <form
+            id="patientForm"
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full"
           >
@@ -170,25 +146,25 @@ export default function FormSteps({
                   src={Child}
                   alt="Criança"
                   type="child"
-                  onClick={handlePatientTypeClick("child")}
+                  onClick={handlePatientTypeClick("Criança")}
                 />
                 <PatientTypeCard
                   src={Adult}
                   alt="Adulto"
                   type="adult"
-                  onClick={handlePatientTypeClick("adult")}
+                  onClick={handlePatientTypeClick("Adulto")}
                 />
                 <PatientTypeCard
                   src={Teens}
                   alt="Adolescente"
                   type="teen"
-                  onClick={handlePatientTypeClick("teen")}
+                  onClick={handlePatientTypeClick("Adolescente")}
                 />
                 <PatientTypeCard
                   src={Couple}
                   alt="Casal"
                   type="couple"
-                  onClick={handlePatientTypeClick("couple")}
+                  onClick={handlePatientTypeClick("Casal")}
                 />
               </div>
             </TabsContent>
@@ -196,7 +172,7 @@ export default function FormSteps({
               <div className="grid gap-x-8 gap-y-4 grid-cols-2 items-center justify-center">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="patient_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nome Completo</FormLabel>
@@ -214,36 +190,43 @@ export default function FormSteps({
                   control={form.control}
                   name="birthdate"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem className="flex w-full flex-col">
                       <FormLabel>Data de Nascimento</FormLabel>
-                      <Popover>
+                      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full bg-transparent pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Selecione uma data</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "overflow-hidden bg-transparent hover:bg-orange-400/10  dark:text-white",
+                              !date && "text-muted-foreground",
+                              className
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {date ? (
+                              <span>
+                                {window.innerWidth > 1024
+                                  ? format(date, "PPP")
+                                  : format(date, "d MMM")}
+                              </span>
+                            ) : (
+                              <span className="hidden sm:block">Pick a date</span>
+                            )}
+                            <ChevronsUpDown className="sm:ml-2 h-4 w-4 shrink-0 opacity-50 " />
+                          </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
+                            selected={date}
+                            onSelect={(e) => {
+                              setDate(e);
+                              setIsCalendarOpen(false);
+                            }}
                             initialFocus
+                            captionLayout="dropdown-buttons"
+                            fromYear={1990}
+                            toYear={2025}
                           />
                         </PopoverContent>
                       </Popover>
@@ -253,7 +236,7 @@ export default function FormSteps({
                 />
                 <FormField
                   control={form.control}
-                  name="health_insurance"
+                  name="payment_type"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tipo de pagamento</FormLabel>
@@ -287,19 +270,50 @@ export default function FormSteps({
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="session_day"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dia da sessão</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o dia da sessão" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="segunda-feira">Segunda-feira</SelectItem>
+                            <SelectItem value="terça-feira">Terça-feira</SelectItem>
+                            <SelectItem value="quarta-feira">Quarta-feira</SelectItem>
+                            <SelectItem value="quinta-feira">Quinta-feira</SelectItem>
+                            <SelectItem value="sexta-feira">Sexta-feira</SelectItem>
+                            <SelectItem value="sábado">Sábado</SelectItem>
+                            <SelectItem value="domingo">Domingo</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                {selectedPatientType === "child" && (
+                {selectedPatientType === "Criança" && (
                   <>
                     <FormField
                       control={form.control}
-                      name="ppl_in_charge"
+                      name="guardian_name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Nome do responsável</FormLabel>
                           <FormControl>
                             <Input
                               type="text"
-                              placeholder="Digite o nome do responsável pela criança"
+                              placeholder="Digite o nome do responsável"
                               {...field}
                             />
                           </FormControl>
@@ -307,13 +321,34 @@ export default function FormSteps({
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
-                      name="ppl_in_charge_phone"
+                      name="guardian_phone_number"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Telefone do responsável</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              placeholder="Digite o telefone do responsável"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+
+                {selectedPatientType !== "Criança" && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="phone_number"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Telefone do paciente</FormLabel>
                           <FormControl>
                             <Input
                               type="tel"
@@ -325,49 +360,9 @@ export default function FormSteps({
                         </FormItem>
                       )}
                     />
-                  </>
-                )}
-
-                <FormField
-                  control={form.control}
-                  name="more_info"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mais informações sobre o paciente</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Digite mais informações sobre o paciente"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {selectedPatientType !== "child" && (
-                  <>
                     <FormField
                       control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Telefone do paciente</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="tel"
-                              placeholder="Digite a data de nascimento do paciente"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="civil_status"
+                      name="marital_status"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Estado Civil</FormLabel>
@@ -394,10 +389,28 @@ export default function FormSteps({
                         </FormItem>
                       )}
                     />
+
                   </>
                 )}
+                <FormField
+                  control={form.control}
+                  name="more_info_about_patient"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mais informações sobre o paciente</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Digite mais informações sobre o paciente"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-              <div className="col-span-2 flex justify-between">
+              <div className="col-span-2 flex justify-between mt-4">
                 <Button type="button" onClick={handleBack}>
                   Voltar
                 </Button>
@@ -416,8 +429,8 @@ export default function FormSteps({
                       <FormLabel>Histórico de doenças</FormLabel>
 
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
+                        defaultValue="none"
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -426,6 +439,7 @@ export default function FormSteps({
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
+                            <SelectItem value="none">Nenhuma</SelectItem>
                             <SelectItem value="depressao">Depressão</SelectItem>
                             <SelectItem value="ansiedade">Ansiedade</SelectItem>
                             <SelectItem value="transtorno_bipolar">
@@ -466,7 +480,7 @@ export default function FormSteps({
                       <FormLabel>Histórico de doenças na familia</FormLabel>
 
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
                         defaultValue="none"
                       >
                         <FormControl>
@@ -476,7 +490,7 @@ export default function FormSteps({
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectItem value="none">Nenhum</SelectItem>
+                            <SelectItem value="none">Nenhuma</SelectItem>
                             <SelectItem value="depressao">Depressão</SelectItem>
                             <SelectItem value="ansiedade">Ansiedade</SelectItem>
                             <SelectItem value="transtorno_bipolar">
@@ -510,10 +524,9 @@ export default function FormSteps({
                 />
 
 
-
                 <FormField
                   control={form.control}
-                  name="more_info"
+                  name="more_info_about_diseases"
 
                   render={({ field }) => (
                     <FormItem>
@@ -530,17 +543,17 @@ export default function FormSteps({
                   )}
                 />
 
-                <div className="col-span-2 flex justify-between">
+                <div className="col-span-2 flex justify-between mt-4">
                   <Button type="button" onClick={handleBack}>
                     Voltar
                   </Button>
-                  <Button type="submit">Salvar</Button>
+                  <Button type="submit" form="patientForm">Salvar</Button>
                 </div>
               </div>
             </TabsContent>
           </form>
         </Form>
-      </Tabs>
-    </div>
+      </Tabs >
+    </div >
   );
 }

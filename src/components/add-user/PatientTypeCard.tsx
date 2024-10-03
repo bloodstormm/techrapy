@@ -13,7 +13,6 @@ interface PatientTypeCardProps {
 export default function PatientTypeCard({
   src,
   alt,
-  type,
   onClick,
 }: PatientTypeCardProps) {
   return (

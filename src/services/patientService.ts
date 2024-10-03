@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import { PatientNote } from "@/types/patientNotes";
+import { PatientData } from "@/types/patientData";
 
 export const fetchPatientById = async (patient_id: string) => {
   const { data, error } = await supabase
@@ -37,8 +38,6 @@ export const fetchLastNote = async (patient_id: string): Promise<PatientNote | n
     .order("note_date", { ascending: false })
     .limit(1);
 
-  console.log('segue as notas aqui patrao', data);
-
   return data![0] || null;
 }
 
@@ -61,3 +60,15 @@ export const deleteNoteById = async (note_id: string) => {
     throw new Error(error.message);
   }
 }
+
+export const createPatient = async (patientData: Omit<PatientData, 'patient_id' | 'created_at'>) => {
+  const { data, error } = await supabase
+    .from("patients")
+    .insert(patientData);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};

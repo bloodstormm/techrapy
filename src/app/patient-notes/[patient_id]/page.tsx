@@ -125,7 +125,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           Voltar
         </Link>
         <div>
-          <h2 className="text-2xl font-bold capitalize">{patient_name}</h2>
+          <h1 className="text-2xl font-bold capitalize">{patient_name}</h1>
           <p className="text-sm text-gray-500">
             Tipo de paciente: <span className="capitalize">{patient_type}</span>
           </p>
@@ -153,39 +153,45 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           </div>
           <div className="flex flex-col">
             <span className="text-orange-400">Dia da consulta</span>
-            <p className="text-sm text-gray-500">{session_day}</p>
+            <p className="text-sm text-gray-500 capitalize">{session_day}</p>
           </div>
           <div className="flex flex-col">
             <span className="text-orange-400">Idade</span>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 ca">
               {new Date().getFullYear() - new Date(birthdate).getFullYear()} anos
             </p>
           </div>
-          {patient_type === "criança" && (
-            <div className="flex flex-col space-y-2">
-              <span className="text-orange-400">Nome do responsável</span>
-              <p className="text-sm text-gray-500">{guardian_name}</p>
-              <span className="text-orange-400">Telefone do responsável</span>
-              {guardian_phone_number ? (
-                <p className="text-sm text-gray-500">{guardian_phone_number}</p>
-              ) : (
-                <p className="text-sm text-gray-500">Sem telefone cadastrado</p>
-              )}
+          {patient_type === "Criança" && (
+            <div className="flex flex-col space-y-4">
+              <div>
+                <span className="text-orange-400">Nome do responsável</span>
+                <p className="text-sm text-gray-500">{guardian_name}</p>
+              </div>
+              <div className="gap-4">
+                <span className="text-orange-400">Telefone do responsável</span>
+                {guardian_phone_number ? (
+                  <p className="text-sm text-gray-500">{guardian_phone_number}</p>
+                ) : (
+                  <p className="text-sm text-gray-500">Sem telefone cadastrado</p>
+                )}
+              </div>
             </div>
           )}
-          {patient_type !== "criança" && (
-            <div className="flex flex-col">
-              <span className="text-orange-400">Telefone</span>
-              <p className="text-sm text-gray-500">{phone_number}</p>
-            </div>
+          {patient_type !== "Criança" && (
+            <>
+              <div className="flex flex-col">
+                <span className="text-orange-400">Telefone</span>
+                <p className="text-sm text-gray-500">{phone_number}</p>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-orange-400">Estado civil</span>
+                <p className="text-sm text-gray-500 capitalize">{marital_status}</p>
+              </div>
+            </>
           )}
-          <div className="flex flex-col">
-            <span className="text-orange-400">Estado civil</span>
-            <p className="text-sm text-gray-500">{marital_status}</p>
-          </div>
           <div className="flex flex-col">
             <span className="text-orange-400">Tipo de pagamento</span>
-            <p className="text-sm text-gray-500">{payment_type}</p>
+            <p className="text-sm text-gray-500 capitalize">{payment_type}</p>
           </div>
         </div>
         <Separator className="bg-orange-200" />
