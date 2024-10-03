@@ -4,10 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import PatientCard from "@/components/patientCard";
 import { PatientData } from "@/types/patientData";
 import { supabase } from "@/lib/supabaseClient";
-import { Toaster, toast } from "sonner";
-import SearchPatients from "@/components/SearchPatients";
+import { toast } from "sonner";
 import { PatientProvider } from "@/contexts/PatientContext";
 import { deletePatientById } from "@/services/patientService";
+import SearchBar from "@/components/SearchBar";
 
 const AllUsers = () => {
   const [patients, setPatients] = useState<PatientData[]>([]);
@@ -17,7 +17,6 @@ const AllUsers = () => {
   useEffect(() => {
     const successMessage = localStorage.getItem('successMessage');
     if (successMessage) {
-      // Adicionando um pequeno atraso antes de mostrar o toast
       const timer = setTimeout(() => {
         toast.success(successMessage);
         localStorage.removeItem('successMessage');
@@ -65,7 +64,7 @@ const AllUsers = () => {
 
   return (
     <div className="flex flex-col items-center justify-center mt-16">
-      <SearchPatients search={search} setSearch={setSearch} />
+      <SearchBar search={search} setSearch={setSearch} placeholder="Procure por um paciente..." />
       <div className={`${isLoading ? 'flex justify-center' : 'grid'} grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 mt-10 gap-4 mb-32 container mx-auto w-full`}>
         {isLoading ? (
           <div className="flex flex-col gap-4">

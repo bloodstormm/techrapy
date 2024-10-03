@@ -110,7 +110,7 @@
 }
 
 .ProseMirror {
-  @apply pt-8 pb-2 bg-transparent;
+  @apply pt-4 pb-2 bg-transparent;
 }
 
 .ProseMirror:focus {
@@ -179,4 +179,11 @@
 
 .heading3 {
   font-size: 15px;
+}
+mark {
+  
+}
+
+.ProseMirror mark {
+  @apply bg-orange-400/40 text-[#071F1D] rounded-md;
 }

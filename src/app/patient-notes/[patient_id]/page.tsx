@@ -17,14 +17,16 @@ import {
 import { useEffect, useState } from "react";
 import { PatientNote } from "@/types/patientNotes";
 import PatientNoteItem from "@/components/patientNoteItem";
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
 import { Empty_Notes } from "../../../../public/images";
 import Image from "next/image";
+import SearchBar from "@/components/SearchBar";
 
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const format = useFormatter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
+  const [search, setSearch] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,14 +65,14 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   }, [params.patient_id]);
 
   if (loading) return
-      <div className="flex justify-center items-center h-screen">
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-center items-center">
-            <div className="w-16 h-16 border-t-2 border-orange-400 border-solid rounded-full animate-spin"></div>
-          </div>
-          <p className="text-center text-orange-400 text-xl font-medium">Carregando...</p>
-        </div>
+  <div className="flex justify-center items-center h-screen">
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-center items-center">
+        <div className="w-16 h-16 border-t-2 border-orange-400 border-solid rounded-full animate-spin"></div>
       </div>
+      <p className="text-center text-orange-400 text-xl font-medium">Carregando...</p>
+    </div>
+  </div>
   if (error) return <>
     <div className="flex justify-center items-center h-screen">
       <p className="text-center text-orange-400 text-xl font-medium">Error: {error}</p>
@@ -112,6 +114,10 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     }
   };
 
+  const filteredNotes = patientNotes.filter((item) =>
+    item.note.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto flex lg:flex-row flex-col gap-10 mt-10 mb-32">
       {/* Lado esquerdo */}
@@ -133,12 +139,12 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
         <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
           <div className="flex flex-col">
             <span className=" text-orange-400">Histórico de doenças</span>
-            <div className="flex gap-2 gap-y-3 mt-2 flex-wrap">
+            <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
               {diseases_history ? (
                 diseases_history.split(",").map((disease, index) => (
                   <p
                     key={index}
-                    className="text-sm px-3 py-1 rounded-full bg-orange-50 border border-orange-300 text-orange-300"
+                    className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-300"
                   >
                     {disease.trim()}
                   </p>
@@ -243,9 +249,14 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
               ) : (
                 <>
                   <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
-                    {patientNotes.map((note) => (
-                      <PatientNoteItem key={note.note_id} note={note} onDelete={handleDeleteNote} />
-                    ))}
+                    <SearchBar search={search} setSearch={setSearch} placeholder="Pesquisar por qualquer palavra" />
+                    {filteredNotes.length > 0 ? (filteredNotes.map((note) => (
+                      <PatientNoteItem search={search} key={note.note_id} note={note} onDelete={handleDeleteNote} />
+                    ))) : (
+                      <div className="col-span-full text-center text-gray-500 text-xl break-all">
+                        Nenhuma nota corresponde com o texto: "{search}".
+                      </div>
+                    )}
                   </TabsContent>
                 </>
               )}

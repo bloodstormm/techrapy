@@ -8,7 +8,13 @@ import { SizeIcon } from "@radix-ui/react-icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import ReadOnlyNote from "./tiptap/ReadOnlyNote";
 
-const PatientNoteItem = ({ note, onDelete }: { note: PatientNote, onDelete: (note_id: string) => void }) => {
+const highlightText = (text: string, search: string) => {
+  if (!search) return text;
+  const regex = new RegExp(`(${search})`, 'gi');
+  return text.replace(regex, '<mark>$1</mark>');
+};
+
+const PatientNoteItem = ({ note, onDelete, search }: { note: PatientNote, onDelete: (note_id: string) => void, search: string }) => {
   const format = useFormatter();
   const formatDate = (date: Date) =>
     format.dateTime(date, {
@@ -24,8 +30,9 @@ const PatientNoteItem = ({ note, onDelete }: { note: PatientNote, onDelete: (not
       [noteId]: !prev[noteId],
     }));
   };
+
   return (
-    <div className="flex flex-col bg-[#FCF6F7] border border-[#E6E6E6] p-8 px-12 rounded-3xl w-full">
+    <div className="flex flex-col bg-[#FCF6F7] border border-[#E6E6E6] p-8 px-12 rounded-3xl w-full break-all">
       <div className="flex justify-between border-b border-orange-200 pb-4">
         <h1 className="text-orange-900 text-xl font-medium">Resumo de sessão</h1>
         <div className="flex items-center gap-2 text-orange-400">
@@ -35,7 +42,6 @@ const PatientNoteItem = ({ note, onDelete }: { note: PatientNote, onDelete: (not
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Cog6ToothIcon className="w-4 h-4" />
-
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>
@@ -52,22 +58,36 @@ const PatientNoteItem = ({ note, onDelete }: { note: PatientNote, onDelete: (not
         </div>
       </div>
       <Collapsible defaultOpen={false} className="pt-4">
-        <CollapsibleTrigger onClick={() => toggleNote(note.note_id)} className="flex items-center gap-2 text-orange-400">
-          {openNotes[note.note_id] ? (<><SizeIcon className="w-4 h-4" /> <p>Fechar</p></>) : (<><PlusIcon className="w-4 h-4" /> <p>Abrir</p></>)}
-        </CollapsibleTrigger>
-        {openNotes[note.note_id] && (
-          <CollapsibleContent>
-
-            <ReadOnlyNote content={note.note} />
-
-            {note.image_url && (
-              <Image src={note.image_url} alt="session" width={1000} height={1000} className="mt-8 border border-stroke rounded-xl" />
-            )}
-          </CollapsibleContent>
+        <div className="flex items-center justify-between">
+          <CollapsibleTrigger onClick={() => toggleNote(note.note_id)} className="flex items-center gap-2 text-orange-400">
+            {openNotes[note.note_id] ? (<><SizeIcon className="w-4 h-4" /> <p>Fechar</p></>) : (<><PlusIcon className="w-4 h-4" /> <p>Ver tudo</p></>)}
+          </CollapsibleTrigger>
+        </div>
+        {!openNotes[note.note_id] && (
+          <div>
+            <ReadOnlyNote content={highlightText(note.note.substring(0, 70), search)} />
+          </div>
         )}
+        <CollapsibleContent>
+          <div className={`overflow-hidden transition-all duration-300 ${openNotes[note.note_id] ? 'max-h-full' : 'max-h-20'}`}>
+            <ReadOnlyNote content={highlightText(note.note, search)} />
+          </div>
+          {note.image_url && (
+            <Image src={note.image_url} alt="session" width={1000} height={1000} className="mt-8 border border-stroke rounded-xl" />
+          )}
+        </CollapsibleContent>
       </Collapsible>
     </div>
   )
 }
 
 export default PatientNoteItem;
+
+// Adicione o seguinte estilo CSS para destacar o texto
+<style jsx>{`
+  mark {
+    background-color: yellow;
+    padding: 0.2em;
+    border-radius: 0.2em;
+  }
+`}</style>

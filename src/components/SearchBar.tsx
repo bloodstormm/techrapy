@@ -5,20 +5,21 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 interface SearchPatientsProps {
   search: string;
   setSearch: (value: string) => void;
+  placeholder: string;
 }
 
-const SearchPatients = ({ search, setSearch }: SearchPatientsProps) => {
+const SearchBar = ({ search, setSearch, placeholder }: SearchPatientsProps) => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   }
 
   return (
-    <form className="flex items-center bg-orange-700/10 border border-orange-700/20 w-[700px]
+    <form className="flex items-center bg-orange-700/10 border border-orange-700/20 w-full container
      rounded-xl p-4 h-14 hover:shadow-md hover:shadow-orange-700/20 hover:focus-within:shadow-orange-700/20 hover:focus-within:shadow-xl
      focus-within:shadow-xl focus-within:shadow-orange-700/20 transition-all backdrop-blur-md duration-300" onSubmit={(e) => e.preventDefault()}>
       <input
         type="text"
-        placeholder="Procure por um paciente..."
+        placeholder={placeholder}
         className="bg-transparent border-none w-full focus:outline-none placeholder-foreground"
         onChange={handleSearch}
         value={search}
@@ -30,4 +31,4 @@ const SearchPatients = ({ search, setSearch }: SearchPatientsProps) => {
   )
 }
 
-export default SearchPatients;
+export default SearchBar;

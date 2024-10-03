@@ -38,7 +38,7 @@ export default ({ content = "", onChange, isSaving }: EditorProps & { isSaving: 
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl focus:outline-none px-4 min-h-52',
+        class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl focus:outline-none px-4 min-h-72',
       },
     },
     onUpdate: ({ editor, transaction }) => {
@@ -54,7 +54,7 @@ export default ({ content = "", onChange, isSaving }: EditorProps & { isSaving: 
   };
 
   return (
-    <div className="w-full mt-2 editor border border-orange-700 rounded-xl focus:outline-non h-full">
+    <div className="w-full mt-2 editor border border-orange-700 rounded-xl bg-white/20 focus:outline-none h-full mb-32">
       {editor && <MenuBar editor={editor} content={currentContent} isContentEmpty={isContentEmpty(currentContent)} isSaving={isSaving} />}
       <EditorContent editor={editor} />
     </div>
