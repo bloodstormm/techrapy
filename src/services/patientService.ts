@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import { PatientNote } from "@/types/patientNotes";
 import { PatientData } from "@/types/patientData";
+import { toast } from "sonner";
 
 export const fetchPatientById = async (patient_id: string) => {
   const { data, error } = await supabase
@@ -71,4 +72,27 @@ export const createPatient = async (patientData: Omit<PatientData, 'patient_id' 
   }
 
   return data;
+};
+
+export const deletePatientById = async (patient_id: string) => {
+  const { error } = await supabase
+    .from("patients")
+    .delete()
+    .eq("patient_id", patient_id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const fetchPatients = async (): Promise<PatientData[]> => {
+    const { data, error } = await supabase
+        .from('patients')
+        .select('*');
+
+    if (error) {
+        throw new Error(`Erro ao buscar pacientes: ${error.message}`);
+    }
+
+    return data as PatientData[];
 };

@@ -62,16 +62,15 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     getPatientNotes();
   }, [params.patient_id]);
 
-  if (loading) return <>
-    <div className="flex justify-center items-center h-screen">
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-center items-center">
-          <div className="w-16 h-16 border-t-2 border-orange-400 border-solid rounded-full animate-spin"></div>
+  if (loading) return
+      <div className="flex justify-center items-center h-screen">
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-center items-center">
+            <div className="w-16 h-16 border-t-2 border-orange-400 border-solid rounded-full animate-spin"></div>
+          </div>
+          <p className="text-center text-orange-400 text-xl font-medium">Carregando...</p>
         </div>
-        <p className="text-center text-orange-400 text-xl font-medium">Carregando...</p>
       </div>
-    </div>
-  </>;
   if (error) return <>
     <div className="flex justify-center items-center h-screen">
       <p className="text-center text-orange-400 text-xl font-medium">Error: {error}</p>
@@ -118,7 +117,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
       {/* Lado esquerdo */}
       <div className="flex relative flex-col h-fit bg-white p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
         <Link
-          href="/all-users"
+          href="/all-patients"
           className="flex items-center gap-1 hover:gap-3 transition-all"
         >
           <ArrowTopLeftIcon className="w-4 h-4" />

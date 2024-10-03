@@ -39,6 +39,7 @@ import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import React from "react";
 import { createPatient } from "@/services/patientService";
+import { toast } from "sonner";
 
 
 type AnimatedTabsProps = {
@@ -94,7 +95,8 @@ export default function FormSteps({
     patientData.patient_type = selectedPatientType;
     console.log(patientData)
     createPatient(patientData);
-    window.location.href = "/all-users";
+    localStorage.setItem('successMessage', 'Paciente criado com sucesso');
+    window.location.href = "/all-patients";
   }
 
   const handleNext = (type?: string) => {
