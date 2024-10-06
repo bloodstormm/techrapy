@@ -69,9 +69,9 @@ const AllUsers = () => {
         {isLoading ? (
           <div className="flex flex-col gap-4">
             <div className="flex justify-center items-center">
-              <div className="w-16 h-16 border-t-2 border-orange-400 border-solid rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-t-2 border-orange-900 border-solid rounded-full animate-spin"></div>
             </div>
-            <p className="text-center text-orange-400 text-xl font-medium">Carregando pacientes...</p>
+            <p className="text-center text-orange-900 text-xl font-medium">Carregando pacientes...</p>
           </div>
         ) : filteredPatients.length > 0 ? (
           filteredPatients.map(patient => (

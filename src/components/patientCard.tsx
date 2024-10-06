@@ -64,8 +64,8 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
                     <p className="text-sm">Carregando último resumo...</p>
                 </div>
             ) : lastNote ? (
-                <div className="flex p-4 max-h-28 flex-col text-sm rounded-xl line-clamp-2 overflow-hidden overflow-ellipsis bg-white/20 backdrop-blur-lg card-border">
-                    <p><b>Último resumo: </b> </p><ReadOnlyNote className="overflow-hidden h-28 overflow-ellipsis" content={lastNote.note} />
+                <div className="flex p-4 max-h-28 flex-col text-sm rounded-xl bg-white/20 backdrop-blur-lg card-border">
+                    <p><b>Último resumo: </b> </p><ReadOnlyNote content={`${lastNote.note.substring(0, 45)}...`} />
                 </div>
             ) : (
                 <div className="w-full border-b flex flex-col items-center border-orange-900/20 my-4 pb-4">

@@ -60,12 +60,14 @@ const PatientNoteItem = ({ note, onDelete, search }: { note: PatientNote, onDele
       <Collapsible defaultOpen={false} className="pt-4">
         <div className="flex items-center justify-between">
           <CollapsibleTrigger onClick={() => toggleNote(note.note_id)} className="flex items-center gap-2 text-orange-400">
-            {openNotes[note.note_id] ? (<><SizeIcon className="w-4 h-4" /> <p>Fechar</p></>) : (<><PlusIcon className="w-4 h-4" /> <p>Ver tudo</p></>)}
+            {openNotes[note.note_id] ? (<><SizeIcon className="w-4 h-4" /> <p>Fechar</p></>) : (<>
+              <PlusIcon className="w-4 h-4" /> <p>Ver tudo</p>
+            </>)}
           </CollapsibleTrigger>
         </div>
         {!openNotes[note.note_id] && (
           <div>
-            <ReadOnlyNote content={highlightText(note.note.substring(0, 70), search)} />
+            <ReadOnlyNote content={highlightText(`${note.note.substring(0, 70)}...`, search)} />
           </div>
         )}
         <CollapsibleContent>
