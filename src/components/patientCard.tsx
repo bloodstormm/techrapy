@@ -70,7 +70,7 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
             ) : (
                 <div className="w-full border-b flex flex-col items-center border-orange-900/20 my-4 pb-4">
                     <Image src={NoSession} alt="No session" className="w-20 h-20 mb-2" priority />
-                    <p className="text-sm"><b>Não há resumos</b></p>
+                    <p className="text-sm"><b>Nenhum resumo criado</b></p>
                 </div>
             )}
             <div className="flex justify-between items-center my-2">
@@ -83,10 +83,10 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
                         <DocumentIcon className="w-4 h-4" />
                         <p className="text-sm"><b>{patientNotesCount}</b></p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                         <SparklesIcon className="w-4 h-4" />
                         <p className="text-sm"><b>0</b></p>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 

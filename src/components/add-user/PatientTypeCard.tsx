@@ -18,9 +18,9 @@ export default function PatientTypeCard({
   return (
     <div
       onClick={onClick}
-      className="patient-type-card h-full p-6 border-orange-500 grid-span-1 object-cover"
+      className="patient-type-card h-60 p-6 border-orange-500 grid-span-1 object-cover"
     >
-      <Image src={src} alt={alt} className="w-40 object-cover" />
+      <Image src={src} alt={alt} className="w-40 h-40 object-contain" />
 
       <p className="text-foreground font-cabinetGrotesk text-xl">{alt}</p>
     </div>

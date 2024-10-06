@@ -40,6 +40,9 @@ import { Calendar } from "@/components/ui/calendar";
 import React from "react";
 import { createPatient } from "@/services/patientService";
 import { toast } from "sonner";
+import { ptBR } from 'date-fns/locale' // Importar a localidade em português
+import InputMask from "react-input-mask"; // Importar o InputMask
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 
 type AnimatedTabsProps = {
@@ -69,6 +72,18 @@ export default function FormSteps({
     useState<string>(patientType);
   const [selectedTab, setSelectedTab] = useState(tabs[0].title);
 
+  const diseasesList = [
+    { value: "depressão", label: "Depressão" },
+    { value: "ansiedade", label: "Ansiedade" },
+    { value: "transtorno bipolar", label: "Transtorno Bipolar" },
+    { value: "esquizofrenia", label: "Esquizofrenia" },
+    { value: "TOC", label: "Transtorno Obsessivo-Compulsivo (TOC)" },
+    { value: "TEPT", label: "Transtorno de Estresse Pós-Traumático (TEPT)" },
+    { value: "transtorno de personalidade", label: "Transtorno de Personalidade" },
+    { value: "transtorno alimentar", label: "Transtorno Alimentar" },
+    { value: "transtorno somatoforme", label: "Transtorno Somatoforme" },
+  ];
+
   const form = useForm({
     defaultValues: {
       patient_name: "",
@@ -93,6 +108,7 @@ export default function FormSteps({
     const patientData = form.getValues();
     patientData.birthdate = date!;
     patientData.patient_type = selectedPatientType;
+    patientData.diseases_history = selectedDiseases.join(",");
     console.log(patientData)
     createPatient(patientData);
     localStorage.setItem('successMessage', 'Paciente criado com sucesso');
@@ -120,6 +136,10 @@ export default function FormSteps({
     e.preventDefault();
     handleNext(type);
   };
+
+  const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
+
+  console.log(selectedDiseases)
 
   return (
     <div className={`flex flex-col container gap-4 ${containerClassName || ''}`}>
@@ -199,20 +219,20 @@ export default function FormSteps({
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "overflow-hidden bg-transparent hover:bg-orange-400/10  dark:text-white",
+                              "overflow-hidden bg-transparent justify-start hover:bg-orange-400/10  dark:text-white",
                               !date && "text-muted-foreground",
-                              className
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {date ? (
                               <span>
                                 {window.innerWidth > 1024
-                                  ? format(date, "PPP")
-                                  : format(date, "d MMM")}
+                                  ? format(date, "PPP", { locale: ptBR })
+                                  : format(date, "d MMM", { locale: ptBR })
+                                }
                               </span>
                             ) : (
-                              <span className="hidden sm:block">Pick a date</span>
+                              <span className="hidden sm:block">Selecionar uma data</span>
                             )}
                             <ChevronsUpDown className="sm:ml-2 h-4 w-4 shrink-0 opacity-50 " />
                           </Button>
@@ -225,10 +245,11 @@ export default function FormSteps({
                               setDate(e);
                               setIsCalendarOpen(false);
                             }}
-                            initialFocus
+                            defaultMonth={date || new Date()}
                             captionLayout="dropdown-buttons"
                             fromYear={1990}
                             toYear={2025}
+                            locale={ptBR}
                           />
                         </PopoverContent>
                       </Popover>
@@ -259,12 +280,18 @@ export default function FormSteps({
                             </SelectItem>
                             <SelectItem value="bradesco">Bradesco</SelectItem>
                             <SelectItem value="unimed">Unimed</SelectItem>
+                            <SelectItem value="amil">Amil</SelectItem>
+                            <SelectItem value="hapvida">Hapvida</SelectItem>
+                            <SelectItem value="notredame">NotreDame</SelectItem>
+                            <SelectItem value="porto seguro">Porto Seguro</SelectItem>
+                            <SelectItem value="samp">Samp</SelectItem>
+                            <SelectItem value="intermedica">Intermédica</SelectItem>
+                            <SelectItem value="saude caixa">Saúde Caixa</SelectItem>
                           </SelectGroup>
                           <SelectGroup>
                             <SelectLabel></SelectLabel>
                             <SelectLabel>Particular</SelectLabel>
                             <SelectItem value="dinheiro">Dinheiro</SelectItem>
-                            <SelectItem value="Crédito">Crédito</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -295,7 +322,6 @@ export default function FormSteps({
                             <SelectItem value="quinta-feira">Quinta-feira</SelectItem>
                             <SelectItem value="sexta-feira">Sexta-feira</SelectItem>
                             <SelectItem value="sábado">Sábado</SelectItem>
-                            <SelectItem value="domingo">Domingo</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -330,9 +356,11 @@ export default function FormSteps({
                         <FormItem>
                           <FormLabel>Telefone do responsável</FormLabel>
                           <FormControl>
-                            <Input
-                              type="tel"
+                            <InputMask
+                              className="input-style"
                               placeholder="Digite o telefone do responsável"
+                              mask="(99) 99999-9999"
+                              maskChar={null}
                               {...field}
                             />
                           </FormControl>
@@ -352,9 +380,11 @@ export default function FormSteps({
                         <FormItem>
                           <FormLabel>Telefone do paciente</FormLabel>
                           <FormControl>
-                            <Input
-                              type="tel"
+                            <InputMask
+                              className="input-style"
                               placeholder="Digite o telefone do paciente"
+                              mask="(99) 99999-9999"
+                              maskChar={null}
                               {...field}
                             />
                           </FormControl>
@@ -402,7 +432,7 @@ export default function FormSteps({
                       <FormLabel>Mais informações sobre o paciente</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Digite mais informações sobre o paciente"
+                          placeholder="Digite mais informações iniciais sobre o paciente"
                           className="resize-none"
                           {...field}
                         />
@@ -426,53 +456,52 @@ export default function FormSteps({
                 <FormField
                   control={form.control}
                   name="diseases_history"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Histórico de doenças</FormLabel>
+                  render={({ field }) => {
+                    const handleDiseaseChange = (value: string) => {
+                      const newSelectedDiseases = selectedDiseases.includes(value)
+                        ? selectedDiseases.filter((v) => v !== value)
+                        : [...selectedDiseases, value];
+                      setSelectedDiseases(newSelectedDiseases);
+                      field.onChange(newSelectedDiseases);
+                    };
 
-                      <Select
-                        onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
-                        defaultValue="none"
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o histórico de doenças" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="none">Nenhuma</SelectItem>
-                            <SelectItem value="depressao">Depressão</SelectItem>
-                            <SelectItem value="ansiedade">Ansiedade</SelectItem>
-                            <SelectItem value="transtorno_bipolar">
-                              Transtorno Bipolar
-                            </SelectItem>
+                    return (
+                      <FormItem>
+                        <FormLabel>Histórico de doenças</FormLabel>
 
-                            <SelectItem value="esquizofrenia">
-                              Esquizofrenia
-                            </SelectItem>
-
-                            <SelectItem value="toc">
-                              Transtorno Obsessivo-Compulsivo (TOC)
-                            </SelectItem>
-                            <SelectItem value="transtorno_estresse_pos_traumatico">
-                              Transtorno de Estresse Pós-Traumático (TEPT)
-                            </SelectItem>
-                            <SelectItem value="transtorno_personalidade">
-                              Transtorno de Personalidade
-                            </SelectItem>
-                            <SelectItem value="transtorno_alimentar">
-                              Transtorno Alimentar
-                            </SelectItem>
-                            <SelectItem value="transtorno_somatoforme">
-                              Transtorno Somatoforme
-                            </SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="w-full h-full bg-transparent justify-start hover:bg-orange-400/10 whitespace-normal gap-4 ">
+                              {selectedDiseases.length > 0
+                                ? (<p className="gap-y-3 items-center flex flex-wrap">
+                                  {selectedDiseases.map((disease) => (
+                                    <span className="mr-2 bg-orange-100 rounded-xl p-1 px-2 capitalize" key={disease}>{disease.replace(/_/g, ' ')}</span>
+                                  ))}
+                                </p>
+                                )
+                                : "Selecione o histórico de doenças"}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-56">
+                            <DropdownMenuLabel>Histórico de Doenças</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {diseasesList.map((disease) => (
+                              <DropdownMenuCheckboxItem
+                                key={disease.value}
+                                checked={selectedDiseases.includes(disease.value)}
+                                onCheckedChange={() => handleDiseaseChange(disease.value)}
+                              >
+                                {disease.label}
+                              </DropdownMenuCheckboxItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </FormItem>
+                    );
+                  }}
                 />
+
+
 
                 <FormField
                   control={form.control}

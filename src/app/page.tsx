@@ -25,7 +25,6 @@ export default function Home() {
           <h1 className="text-6xl text-orange-900 mb-4 font-cabinetGrotesk">Techrapy</h1>
           <p className="text-lg text-orange-800 mb-6">Sua plataforma de gestão de pacientes</p>
         </section>
-
       </main>
     </div>
   );

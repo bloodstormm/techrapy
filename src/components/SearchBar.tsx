@@ -14,7 +14,7 @@ const SearchBar = ({ search, setSearch, placeholder }: SearchPatientsProps) => {
   }
 
   return (
-    <form className="flex items-center bg-orange-700/10 border border-orange-700/20 w-full container
+    <form className="flex items-center bg-orange-700/10 border border-orange-700/20 w-1/2 container
      rounded-xl p-4 h-14 hover:shadow-md hover:shadow-orange-700/20 hover:focus-within:shadow-orange-700/20 hover:focus-within:shadow-xl
      focus-within:shadow-xl focus-within:shadow-orange-700/20 transition-all backdrop-blur-md duration-300" onSubmit={(e) => e.preventDefault()}>
       <input

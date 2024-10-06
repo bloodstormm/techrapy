@@ -21,6 +21,8 @@ import { toast } from 'sonner';
 import { Empty_Notes } from "../../../../public/images";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
+import ReadOnlyNote from "@/components/tiptap/ReadOnlyNote";
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const format = useFormatter();
@@ -144,7 +146,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                 diseases_history.split(",").map((disease, index) => (
                   <p
                     key={index}
-                    className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-300"
+                    className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
                   >
                     {disease.trim()}
                   </p>
@@ -201,21 +203,48 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
         </div>
         <Separator className="bg-orange-200" />
         <div className="flex flex-col">
-          <span className="text-orange-400">
-            Presença nas últimas 3 consultas
-          </span>
-          <div className="flex gap-2 items-center">
-            <CheckIcon className="w-4 h-4 text-green-500" />
-            <p className="text-sm text-gray-500">Presente - 20/05/2024</p>
-          </div>
-          <div className="flex gap-2 items-center">
-            <CheckIcon className="w-4 h-4 text-green-500" />
-            <p className="text-sm text-gray-500">Presente - 13/05/2024</p>
-          </div>
-          <div className="flex gap-2 items-center">
-            <XIcon className="w-4 h-4 text-red-500" />
-            <p className="text-sm text-gray-500">Não atendido - 06/05/2024</p>
-          </div>
+          {patientData.more_info_about_patient && (
+            <>
+              <Drawer>
+                <DrawerTrigger className="text-orange-400"><Button variant="ghost" className="w-full whitespace-normal h-full">Mais informações do paciente</Button></DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader className="container px-0 mx-auto">
+                    <DrawerTitle>Mais informações do paciente</DrawerTitle>
+                  </DrawerHeader>
+                  <DrawerDescription className="container mx-auto">
+                    <ReadOnlyNote content={patientData.more_info_about_patient} />
+                  </DrawerDescription>
+                  <DrawerFooter>
+                    <DrawerClose>
+                      <Button variant="outline">Fechar</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            </>
+          )}
+        </div>
+        <div className="flex flex-col">
+          {patientData.more_info_about_diseases && (
+            <>
+              <Drawer>
+                <DrawerTrigger className="text-orange-400"><Button variant="ghost" className="w-full whitespace-normal h-full">Mais informações sobre doenças do paciente</Button></DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader className="container px-0 mx-auto">
+                    <DrawerTitle>Mais informações sobre doenças do paciente</DrawerTitle>
+                  </DrawerHeader>
+                  <DrawerDescription className="container mx-auto">
+                    <ReadOnlyNote content={patientData.more_info_about_diseases} />
+                  </DrawerDescription>
+                  <DrawerFooter>
+                    <DrawerClose>
+                      <Button variant="outline">Fechar</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            </>
+          )}
         </div>
       </div>
       {/* Lado direito */}

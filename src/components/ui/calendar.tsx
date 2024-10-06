@@ -7,12 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { DayPicker, DropdownProps } from "react-day-picker"
+import { ptBR } from 'date-fns/locale' // Importar a localidade em português
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
   return (
     <DayPicker
+      locale={ptBR} // Definir a localidade para português
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
