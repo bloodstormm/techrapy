@@ -39,7 +39,6 @@ import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import React from "react";
 import { createPatient } from "@/services/patientService";
-import { toast } from "sonner";
 import { ptBR } from 'date-fns/locale' // Importar a localidade em português
 import InputMask from "react-input-mask"; // Importar o InputMask
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
@@ -52,8 +51,7 @@ type AnimatedTabsProps = {
 export default function FormSteps({
   patientType,
   containerClassName,
-  className = "", // Adicione um valor padrão se necessário
-}: AnimatedTabsProps & { className?: string }) {
+}: AnimatedTabsProps) {
   const tabs = [
     {
       title: "Tipo de Paciente",
@@ -73,6 +71,7 @@ export default function FormSteps({
   const [selectedTab, setSelectedTab] = useState(tabs[0].title);
 
   const diseasesList = [
+    { value: "none", label: "Nenhuma" },
     { value: "depressão", label: "Depressão" },
     { value: "ansiedade", label: "Ansiedade" },
     { value: "transtorno bipolar", label: "Transtorno Bipolar" },
@@ -82,6 +81,19 @@ export default function FormSteps({
     { value: "transtorno de personalidade", label: "Transtorno de Personalidade" },
     { value: "transtorno alimentar", label: "Transtorno Alimentar" },
     { value: "transtorno somatoforme", label: "Transtorno Somatoforme" },
+  ];
+
+  const familyDiseasesList = [
+    { value: "none", label: "Nenhuma" },
+    { value: "depressao", label: "Depressão" },
+    { value: "ansiedade", label: "Ansiedade" },
+    { value: "transtorno_bipolar", label: "Transtorno Bipolar" },
+    { value: "esquizofrenia", label: "Esquizofrenia" },
+    { value: "toc", label: "Transtorno Obsessivo-Compulsivo (TOC)" },
+    { value: "transtorno_estresse_pos_traumatico", label: "Transtorno de Estresse Pós-Traumático (TEPT)" },
+    { value: "transtorno_personalidade", label: "Transtorno de Personalidade" },
+    { value: "transtorno_alimentar", label: "Transtorno Alimentar" },
+    { value: "transtorno_somatoforme", label: "Transtorno Somatoforme" },
   ];
 
   const form = useForm({
@@ -149,8 +161,8 @@ export default function FormSteps({
             <TabsTrigger
               key={tab.title}
               value={tab.title}
-              className="w-full"
-              onClick={() => setSelectedTab(tab.title)}
+              className="w-full cursor-not-allowed" // Adiciona estilo para indicar que não é clicável
+              disabled // Supondo que o componente TabsTrigger suporte a propriedade disabled
             >
               {tab.title}
             </TabsTrigger>
@@ -163,18 +175,12 @@ export default function FormSteps({
             className="w-full"
           >
             <TabsContent value="Tipo de Paciente">
-              <div className="grid sm:grid-cols-2 gap-4 items-center rounded-xl p-6 mx-auto max-w-2xl">
+              <div className="flex gap-4 items-center rounded-xl p-6 mx-auto max-w-4xl">
                 <PatientTypeCard
                   src={Child}
                   alt="Criança"
                   type="child"
                   onClick={handlePatientTypeClick("Criança")}
-                />
-                <PatientTypeCard
-                  src={Adult}
-                  alt="Adulto"
-                  type="adult"
-                  onClick={handlePatientTypeClick("Adulto")}
                 />
                 <PatientTypeCard
                   src={Teens}
@@ -183,10 +189,10 @@ export default function FormSteps({
                   onClick={handlePatientTypeClick("Adolescente")}
                 />
                 <PatientTypeCard
-                  src={Couple}
-                  alt="Casal"
-                  type="couple"
-                  onClick={handlePatientTypeClick("Casal")}
+                  src={Adult}
+                  alt="Adulto"
+                  type="adult"
+                  onClick={handlePatientTypeClick("Adulto")}
                 />
               </div>
             </TabsContent>
@@ -457,10 +463,25 @@ export default function FormSteps({
                   control={form.control}
                   name="diseases_history"
                   render={({ field }) => {
+                    const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
+
                     const handleDiseaseChange = (value: string) => {
-                      const newSelectedDiseases = selectedDiseases.includes(value)
-                        ? selectedDiseases.filter((v) => v !== value)
-                        : [...selectedDiseases, value];
+                      let newSelectedDiseases: string[];
+
+                      if (value === "none") {
+                        // Se "Nenhuma" for selecionada, limpa todas as outras seleções
+                        newSelectedDiseases = ["none"];
+                      } else {
+                        if (selectedDiseases.includes("none")) {
+                          // Remove "Nenhuma" se outra doença for selecionada
+                          newSelectedDiseases = [value];
+                        } else {
+                          newSelectedDiseases = selectedDiseases.includes(value)
+                            ? selectedDiseases.filter((v) => v !== value)
+                            : [...selectedDiseases, value];
+                        }
+                      }
+
                       setSelectedDiseases(newSelectedDiseases);
                       field.onChange(newSelectedDiseases);
                     };
@@ -473,16 +494,21 @@ export default function FormSteps({
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="w-full h-full bg-transparent justify-start hover:bg-orange-400/10 whitespace-normal gap-4 ">
                               {selectedDiseases.length > 0
-                                ? (<p className="gap-y-3 items-center flex flex-wrap">
-                                  {selectedDiseases.map((disease) => (
-                                    <span className="mr-2 bg-orange-100 rounded-xl p-1 px-2 capitalize" key={disease}>{disease.replace(/_/g, ' ')}</span>
-                                  ))}
-                                </p>
+                                ? selectedDiseases.length === 1 && selectedDiseases[0] === "none"
+                                  ? "Nenhuma"
+                                  : (
+                                    <p className="gap-y-3 items-center flex flex-wrap">
+                                    {selectedDiseases.map((disease) => (
+                                      <span className="mr-2 bg-orange-100 rounded-xl p-1 px-2 capitalize" key={disease}>
+                                        {disease.replace(/_/g, ' ')}
+                                      </span>
+                                    ))}
+                                  </p>
                                 )
                                 : "Selecione o histórico de doenças"}
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-56">
+                          <DropdownMenuContent className="w-56 self-start">
                             <DropdownMenuLabel>Histórico de Doenças</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             {diseasesList.map((disease) => (
@@ -501,57 +527,72 @@ export default function FormSteps({
                   }}
                 />
 
-
-
                 <FormField
                   control={form.control}
                   name="family_diseases_history"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Histórico de doenças na familia</FormLabel>
+                  render={({ field }) => {
+                    const [selectedFamilyDiseases, setSelectedFamilyDiseases] = useState<string[]>([]);
 
-                      <Select
-                        onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
-                        defaultValue="none"
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o histórico de doenças" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="none">Nenhuma</SelectItem>
-                            <SelectItem value="depressao">Depressão</SelectItem>
-                            <SelectItem value="ansiedade">Ansiedade</SelectItem>
-                            <SelectItem value="transtorno_bipolar">
-                              Transtorno Bipolar
-                            </SelectItem>
+                    const handleFamilyDiseaseChange = (value: string) => {
+                      let newSelectedFamilyDiseases: string[];
 
-                            <SelectItem value="esquizofrenia">
-                              Esquizofrenia
-                            </SelectItem>
+                      if (value === "none") {
+                        // Se "Nenhuma" for selecionada, limpa todas as outras seleções
+                        newSelectedFamilyDiseases = ["none"];
+                      } else {
+                        if (selectedFamilyDiseases.includes("none")) {
+                          // Remove "Nenhuma" se outra doença for selecionada
+                          newSelectedFamilyDiseases = [value];
+                        } else {
+                          newSelectedFamilyDiseases = selectedFamilyDiseases.includes(value)
+                            ? selectedFamilyDiseases.filter((v) => v !== value)
+                            : [...selectedFamilyDiseases, value];
+                        }
+                      }
 
-                            <SelectItem value="toc">
-                              Transtorno Obsessivo-Compulsivo (TOC)
-                            </SelectItem>
-                            <SelectItem value="transtorno_estresse_pos_traumatico">
-                              Transtorno de Estresse Pós-Traumático (TEPT)
-                            </SelectItem>
-                            <SelectItem value="transtorno_personalidade">
-                              Transtorno de Personalidade
-                            </SelectItem>
-                            <SelectItem value="transtorno_alimentar">
-                              Transtorno Alimentar
-                            </SelectItem>
-                            <SelectItem value="transtorno_somatoforme">
-                              Transtorno Somatoforme
-                            </SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
+                      setSelectedFamilyDiseases(newSelectedFamilyDiseases);
+                      field.onChange(newSelectedFamilyDiseases);
+                    };
+
+                    return (
+                      <FormItem>
+                        <FormLabel>Histórico de doenças na família</FormLabel>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="w-full h-full bg-transparent justify-start hover:bg-orange-400/10 whitespace-normal gap-4">
+                              {selectedFamilyDiseases.length > 0
+                                ? selectedFamilyDiseases.length === 1 && selectedFamilyDiseases[0] === "none"
+                                  ? "Nenhuma"
+                                  : (
+                                    <p className="gap-y-3 items-center flex flex-wrap">
+                                      {selectedFamilyDiseases.map((disease) => (
+                                        <span className="mr-2 bg-orange-100 rounded-xl p-1 px-2 capitalize" key={disease}>
+                                          {disease.replace(/_/g, ' ')}
+                                        </span>
+                                      ))}
+                                    </p>
+                                  )
+                                : "Selecione o histórico de doenças na família"}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-56 self-start">
+                            <DropdownMenuLabel>Histórico de Doenças na Família</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {familyDiseasesList.map((disease) => (
+                              <DropdownMenuCheckboxItem
+                                key={disease.value}
+                                checked={selectedFamilyDiseases.includes(disease.value)}
+                                onCheckedChange={() => handleFamilyDiseaseChange(disease.value)}
+                              >
+                                {disease.label}
+                              </DropdownMenuCheckboxItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </FormItem>
+                    );
+                  }}
                 />
 
 

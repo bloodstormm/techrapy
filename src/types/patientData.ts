@@ -1,4 +1,5 @@
 export interface PatientData {
+    created_at: Date;
     patient_id: string;
     patient_name: string;
     patient_type: string;
@@ -14,3 +15,5 @@ export interface PatientData {
     more_info_about_patient?: string;
     more_info_about_diseases?: string;
 }
+
+export type NewPatientData = Omit<PatientData, "patient_id" | "created_at">;
