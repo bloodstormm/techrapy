@@ -54,6 +54,7 @@
     "tailwind-merge": "^2.5.2",
     "tailwind-variants": "^0.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "uuidv4": "^6.2.13",
     "vaul": "^0.9.9",
     "web": "^0.0.2",
     "zod": "^3.23.8"

@@ -66,15 +66,17 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     getPatientNotes();
   }, [params.patient_id]);
 
-  if (loading) return
-  <div className="flex justify-center items-center h-screen">
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-center items-center">
-        <div className="w-16 h-16 border-t-2 border-orange-400 border-solid rounded-full animate-spin"></div>
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-center items-center">
+          <div className="w-16 h-16 border-t-2 border-orange-900 border-solid rounded-full animate-spin"></div>
+        </div>
+        <p className="text-center text-orange-900 text-xl font-medium">Carregando dados do paciente...</p>
       </div>
-      <p className="text-center text-orange-400 text-xl font-medium">Carregando...</p>
     </div>
-  </div>
+  );
+
   if (error) return <>
     <div className="flex justify-center items-center h-screen">
       <p className="text-center text-orange-400 text-xl font-medium">Error: {error}</p>
@@ -90,6 +92,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     patient_name,
     patient_type,
     diseases_history,
+    family_diseases_history,
     session_day,
     birthdate,
     phone_number,
@@ -158,6 +161,27 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
               )}
             </div>
           </div>
+          {family_diseases_history && (
+            <div className="flex flex-col">
+              <span className=" text-orange-400">Histórico de doenças na família</span>
+              <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
+                {family_diseases_history ? (
+                  family_diseases_history.split(",").map((disease, index) => (
+                    <p
+                      key={index}
+                      className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
+                    >
+                      {disease.trim()}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    Não há histórico de doenças
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
           <div className="flex flex-col">
             <span className="text-orange-400">Dia da consulta</span>
             <p className="text-sm text-gray-500 capitalize">{session_day}</p>

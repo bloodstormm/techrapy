@@ -30,10 +30,10 @@ const MenuBar = ({ editor, content, isContentEmpty, isSaving }: MenuBarProps) =>
   }
   return (
     <div
-      className="px-4 py-3 h-16 border-b border-orange-700 flex justify-between items-center
-    gap-5 w-full flex-wrap"
+      className="px-4 py-3 h-full xl:h-20 border-b border-orange-700 xl:gap-5 flex justify-between items-center
+    gap-2 w-full flex-wrap"
     >
-      <div className="flex items-center gap-5 w-full lg:w-10/12 flex-wrap ">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -60,7 +60,7 @@ const MenuBar = ({ editor, content, isContentEmpty, isSaving }: MenuBarProps) =>
         >
           <Italic className="w-5 h-5" />
         </button>
-        
+
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -180,17 +180,8 @@ const MenuBar = ({ editor, content, isContentEmpty, isSaving }: MenuBarProps) =>
           <Redo className="w-5 h-5" />
         </button>
       </div>
-      
-      {!isContentEmpty && (
-				<Button
-        type="submit"
-        disabled={isSaving}
-        className="w-32"
-      >
-          {isSaving ? 'Salvando...' : 'Salvar'}
-        </Button>
-      )}
     </div>
+
   );
 };
 

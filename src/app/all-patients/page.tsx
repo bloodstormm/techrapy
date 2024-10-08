@@ -5,9 +5,13 @@ import PatientCard from "@/components/patientCard";
 import { PatientData } from "@/types/patientData";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import Image from "next/image";
 import { PatientProvider } from "@/contexts/PatientContext";
 import { deletePatientById } from "@/services/patientService";
 import SearchBar from "@/components/SearchBar";
+import { Empty_Notes, No_Patients, No_Results } from "../../../public/images";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const AllUsers = () => {
   const [patients, setPatients] = useState<PatientData[]>([]);
@@ -58,9 +62,13 @@ const AllUsers = () => {
     }
   }, [fetchPatients]);
 
-  const filteredPatients = patients.filter((item) => 
-    item.patient_name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredPatients = patients
+    .filter((item) =>
+      item.patient_name.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+  console.log(filteredPatients.length)
 
   return (
     <div className="flex flex-col items-center justify-center mt-16">
@@ -79,9 +87,24 @@ const AllUsers = () => {
               <PatientCard patientData={patient} onDeletePatient={handleDeletePatient} />
             </PatientProvider>
           ))
+        ) : filteredPatients.length === 0 && search.length > 0 ? (
+          <div className="col-span-full text-center text-gray-500 text-xl">
+            <Image src={No_Results} alt="No Results" className="w-64 h-64 mb-4 mt-8 mx-auto" />
+            <p className="text-orange-900 text-xl font-medium">
+              Nenhum paciente encontrado com o nome "{search}".
+            </p>
+          </div>
         ) : (
           <div className="col-span-full text-center text-gray-500 text-xl">
-            Nenhum paciente encontrado com o nome "{search}".
+            <Image src={No_Patients} alt="No Results" className="w-80 h-80 mb-4 mt-8 mx-auto" />
+            <p className="text-orange-900 text-xl font-medium">
+              Nenhum paciente cadastrado.
+            </p>
+            <Link href="/add-patient">
+              <Button className="mt-4">
+                Adicionar um novo paciente
+              </Button>
+            </Link>
           </div>
         )}
       </div>

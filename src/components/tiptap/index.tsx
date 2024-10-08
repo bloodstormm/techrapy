@@ -54,7 +54,7 @@ export default ({ content = "", onChange, isSaving }: EditorProps & { isSaving: 
   };
 
   return (
-    <div className="w-full mt-2 editor border border-orange-700 rounded-xl bg-white/20 focus:outline-none h-full mb-32">
+    <div className="w-full mt-2 editor border border-orange-700 rounded-xl bg-orange-100 dark:bg-gray-950 focus:outline-none h-full">
       {editor && <MenuBar editor={editor} content={currentContent} isContentEmpty={isContentEmpty(currentContent)} isSaving={isSaving} />}
       <EditorContent editor={editor} />
     </div>
