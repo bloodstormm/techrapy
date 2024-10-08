@@ -44,9 +44,6 @@ const PatientNoteItem = ({ note, onDelete, search }: { note: PatientNote, onDele
                 <Cog6ToothIcon className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  Editar
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
                   onDelete(note.note_id);
                 }}>
@@ -67,7 +64,7 @@ const PatientNoteItem = ({ note, onDelete, search }: { note: PatientNote, onDele
         </div>
         {!openNotes[note.note_id] && (
           <div>
-            <ReadOnlyNote content={highlightText(`${note.note.substring(0, 70)}...`, search)} />
+            <ReadOnlyNote className="note-preview" content={highlightText(note.note, search)} />
           </div>
         )}
         <CollapsibleContent>

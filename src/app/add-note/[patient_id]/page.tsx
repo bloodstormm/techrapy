@@ -1,12 +1,11 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { navigate } from './actions';
 import Link from 'next/link';
 import { ArrowTopLeftIcon } from '@radix-ui/react-icons';
 import TipTap from '@/components/tiptap/';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabaseClient'; // Certifique-se de que o cliente do Supabase está configurado
 import { v4 as uuidv4 } from 'uuid';
@@ -16,7 +15,6 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 	const [isSaving, setIsSaving] = useState(false);
 	const [file, setFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
-	const [fileURL, setFileURL] = useState("");
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,8 +28,8 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 		}
 	};
 
-	const uploadImage = async (imageId: string): Promise<boolean> => {
-		if (!file) return false; // Retorna false se não houver arquivo
+	const uploadImage = async (imageId: string): Promise<string | null> => {
+		if (!file) return null; // Retorna null se não houver arquivo
 
 		setIsUploading(true);
 		const fileName = `img-${imageId}`;
@@ -42,7 +40,7 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 		if (error) {
 			setIsUploading(false);
 			toast.error('Erro ao fazer upload da imagem.');
-			return false; // Retorna false em caso de erro
+			return null; // Retorna null em caso de erro
 		}
 
 		// Obter a URL pública da imagem
@@ -52,33 +50,9 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 
 		console.log('Public URL:', data?.publicUrl);
 
-		if (data) {
-			setFileURL(data.publicUrl);
-		}
-
 		setIsUploading(false);
-		return true; // Retorna true se o upload for bem-sucedido
+		return data?.publicUrl || null; // Retorna a URL pública ou null
 	};
-
-	
-
-	useEffect(() => {
-		if (fileURL) {
-			const saveNote = async () => {
-				const success = await navigate(note, params.patient_id, fileURL);
-				setIsSaving(false);
-
-				if (success) {
-					localStorage.setItem('successMessage', 'Nota e imagem adicionadas com sucesso!');
-					window.location.href = `/patient-notes/${params.patient_id}`;
-				} else {
-					toast.error('Erro ao adicionar a nota.');
-				}
-			};
-
-			saveNote();
-		}
-	}, [fileURL]); // Executa quando fileURL muda
 
 	const isContentEmpty = (content: string) => {
 		const trimmedContent = content.trim();
@@ -96,19 +70,22 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 			return;
 		}
 
-		let imageUploadSuccess = true;
+		let uploadedFileURL: string | null = null;
+
 		if (file) {
-			imageUploadSuccess = await uploadImage(uuidv4());
+			uploadedFileURL = await uploadImage(uuidv4());
+			if (!uploadedFileURL) {
+				setIsSaving(false);
+				toast.error('Erro ao fazer upload da imagem.');
+				return;
+			}
+		} else {
+			// Se não houver arquivo, defina uploadedFileURL como uma string vazia
+			uploadedFileURL = '';
 		}
 
-		if (!imageUploadSuccess) {
-			setIsSaving(false);
-			toast.error('Erro ao fazer upload da imagem.');
-			return;
-		}
-
-		// Continua com o salvamento da nota mesmo sem imagem
-		const success = await navigate(note, params.patient_id, fileURL);
+		// Salvar a nota
+		const success = await navigate(note, params.patient_id, uploadedFileURL);
 		setIsSaving(false);
 
 		if (success) {
@@ -150,7 +127,6 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 					{isSaving || isUploading ? 'Salvando...' : 'Salvar'}
 				</Button>
 			</div>
-
 		</form>
 	);
 };

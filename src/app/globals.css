@@ -110,7 +110,7 @@
 }
 
 .ProseMirror {
-  @apply pt-4 pb-2 bg-transparent;
+  @apply pt-4 bg-transparent;
 }
 
 .ProseMirror:focus {
@@ -182,9 +182,24 @@
 }
 
 .ProseMirror mark {
-  @apply bg-orange-400/40 text-[#071F1D] rounded-md;
+  @apply bg-orange-400/40 text-[#071F1D] rounded-md p-0;
 }
 
 .input-style {
   @apply flex h-10 w-full rounded-xl border border-input bg-orange-100 dark:bg-gray-950 px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Adicione este estilo no componente ReadOnlyNote ou onde for apropriado */
+.note-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limita a 2 linhas */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+mark {
+  background-color: yellow;
+  padding: 0.2em;
+  border-radius: 0.2em;
 }

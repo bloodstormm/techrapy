@@ -15,6 +15,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
   return (
     <DayPicker
       locale={ptBR} // Definir a localidade para português
+      disabled={[{ after: new Date() }]}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{

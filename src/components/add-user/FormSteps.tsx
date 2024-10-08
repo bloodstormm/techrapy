@@ -42,6 +42,7 @@ import { createPatient } from "@/services/patientService";
 import { ptBR } from 'date-fns/locale' // Importar a localidade em português
 import InputMask from "react-input-mask"; // Importar o InputMask
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { toast } from "sonner";
 
 
 type AnimatedTabsProps = {
@@ -68,6 +69,7 @@ export default function FormSteps({
   ];
   const [date, setDate] = React.useState<Date>()
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [selectedPatientType, setSelectedPatientType] =
     useState<string>(patientType);
@@ -159,19 +161,32 @@ export default function FormSteps({
     form.setValue("family_diseases_history", newSelectedFamilyDiseases.join(","));
   };
 
-  function onSubmit() {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    const patientData = form.getValues();
-    patientData.birthdate = date!;
-    patientData.patient_type = selectedPatientType;
-    patientData.diseases_history = selectedDiseases.join(",");
-    patientData.family_diseases_history = selectedFamilyDiseases.join(",");
-    console.log(patientData)
-    createPatient(patientData);
-    localStorage.setItem('successMessage', 'Paciente criado com sucesso');
-    window.location.href = "/all-patients";
-  }
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    try {
+      // Obter os valores do formulário
+      const patientData = form.getValues();
+      patientData.birthdate = date!;
+      patientData.patient_type = selectedPatientType;
+      patientData.diseases_history = selectedDiseases.join(",");
+      patientData.family_diseases_history = selectedFamilyDiseases.join(",");
+      console.log(patientData);
+
+      // Chamar a função para criar o paciente e aguardar sua conclusão
+      const data = await createPatient(patientData);
+
+      // Definir a mensagem de sucesso e redirecionar
+      localStorage.setItem('successMessage', 'Paciente criado com sucesso');
+      window.location.href = "/all-patients";
+    } catch (error: any) {
+      // Tratar erros durante a criação do paciente
+      toast.error(`Erro ao criar paciente: ${error.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleNext = (type?: string) => {
     if (type) {
@@ -221,7 +236,7 @@ export default function FormSteps({
         <Form {...form}>
           <form
             id="patientForm"
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={onSubmit}
             className="w-full"
           >
             <TabsContent value="Tipo de Paciente">

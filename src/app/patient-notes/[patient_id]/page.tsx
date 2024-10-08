@@ -102,13 +102,6 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     guardian_name,
   } = patientData;
 
-  const formatDate = (date: Date) =>
-    format.dateTime(date, {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-
   const handleDeleteNote = async (noteId: string) => {
     try {
       await deleteNoteById(noteId);
@@ -126,7 +119,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   return (
     <div className="container mx-auto flex lg:flex-row flex-col gap-10 mt-10 mb-32">
       {/* Lado esquerdo */}
-      <div className="flex relative flex-col h-fit bg-white p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
+      <div className="flex relative flex-col h-fit bg-orange-50 p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
         <Link
           href="/all-patients"
           className="flex items-center gap-1 hover:gap-3 transition-all"
@@ -225,8 +218,8 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
             <p className="text-sm text-gray-500 capitalize">{payment_type}</p>
           </div>
         </div>
-        <Separator className="bg-orange-200" />
         <div className="flex flex-col">
+          <Separator className="bg-orange-200 mb-4" />
           {patientData.more_info_about_patient && (
             <>
               <Drawer>
@@ -273,10 +266,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
       </div>
       {/* Lado direito */}
       <div className="flex flex-col w-full">
-        <p className="text-orange-400 text-xl font-medium mb-6">Sessões do paciente</p>
         <div className="flex flex-col gap-6">
-
-
           <div className="flex flex-col gap-8 w-full overflow-y-auto hide-scrollbar">
             <Tabs defaultValue="notes" className="w-full">
               <div className="flex justify-between items-center mb-6">
@@ -293,10 +283,10 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
               </div>
               {patientNotes.length === 0 ? (
                 <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
-                  <div className="flex flex-col mt-20 w-full justify-center items-center overflow-y-auto hide-scrollbar">
+                  <div className="flex bg-orange-100 p-20 rounded-3xl flex-col w-full justify-center items-center overflow-y-auto hide-scrollbar">
                     <Image src={Empty_Notes} alt="Empty Notes" className="w-72 h-72" />
                     <h2 className="text-foreground text-xl mt-4 font-medium">Nenhuma nota adicionada</h2>
-                    <p className="text-foreground text-sm mt-2 font-normal">Adicione uma nota clicando no botão acima para começar a registrar os dados da sessão</p>
+                    <p className="text-foreground text-sm font-normal">Adicione uma nota clicando no botão acima para começar a registrar os dados da sessão</p>
                   </div>
                 </TabsContent>
               ) : (

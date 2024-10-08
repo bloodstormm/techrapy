@@ -8,6 +8,7 @@ import Notes_Example2 from "./notes_example2.jpg"
 import Empty_Notes from "./empty-notes.svg"
 import No_Results from "./no-result.svg"
 import No_Patients from "./no-patients.svg"
+import No_Session from "./no-session.svg"
 
 export {
   Adult,
@@ -20,4 +21,5 @@ export {
   Empty_Notes,
   No_Results,
   No_Patients,
+  No_Session,
 };

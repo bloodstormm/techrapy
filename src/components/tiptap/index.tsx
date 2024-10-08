@@ -38,7 +38,7 @@ export default ({ content = "", onChange, isSaving }: EditorProps & { isSaving: 
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl focus:outline-none px-4 min-h-72',
+        class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl focus:outline-none px-4 min-h-72 pb-6',
       },
     },
     onUpdate: ({ editor, transaction }) => {

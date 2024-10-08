@@ -52,13 +52,37 @@ export const fetchPatientNotesCount = async (patient_id: string): Promise<number
 }
 
 export const deleteNoteById = async (note_id: string) => {
-  const { error } = await supabase
+  // Buscar a nota para obter a URL da imagem
+  const { data: noteData, error: fetchError } = await supabase
+    .from("patient_notes")
+    .select("image_url")
+    .eq("note_id", note_id)
+    .single();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  // Se a nota tiver uma imagem, deletar a imagem do bucket
+  if (noteData?.image_url) {
+    const imagePath = noteData.image_url.split('/').pop(); // Extrair o nome do arquivo da URL
+    const { error: deleteImageError } = await supabase.storage
+      .from("notes-images")
+      .remove([imagePath]);
+
+    if (deleteImageError) {
+      throw new Error(deleteImageError.message);
+    }
+  }
+
+  // Deletar a nota
+  const { error: deleteNoteError } = await supabase
     .from("patient_notes")
     .delete()
     .eq("note_id", note_id);
 
-  if (error) {
-    throw new Error(error.message);
+  if (deleteNoteError) {
+    throw new Error(deleteNoteError.message);
   }
 }
 
