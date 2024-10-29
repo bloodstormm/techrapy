@@ -119,7 +119,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   return (
     <div className="container mx-auto flex lg:flex-row flex-col gap-10 mt-10 mb-32">
       {/* Lado esquerdo */}
-      <div className="flex relative flex-col h-fit bg-orange-50 p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
+      <div className="flex relative flex-col h-fit bg-[#FCF6F7] p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
         <Link
           href="/all-patients"
           className="flex items-center gap-1 hover:gap-3 transition-all"
