@@ -1,11 +1,12 @@
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Manrope } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { Toaster } from "sonner";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
+import { Providers } from "./providers";
 
 // Adicione sua nova fonte aqui
 const cabinetGrotesk = localFont({
@@ -33,18 +34,20 @@ export default async function RootLayout({
         className={`${cabinetGrotesk.variable} ${manrope.variable} font-manrope`}
         suppressHydrationWarning={true}
       >
-        <NextIntlClientProvider>
-          <ThemeProvider
+        <Providers>
+          <NextIntlClientProvider>
+            <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
             <Toaster position="top-right" closeButton />
-            <Navbar />
+            <ConditionalNavbar />
             {children}
-          </ThemeProvider>
-        </NextIntlClientProvider>
+            </ThemeProvider>
+          </NextIntlClientProvider>
+        </Providers>
       </body>
     </html>
   );

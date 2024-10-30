@@ -9,6 +9,9 @@ import Empty_Notes from "./empty-notes.svg"
 import No_Results from "./no-result.svg"
 import No_Patients from "./no-patients.svg"
 import No_Session from "./no-session.svg"
+import Login_Image from "./login-image.webp"
+import Register_Image from "./register-image.webp"
+import NotFoundImage from "./404-image.svg"
 
 export {
   Adult,
@@ -22,4 +25,7 @@ export {
   No_Results,
   No_Patients,
   No_Session,
+  Login_Image,
+  Register_Image,
+  NotFoundImage,
 };

@@ -5,9 +5,15 @@ const withNextIntl = createNextIntlPlugin();
  
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['daksieipotgpcyeoulhh.supabase.co'], // Adicione o domínio do Supabase aqui
-  },
+    images: {
+        domains: ['daksieipotgpcyeoulhh.supabase.co'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**',
+            },
+        ],
+    },
 };
  
 export default withNextIntl(nextConfig);

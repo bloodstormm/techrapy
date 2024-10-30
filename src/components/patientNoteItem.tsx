@@ -117,6 +117,8 @@ const NoteContent = ({
           alt="session"
           width={1000}
           height={1000}
+          placeholder="blur"
+          blurDataURL={note.image_url}
           className="mt-8 border border-stroke rounded-xl"
         />
       )}
