@@ -14,6 +14,7 @@ export interface PatientData {
     guardian_phone_number?: string;
     more_info_about_patient?: string;
     more_info_about_diseases?: string;
+    therapist_owner?: string;
 }
 
 export type NewPatientData = Omit<PatientData, "patient_id" | "created_at">;

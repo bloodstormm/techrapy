@@ -7,6 +7,7 @@ import { getLocale } from "next-intl/server";
 import { Toaster } from "sonner";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import { Providers } from "./providers";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 // Adicione sua nova fonte aqui
 const cabinetGrotesk = localFont({
@@ -27,6 +28,7 @@ export default async function RootLayout({
 }>) {
 
   const locale = await getLocale();
+  const supabase = createClientComponentClient()
 
   return (
     <html lang={locale} suppressHydrationWarning={true}>

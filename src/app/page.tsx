@@ -98,7 +98,10 @@ const Home = () => {
                     <h1 className="text-6xl text-orange-900 dark:text-orange-500 mb-4 font-cabinetGrotesk">Techrapy</h1>
                     
                     <p className="text-md text-gray-700 dark:text-white">
-                        Bem-vindo, {user.full_name || 'Terapeuta'}! O que deseja fazer hoje?
+                        Bem-vindo, {(user.full_name?.split(' ')[0]) || 'Terapeuta'}! O que deseja fazer hoje?
+                    </p>
+                    <p className="text-md mt-8 p-4 bg-orange-100 dark:bg-gray-800 rounded-2xl font-bold text-gray-500 dark:text-white">
+                        seu ID é {user.id}
                     </p>
                     <div className="flex justify-center mt-8 gap-4">
                         <Button>

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import PatientCard from "@/components/patientCard";
 import { PatientData } from "@/types/patientData";
-import { supabase } from "@/lib/supabaseClient";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { toast } from "sonner";
 import Image from "next/image";
 import { PatientProvider } from "@/contexts/PatientContext";
@@ -17,6 +17,20 @@ const AllUsers = () => {
   const [patients, setPatients] = useState<PatientData[]>([]);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [therapistId, setTherapistId] = useState<string | null>(null);
+  const supabase = createClientComponentClient();
+
+  // Obter o ID do terapeuta autenticado
+  useEffect(() => {
+    const getTherapistId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setTherapistId(user.id);
+      }
+    };
+
+    getTherapistId();
+  }, [supabase.auth]);
 
   useEffect(() => {
     const successMessage = localStorage.getItem('successMessage');
@@ -26,27 +40,34 @@ const AllUsers = () => {
         localStorage.removeItem('successMessage');
       }, 200);
 
-      // Limpeza do timer para evitar vazamentos de memória
       return () => clearTimeout(timer);
     }
   }, []);
 
   const fetchPatients = useCallback(async () => {
+    if (!therapistId) return; // Não buscar pacientes se não houver ID do terapeuta
+
     setIsLoading(true);
-    const { data, error } = await supabase
-      .from('patients')
-      .select('*');
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('therapist_owner', therapistId); // Filtrar por therapist_owner
 
-    if (error) {
-      console.error('Error fetching patients:', error);
+      if (error) {
+        console.error('Error fetching patients:', error);
+        toast.error('Erro ao carregar pacientes');
+        return;
+      }
+
+      setPatients(data as PatientData[]);
+    } catch (error) {
+      console.error('Error:', error);
       toast.error('Erro ao carregar pacientes');
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    setPatients(data as PatientData[]);
-    setIsLoading(false);
-  }, []);
+  }, [therapistId, supabase]);
 
   useEffect(() => {
     fetchPatients();
@@ -68,7 +89,19 @@ const AllUsers = () => {
     )
     .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
-  console.log(filteredPatients.length)
+  // Adicionar verificação de carregamento inicial
+  if (!therapistId) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-center items-center">
+            <div className="w-16 h-16 border-t-2 border-orange-900 border-solid rounded-full animate-spin"></div>
+          </div>
+          <p className="text-center text-orange-900 text-xl font-medium">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center mt-16">

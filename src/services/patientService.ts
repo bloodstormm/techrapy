@@ -2,34 +2,58 @@ import { supabase } from "@/lib/supabaseClient";
 import { PatientNote } from "@/types/patientNotes";
 import { PatientData } from "@/types/patientData";
 import { toast } from "sonner";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-export const fetchPatientById = async (patient_id: string) => {
+export const fetchPatientById = async (patientId: string) => {
+  const supabase = createClientComponentClient();
+  
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  // Buscar paciente verificando a propriedade
   const { data, error } = await supabase
-    .from("patients")
-    .select("*")
-    .eq("patient_id", patient_id)
+    .from('patients')
+    .select('*')
+    .eq('patient_id', patientId)
+    .eq('therapist_owner', user.id)
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error('Erro ao buscar paciente');
+  }
+
+  if (!data) {
+    throw new Error('Paciente não encontrado ou você não tem permissão para acessá-lo');
   }
 
   return data;
-}
+};
 
-export const fetchPatientNotes = async (patient_id: string) => {
+export const fetchPatientNotes = async (patientId: string) => {
+  const supabase = createClientComponentClient();
+  
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  // Buscar notas verificando a propriedade
   const { data, error } = await supabase
-    .from("patient_notes")
-    .select("*")
-    .eq("patient_id", patient_id)
-    .order("note_date", { ascending: false });
+    .from('patient_notes')
+    .select('*')
+    .eq('patient_id', patientId)
+    .eq('therapist_id', user.id);
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error('Erro ao buscar notas do paciente');
   }
 
   return data;
-}
+};
 
 export const fetchLastNote = async (patient_id: string): Promise<PatientNote | null> => {
   const { data, error } = await supabase
@@ -86,28 +110,58 @@ export const deleteNoteById = async (note_id: string) => {
   }
 }
 
-export const createPatient = async (patientData: Omit<PatientData, 'patient_id' | 'created_at'>) => {
+export const createPatient = async (patientData: any) => {
+  const supabase = createClientComponentClient()
+  
   const { data, error } = await supabase
     .from("patients")
-    .insert(patientData);
+    .insert([
+      {
+        patient_name: patientData.patient_name,
+        birthdate: patientData.birthdate,
+        marital_status: patientData.marital_status,
+        session_day: patientData.session_day,
+        guardian_name: patientData.guardian_name,
+        patient_type: patientData.patient_type,
+        payment_type: patientData.payment_type,
+        guardian_phone_number: patientData.guardian_phone_number,
+        phone_number: patientData.phone_number,
+        more_info_about_patient: patientData.more_info_about_patient,
+        more_info_about_diseases: patientData.more_info_about_diseases,
+        family_diseases_history: patientData.family_diseases_history,
+        diseases_history: patientData.diseases_history,
+        therapist_owner: patientData.therapist_owner,
+      },
+    ]);
 
   if (error) {
+    console.error("Erro ao criar paciente:", error); // Log para debug
     throw new Error(error.message);
   }
 
   return data;
 };
 
-export const deletePatientById = async (patient_id: string) => {
+export const deletePatientById = async (patientId: string) => {
+  const supabase = createClientComponentClient()
+  
+  // Obter o ID do terapeuta atual
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('Usuário não autenticado')
+  }
+
   const { error } = await supabase
-    .from("patients")
+    .from('patients')
     .delete()
-    .eq("patient_id", patient_id);
+    .eq('patient_id', patientId)
+    .eq('therapist_owner', user.id) // Garantir que apenas o terapeuta dono possa deletar
 
   if (error) {
-    throw new Error(error.message);
+    console.error('Erro ao deletar paciente:', error)
+    throw new Error(error.message)
   }
-};
+}
 
 export const fetchPatients = async (): Promise<PatientData[]> => {
     const { data, error } = await supabase

@@ -12,7 +12,13 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 const Register = () => {
-    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<TherapistData & { confirm_password: string }>();
+    const { 
+        register, 
+        handleSubmit, 
+        formState: { errors }, 
+        reset, 
+        watch 
+    } = useForm<TherapistData & { confirm_password: string }>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
 
@@ -21,19 +27,27 @@ const Register = () => {
             toast.error("As senhas não coincidem");
             return;
         }
+
+        if (data.therapist_password.length < 6) {
+            toast.error("A senha deve ter pelo menos 6 caracteres");
+            return;
+        }
  
         setIsSubmitting(true);
         try {
             await createTherapist({
                 therapist_name: data.therapist_name,
                 therapist_email: data.therapist_email,
-                therapist_password: data.therapist_password, // Você pode manter ou remover esta linha
+                therapist_password: data.therapist_password,
             });
-            toast.success("Terapeuta criado com sucesso!");
+
+            toast.success("Conta criada com sucesso! Por favor, faça login.");
             reset();
             router.push("/login");
         } catch (error: any) {
-            toast.error(`Erro ao criar terapeuta: ${error.message}`);
+            console.error("Erro detalhado:", error);
+            const errorMessage = error.message || "Erro ao criar conta";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

@@ -1,7 +1,7 @@
 // @NOTE: in case you are using Next.js
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -43,6 +43,7 @@ import { ptBR } from 'date-fns/locale' // Importar a localidade em português
 import InputMask from "react-input-mask"; // Importar o InputMask
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { toast } from "sonner";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 
 type AnimatedTabsProps = {
@@ -116,6 +117,7 @@ export default function FormSteps({
       more_info_about_diseases: "",
       family_diseases_history: "",
       diseases_history: "",
+      therapist_owner: "",
     },
   });
 
@@ -161,18 +163,41 @@ export default function FormSteps({
     form.setValue("family_diseases_history", newSelectedFamilyDiseases.join(","));
   };
 
+  const [therapistId, setTherapistId] = useState<string | null>(null);
+  const supabase = createClientComponentClient();
+
+  // Buscar o ID do terapeuta quando o componente montar
+  useEffect(() => {
+    const getTherapistId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setTherapistId(user.id);
+        console.log("Terapeuta ID:", user.id); // Debug
+      }
+    };
+
+    getTherapistId();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
 
     try {
+      // Verificar se o ID do terapeuta está disponível
+      if (!therapistId) {
+        toast.error("Erro: Terapeuta não autenticado. Por favor, faça login novamente.");
+        return;
+      }
+
       // Obter os valores do formulário
       const patientData = form.getValues();
       patientData.birthdate = date!;
       patientData.patient_type = selectedPatientType;
       patientData.diseases_history = selectedDiseases.join(",");
       patientData.family_diseases_history = selectedFamilyDiseases.join(",");
-      console.log(patientData);
+      patientData.therapist_owner = therapistId;
+      console.log("Patient Data:", patientData); // Log para debug
 
       // Chamar a função para criar o paciente e aguardar sua conclusão
       const data = await createPatient(patientData);
@@ -181,7 +206,7 @@ export default function FormSteps({
       localStorage.setItem('successMessage', 'Paciente criado com sucesso');
       window.location.href = "/all-patients";
     } catch (error: any) {
-      // Tratar erros durante a criação do paciente
+      console.error("Erro completo:", error); // Log para debug
       toast.error(`Erro ao criar paciente: ${error.message}`);
     } finally {
       setIsSaving(false);

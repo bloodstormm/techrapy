@@ -13,13 +13,13 @@ export async function POST(req: Request) {
             );
         }
 
-        // Criar usuário no Supabase Auth com os metadados
+        // Criar usuário no Supabase Auth
         const { data: user, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: therapist_email,
             password: therapist_password,
-            email_confirm: true,
+            email_confirm: true, // Isso faz com que o email já seja confirmado automaticamente
             user_metadata: {
-                full_name: therapist_name // Adiciona o nome aos metadados
+                full_name: therapist_name
             }
         });
 
@@ -30,30 +30,64 @@ export async function POST(req: Request) {
             );
         }
 
-        // Inserir dados adicionais na tabela 'therapists'
-        const { data, error } = await supabaseAdmin
+        // Inserir dados na tabela 'therapists'
+        const { error: profileError } = await supabaseAdmin
             .from('therapists')
             .insert([
                 {
-                    therapist_id: user.user.id, // Atribuir o ID gerado pelo Supabase Auth
+                    therapist_id: user.user.id,
                     therapist_name,
                     therapist_email,
-                },
+                }
             ]);
 
-        if (error) {
-            // Opcional: Deletar o usuário caso a inserção na tabela falhe
+        if (profileError) {
+            // Se houver erro na inserção, deletar o usuário criado
             await supabaseAdmin.auth.admin.deleteUser(user.user.id);
             return NextResponse.json(
-                { error: error.message },
+                { error: profileError.message },
                 { status: 500 }
             );
         }
 
-        return NextResponse.json(
-            { message: 'Terapeuta criado com sucesso', data },
+        // Fazer login automático após o registro
+        const { data: sessionData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+            email: therapist_email,
+            password: therapist_password,
+        });
+
+        if (signInError) {
+            return NextResponse.json(
+                { error: signInError.message },
+                { status: 400 }
+            );
+        }
+
+        const response = NextResponse.json(
+            { message: 'Terapeuta criado com sucesso', user: user.user },
             { status: 201 }
         );
+
+        // Definir cookies de autenticação
+        if (sessionData.session) {
+            response.cookies.set('sb-access-token', sessionData.session.access_token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                path: '/',
+                sameSite: 'strict',
+                maxAge: 60 * 60, // 1 hora
+            });
+
+            response.cookies.set('sb-refresh-token', sessionData.session.refresh_token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                path: '/',
+                sameSite: 'strict',
+                maxAge: 60 * 60 * 24 * 30, // 30 dias
+            });
+        }
+
+        return response;
     } catch (err: any) {
         console.error('Erro na criação do terapeuta:', err);
         return NextResponse.json(

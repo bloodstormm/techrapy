@@ -23,15 +23,19 @@ import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import ReadOnlyNote from "@/components/tiptap/ReadOnlyNote";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation';
 
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const format = useFormatter();
+  const router = useRouter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
   const [search, setSearch] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const successMessage = localStorage.getItem('successMessage');
@@ -41,30 +45,61 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     }
   }, []);
 
-  // Pegar dados do paciente
+  // Verificar autenticação e propriedade do paciente
   useEffect(() => {
-    const getPatientData = async () => {
+    const checkAuthAndOwnership = async () => {
       try {
-        const data = await fetchPatientById(params.patient_id);
-        setPatientData(data);
+        // Verificar se o usuário está autenticado
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast.error("Você precisa estar autenticado para acessar esta página");
+          router.push('/login');
+          return;
+        }
+
+        // Buscar o paciente e verificar se pertence ao terapeuta
+        const { data: patient, error: patientError } = await supabase
+          .from('patients')
+          .select('*')
+          .eq('patient_id', params.patient_id)
+          .eq('therapist_owner', user.id)
+          .single();
+
+        if (patientError || !patient) {
+          toast.error("Você não tem permissão para acessar as notas deste paciente");
+          router.push('/all-patients');
+          return;
+        }
+
+        setPatientData(patient);
+
+        // Buscar as notas do paciente (já garantido que pertence ao terapeuta)
+        const { data: notes, error: notesError } = await supabase
+          .from('patient_notes')
+          .select(`
+            *,
+            patients!inner (
+              therapist_owner
+            )
+          `)
+          .eq('patient_id', params.patient_id)
+          .eq('patients.therapist_owner', user.id);
+
+        if (notesError) {
+          throw notesError;
+        }
+
+        setPatientNotes(notes);
       } catch (err) {
-        setError(err as string);
+        console.error('Erro ao verificar autorização:', err);
+        setError('Erro ao carregar dados do paciente');
       } finally {
         setLoading(false);
       }
     };
 
-    getPatientData();
-  }, [params.patient_id, patientNotes]);
-
-  // Pegar todas as notas do paciente
-  useEffect(() => {
-    const getPatientNotes = async () => {
-      const data = await fetchPatientNotes(params.patient_id);
-      setPatientNotes(data);
-    }
-    getPatientNotes();
-  }, [params.patient_id]);
+    checkAuthAndOwnership();
+  }, [params.patient_id, router, supabase]);
 
   if (loading) return (
     <div className="flex justify-center items-center h-screen">
@@ -104,7 +139,25 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
 
   const handleDeleteNote = async (noteId: string) => {
     try {
-      await deleteNoteById(noteId);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Você precisa estar autenticado para realizar esta ação');
+        return;
+      }
+
+      // Deletar nota apenas se o paciente pertencer ao terapeuta
+      const { error } = await supabase
+        .from('patient_notes')
+        .delete()
+        .eq('note_id', noteId)
+        .eq('patient_id', params.patient_id) // Garante que a nota é deste paciente
+        .not('patients.therapist_owner', 'is', null) // Garante que existe um terapeuta vinculado
+        .eq('patients.therapist_owner', user.id); // Garante que o terapeuta é o dono
+
+      if (error) {
+        throw error;
+      }
+
       setPatientNotes((prevNotes) => prevNotes.filter(note => note.note_id !== noteId));
       toast.success('Nota excluída com sucesso');
     } catch (err) {
