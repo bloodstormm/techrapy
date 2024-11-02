@@ -15,6 +15,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 interface LoginData {
     therapist_email: string;
     therapist_password: string;
+    remember_me: boolean;
 }
 
 const Login = () => {
@@ -22,7 +23,11 @@ const Login = () => {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginData>();
+    } = useForm<LoginData>({
+        defaultValues: {
+            remember_me: false,
+        },
+    });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
@@ -145,7 +150,7 @@ const Login = () => {
                                     htmlFor="remember"
                                     className="text-gray-900 dark:text-white text-sm mb-2 flex items-center"
                                 >
-                                    <Checkbox id="remember" className="mr-2" />
+                                    <Checkbox id="remember" className="mr-2" {...register("remember_me")} />
                                     Lembrar de mim
                                 </label>
                                 <Link

@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function POST(req: Request) {
     try {
-        const { therapist_email, therapist_password } = await req.json();
+        const { therapist_email, therapist_password, remember_me } = await req.json();
 
         if (!therapist_email || !therapist_password) {
             return NextResponse.json(
@@ -35,21 +35,25 @@ export async function POST(req: Request) {
             { status: 200 }
         );
 
-        response.cookies.set('sb-access-token', data.session.access_token, {
+        // Definir os parâmetros de expiração com base no "remember_me"
+        const accessTokenOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             path: '/',
-            sameSite: 'strict',
-            maxAge: 60 * 60, // 1 hora
-        });
+            sameSite: 'strict' as const,
+            maxAge: remember_me ? 60 * 60 * 24 * 30 : 60 * 60, // 30 dias ou 1 hora
+        };
 
-        response.cookies.set('sb-refresh-token', data.session.refresh_token, {
+        const refreshTokenOptions = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             path: '/',
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 30, // 30 dias
-        });
+            sameSite: 'strict' as const,
+            maxAge: remember_me ? 60 * 60 * 24 * 30 : 60 * 60, // 30 dias ou 1 hora
+        };
+
+        response.cookies.set('sb-access-token', data.session.access_token, accessTokenOptions);
+        response.cookies.set('sb-refresh-token', data.session.refresh_token, refreshTokenOptions);
 
         return response;
     } catch (err: any) {
