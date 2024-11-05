@@ -105,7 +105,6 @@ const AllUsers = () => {
 
   return (
     <div className="flex flex-col items-center justify-center mt-16">
-      <SearchBar search={search} setSearch={setSearch} placeholder="Procure por um paciente..." />
       <div className={`${isLoading ? 'flex justify-center' : 'grid'} grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 mt-10 gap-4 mb-32 container mx-auto w-full`}>
         {isLoading ? (
           <div className="flex flex-col gap-4">
@@ -116,9 +115,12 @@ const AllUsers = () => {
           </div>
         ) : filteredPatients.length > 0 ? (
           filteredPatients.map(patient => (
-            <PatientProvider key={patient.patient_id}>
-              <PatientCard patientData={patient} onDeletePatient={handleDeletePatient} />
-            </PatientProvider>
+            <>
+              <SearchBar search={search} setSearch={setSearch} placeholder="Procure por um paciente..." />
+              <PatientProvider key={patient.patient_id}>
+                <PatientCard patientData={patient} onDeletePatient={handleDeletePatient} />
+              </PatientProvider>
+            </>
           ))
         ) : filteredPatients.length === 0 && search.length > 0 ? (
           <div className="col-span-full text-center text-gray-500 text-xl">

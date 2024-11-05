@@ -386,8 +386,7 @@ export default function FormSteps({
                           </SelectGroup>
                           <SelectGroup>
                             <SelectLabel></SelectLabel>
-                            <SelectLabel>Particular</SelectLabel>
-                            <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                            <SelectItem value="particular">Particular</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>

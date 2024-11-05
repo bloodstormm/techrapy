@@ -9,7 +9,7 @@ import {
 
 export default function Navbar() {
   return (
-    <nav className="fixed bottom-4 left-0 right-0 sm:w-[500px] max-w-[70%] mx-auto flex justify-center items-center rounded-xl bg-white/20 backdrop-blur-lg p-2 h-20 border border-[#472417]/30 z-10">
+    <nav className="fixed bottom-4 left-0 right-0 sm:w-[500px] max-w-[70%] mx-auto flex justify-center items-center rounded-xl bg-white/40 backdrop-blur-lg p-2 h-20 border border-[#472417]/30 z-10">
       <ul className="flex justify-around items-center w-full">
         <Link href="/" className="p-4 hover:bg-orange-400/20 hover:text-[#071F1D] rounded-xl transition-all duration-300">
           <HomeIcon className="w-7 h-7" />
