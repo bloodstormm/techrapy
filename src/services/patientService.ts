@@ -1,12 +1,8 @@
-import { supabase } from "@/lib/supabaseClient";
 import { PatientNote } from "@/types/patientNotes";
 import { PatientData } from "@/types/patientData";
-import { toast } from "sonner";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabaseClient';
 
 export const fetchPatientById = async (patientId: string) => {
-  const supabase = createClientComponentClient();
-  
   // Obter o usuário atual
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -33,8 +29,6 @@ export const fetchPatientById = async (patientId: string) => {
 };
 
 export const fetchPatientNotes = async (patientId: string) => {
-  const supabase = createClientComponentClient();
-  
   // Obter o usuário atual
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -111,8 +105,6 @@ export const deleteNoteById = async (note_id: string) => {
 }
 
 export const createPatient = async (patientData: any) => {
-  const supabase = createClientComponentClient()
-  
   const { data, error } = await supabase
     .from("patients")
     .insert([
@@ -143,8 +135,6 @@ export const createPatient = async (patientData: any) => {
 };
 
 export const deletePatientById = async (patientId: string) => {
-  const supabase = createClientComponentClient()
-  
   // Obter o ID do terapeuta atual
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
@@ -164,13 +154,13 @@ export const deletePatientById = async (patientId: string) => {
 }
 
 export const fetchPatients = async (): Promise<PatientData[]> => {
-    const { data, error } = await supabase
-        .from('patients')
-        .select('*');
+  const { data, error } = await supabase
+    .from('patients')
+    .select('*');
 
-    if (error) {
-        throw new Error(`Erro ao buscar pacientes: ${error.message}`);
-    }
+  if (error) {
+    throw new Error(`Erro ao buscar pacientes: ${error.message}`);
+  }
 
-    return data as PatientData[];
+  return data as PatientData[];
 };

@@ -1,5 +1,4 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { useFormatter } from "next-intl";
 import { Separator } from "@/components/ui/separator";
@@ -18,12 +17,10 @@ import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
 import ReadOnlyNote from "@/components/tiptap/ReadOnlyNote";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation';
 import { decryptText } from '@/lib/encryption';
-
+import { supabase } from '@/lib/supabaseClient';
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
-  const format = useFormatter();
   const router = useRouter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
@@ -32,7 +29,6 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const successMessage = localStorage.getItem('successMessage');
@@ -288,7 +284,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           {patientData.more_info_about_patient && (
             <>
               <Drawer>
-                <DrawerTrigger className="text-orange-400"><Button variant="ghost" className="w-full whitespace-normal h-full">Mais informações do paciente</Button></DrawerTrigger>
+                <DrawerTrigger className="text-orange-400"><span className="w-full whitespace-normal h-full">Mais informações do paciente</span></DrawerTrigger>
                 <DrawerContent>
                   <DrawerHeader className="container px-0 mx-auto">
                     <DrawerTitle>Mais informações do paciente</DrawerTitle>
@@ -298,7 +294,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                   </DrawerDescription>
                   <DrawerFooter>
                     <DrawerClose>
-                      <Button variant="outline">Fechar</Button>
+                      <span className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300">Fechar</span>
                     </DrawerClose>
                   </DrawerFooter>
                 </DrawerContent>
@@ -320,7 +316,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                   </DrawerDescription>
                   <DrawerFooter>
                     <DrawerClose>
-                      <Button variant="outline">Fechar</Button>
+                      <span className="text-orange-400">Fechar</span>
                     </DrawerClose>
                   </DrawerFooter>
                 </DrawerContent>

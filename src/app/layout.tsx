@@ -1,5 +1,4 @@
 import localFont from "next/font/local";
-import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Manrope } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
@@ -7,9 +6,8 @@ import { getLocale } from "next-intl/server";
 import { Toaster } from "sonner";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import { Providers } from "./providers";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import "./globals.css";
 
-// Adicione sua nova fonte aqui
 const cabinetGrotesk = localFont({
   src: "./fonts/CabinetGrotesk-Variable.woff2",
   variable: "--font-cabinet-grotesk",
@@ -28,13 +26,12 @@ export default async function RootLayout({
 }>) {
 
   const locale = await getLocale();
-  const supabase = createClientComponentClient()
 
   return (
-    <html lang={locale} suppressHydrationWarning={true}>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={`${cabinetGrotesk.variable} ${manrope.variable} font-manrope`}
-        suppressHydrationWarning={true}
+        suppressHydrationWarning
       >
         <Providers>
           <NextIntlClientProvider>

@@ -1,7 +1,5 @@
 "use client";
-
 import React from "react";
-import { type Editor } from "@tiptap/react";
 import {
   Bold,
   Strikethrough,
@@ -15,7 +13,6 @@ import {
   Redo,
   Code,
 } from "lucide-react";
-import { Button } from "../ui/button";
 
 type MenuBarProps = {
   editor: any;

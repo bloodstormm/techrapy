@@ -12,6 +12,7 @@ import No_Session from "./no-session.svg"
 import Login_Image from "./login-image.webp"
 import Register_Image from "./register-image.webp"
 import NotFoundImage from "./404-image.svg"
+import Techrapy_Image from "./home-image.jpg"
 
 export {
   Adult,
@@ -28,4 +29,5 @@ export {
   Login_Image,
   Register_Image,
   NotFoundImage,
+  Techrapy_Image,
 };

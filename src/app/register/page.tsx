@@ -1,5 +1,4 @@
 "use client";
-
 import Image from "next/image";
 import { Register_Image } from "../../../public/images";
 import { Input } from "@/components/ui/input";

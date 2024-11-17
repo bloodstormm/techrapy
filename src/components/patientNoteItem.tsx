@@ -128,7 +128,7 @@ const NoteContent = ({
             height={1000}
             placeholder="blur"
             blurDataURL={note.image_url}
-            className="mt-8 border border-stroke rounded-xl"
+            className="mt-8 border border-stroke rounded-xl w-full h-full"
           />
         )}
       </CollapsibleContent>

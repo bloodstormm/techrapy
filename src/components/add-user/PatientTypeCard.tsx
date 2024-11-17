@@ -20,7 +20,7 @@ export default function PatientTypeCard({
       onClick={onClick}
       className="patient-type-card w-96 h-60 p-6 border-orange-500 object-cover"
     >
-      <Image src={src} alt={alt} className="w-40 h-40 object-contain" />
+      <Image priority src={src} alt={alt} className="w-40 h-40 object-contain" />
 
       <p className="text-foreground font-cabinetGrotesk text-xl">{alt}</p>
     </div>

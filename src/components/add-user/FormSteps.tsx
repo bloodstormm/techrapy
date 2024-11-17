@@ -43,7 +43,7 @@ import { ptBR } from 'date-fns/locale' // Importar a localidade em português
 import InputMask from "react-input-mask"; // Importar o InputMask
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { toast } from "sonner";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabaseClient';
 
 
 type AnimatedTabsProps = {
@@ -164,7 +164,6 @@ export default function FormSteps({
   };
 
   const [therapistId, setTherapistId] = useState<string | null>(null);
-  const supabase = createClientComponentClient();
 
   // Buscar o ID do terapeuta quando o componente montar
   useEffect(() => {
@@ -235,17 +234,13 @@ export default function FormSteps({
     handleNext(type);
   };
 
-
-  console.log(selectedDiseases)
-
   return (
     <div className={`flex flex-col container gap-4 ${containerClassName || ''}`}>
       <Tabs value={selectedTab} className="w-full mx-auto flex flex-col items-center">
         <TabsList className="w-full py-8 mb-2 rounded-none dark:bg-transparent bg-transparent border-b border-orange-500 dark:border-orange-600 ">
           {tabs.map((tab) => (
-            <div className="flex items-center">
+            <div key={tab.id} className="flex items-center">
               <TabsTrigger
-                key={tab.id}
                 value={tab.title}
                 className=" cursor-auto border border-transparent rounded-full gap-1  data-[state=active]:border-orange-400 data-[state=active]:text-orange-600 data-[state=active]:bg-orange-400/10"
               >
