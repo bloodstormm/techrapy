@@ -6,14 +6,9 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { ArrowTopLeftIcon } from "@radix-ui/react-icons";
-import { CheckIcon, XIcon } from "lucide-react";
+
 import Link from "next/link";
 import { PatientData } from "@/types/patientData";
-import {
-  deleteNoteById,
-  fetchPatientById,
-  fetchPatientNotes,
-} from "@/services/patientService";
 import { useEffect, useState } from "react";
 import { PatientNote } from "@/types/patientNotes";
 import PatientNoteItem from "@/components/patientNoteItem";
@@ -25,12 +20,14 @@ import ReadOnlyNote from "@/components/tiptap/ReadOnlyNote";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation';
+import { decryptText } from '@/lib/encryption';
 
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const format = useFormatter();
   const router = useRouter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
+  const [decryptedNotes, setDecryptedNotes] = useState<PatientNote[]>([]);
   const [search, setSearch] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -83,7 +80,8 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
             )
           `)
           .eq('patient_id', params.patient_id)
-          .eq('patients.therapist_owner', user.id);
+          .eq('patients.therapist_owner', user.id)
+          .order('note_date', { ascending: false });
 
         if (notesError) {
           throw notesError;
@@ -100,6 +98,20 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
 
     checkAuthAndOwnership();
   }, [params.patient_id, router, supabase]);
+
+  useEffect(() => {
+    const decryptAllNotes = () => {
+      const notesWithDecryption = patientNotes.map(note => ({
+        ...note,
+        decryptedContent: decryptText(note.note),
+      }));
+      setDecryptedNotes(notesWithDecryption);
+    };
+
+    if (patientNotes.length > 0) {
+      decryptAllNotes();
+    }
+  }, [patientNotes]);
 
   if (loading) return (
     <div className="flex justify-center items-center h-screen">
@@ -165,8 +177,8 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     }
   };
 
-  const filteredNotes = patientNotes.filter((item) =>
-    item.note.toLowerCase().includes(search.toLowerCase())
+  const filteredNotes = decryptedNotes.filter((item) =>
+    item.decryptedContent?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -324,13 +336,13 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
             <Tabs defaultValue="notes" className="w-full">
               <div className="flex justify-between items-center mb-6">
                 <TabsList>
-                  <TabsTrigger value="notes">Notas da Sessão</TabsTrigger>
-                  <TabsTrigger value="notes_summary">Resumo de notas (IA)</TabsTrigger>
+                  <TabsTrigger value="notes">Relatos de sessão</TabsTrigger>
+                  <TabsTrigger value="notes_summary">Resumo de IA (Parte 2)</TabsTrigger>
                 </TabsList>
                 <Link href={`/add-note/${patientData.patient_id}`}>
-                  <Button variant="outline" className="bg-transparent flex items-center justify-center hover:bg-orange-400/20">
-                    <PlusIcon className="w-4 h-4 text-orange-400 gap-2" />
-                    <p className="text-orange-400 font-medium">Adicionar uma nova nota</p>
+                  <Button variant="default" className=" flex items-center justify-center hover:bg-orange-500">
+                    <PlusIcon className="w-4 h-4 gap-2" />
+                    <p className="font-medium">Adicionar um novo relato de sessão</p>
                   </Button>
                 </Link>
               </div>

@@ -9,6 +9,7 @@ import TipTap from '@/components/tiptap/';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabaseClient'; // Certifique-se de que o cliente do Supabase está configurado
 import { v4 as uuidv4 } from 'uuid';
+import { encryptText } from '@/lib/encryption';
 
 const AddNote = ({ params }: { params: { patient_id: string } }) => {
 	const [note, setNote] = useState('');
@@ -70,6 +71,9 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 			return;
 		}
 
+		// Criptografar a nota antes de enviar
+		const encryptedNote = encryptText(note);
+
 		let uploadedFileURL: string | null = null;
 
 		if (file) {
@@ -85,7 +89,7 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 		}
 
 		// Salvar a nota
-		const success = await navigate(note, params.patient_id, uploadedFileURL);
+		const success = await navigate(encryptedNote, params.patient_id, uploadedFileURL);
 		setIsSaving(false);
 
 		if (success) {
@@ -106,8 +110,8 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 				Voltar
 			</Link>
 			<div className="flex flex-col items-center gap-1">
-				<h1 className="text-4xl font-cabinetGrotesk mb-1">Adicionar Nota</h1>
-				<p className="text-lightText text-2xl font-light mb-8">Escolha o tipo de paciente que deseja adicionar</p>
+				<h1 className="text-4xl text-orange-900 font-cabinetGrotesk mb-1">Adicionar Relato de sessão</h1>
+				<p className="text-lg text-center mb-8">Escolha o tipo de paciente que deseja adicionar</p>
 			</div>
 
 			<div className="w-3/4 mx-auto mb-32 space-y-6">

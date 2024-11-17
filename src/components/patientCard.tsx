@@ -15,6 +15,8 @@ import { fetchLastNote, fetchPatientNotesCount } from "@/services/patientService
 import ReadOnlyNote from "./tiptap/ReadOnlyNote";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import { DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { decryptText } from '@/lib/encryption';
+
 
 interface PatientCardProps {
     patientData: PatientData;
@@ -31,6 +33,7 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
             setIsLoading(true);
             const lastNote = await fetchLastNote(patientData.patient_id);
             const patientNotesCount = await fetchPatientNotesCount(patientData.patient_id);
+            lastNote && (lastNote.note = decryptText(lastNote.note));
             setLastNote(lastNote);
             setPatientNotesCount(patientNotesCount);
             setIsLoading(false);
@@ -49,7 +52,7 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
     );
 
     const renderLastNote = () => (
-        <div className="flex p-4 h-24 flex-col text-sm rounded-xl bg-orange-300/20 backdrop-blur-lg card-border">
+        <div className="flex p-4 h-[125px] my-4 flex-col text-sm rounded-xl bg-orange-300/20 backdrop-blur-lg card-border">
             <p><b>Último resumo: </b></p>
             <ReadOnlyNote content={lastNote!.note} className="note-preview" />
         </div>
@@ -92,7 +95,7 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
                 <Link href={`/add-note/${patientData.patient_id}`}>
                     <Button variant="outline" className="w-full bg-transparent hover:bg-orange-400/20 text-orange-400 hover:text-orange-400 gap-2">
                         <PlusIcon className="w-4 h-4" />
-                        <p className="font-medium">Adicionar nota</p>
+                        <p className="font-medium">Adicionar Relato</p>
                     </Button>
                 </Link>
                 <Link href={`/patient-notes/${patientData.patient_id}`} className="w-full">

@@ -9,7 +9,8 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from "next/link";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { UsersIcon } from "@heroicons/react/24/outline";
-
+import { Login_Image } from "../../public/images";
+import Image from "next/image";
 interface AuthUser {
     id: string;
     email: string;
@@ -26,7 +27,7 @@ const Home = () => {
         const checkUser = async () => {
             try {
                 const { data: { user }, error } = await supabase.auth.getUser();
-                
+
                 if (error || !user) {
                     router.push("/login");
                     return;
@@ -84,7 +85,7 @@ const Home = () => {
     };
 
     if (loading) {
-        return <div>Carregando...</div>;
+        return <div className="min-h-screen flex flex-col text-gray-800 p-8">Carregando...</div>;
     }
 
     if (!user) {
@@ -92,40 +93,41 @@ const Home = () => {
     }
 
     return (
-        <div className="min-h-screen flex flex-col text-gray-800 p-8">
-            <main className="flex flex-col justify-center items-center gap-8 flex-grow">
-                <section className="w-full max-w-4xl text-center">
-                    <h1 className="text-6xl text-orange-900 dark:text-orange-500 mb-4 font-cabinetGrotesk">Techrapy</h1>
-                    
-                    <p className="text-md text-gray-700 dark:text-white">
-                        Bem-vindo, {(user.full_name?.split(' ')[0]) || 'Terapeuta'}! O que deseja fazer hoje?
-                    </p>
-                    <p className="text-md mt-8 p-4 bg-orange-100 dark:bg-gray-800 rounded-2xl font-bold text-gray-500 dark:text-white">
+        <main className="flex flex-col justify-center h-screen items-center flex-gcol">
+            <div className="h-1/2 w-full bg-background flex flex-col justify-center text-center">
+                <h1 className="text-6xl text-orange-900 dark:text-orange-500 mb-4 font-cabinetGrotesk">Techrapy</h1>
+
+                <p className="text-md text-gray-700 dark:text-white">
+                    Bem-vindo, {(user.full_name?.split(' ')[0]) || 'Terapeuta'}! O que deseja fazer hoje?
+                </p>
+                {/* <p className="text-md mt-8 p-4 bg-orange-100 dark:bg-gray-800 rounded-2xl font-bold text-gray-500 dark:text-white">
                         seu ID é {user.id}
-                    </p>
-                    <div className="flex justify-center mt-8 gap-4">
-                        <Button>
-                            <Link href="/all-patients" className="flex items-center">
-                                <UsersIcon className="w-4 h-4 mr-2" />
-                                Gerenciar pacientes
-                            </Link>
-                        </Button>
-                        <Button>
-                            <Link href="/add-patient" className="flex items-center">
-                                <PlusIcon className="w-4 h-4 mr-2" />
-                                Cadastrar paciente
-                            </Link>
-                        </Button>
-                    </div>
-                </section>
-                <div className="absolute flex gap-4 items-center top-4 right-4">
-                    <Button onClick={handleLogout} >
-                        Logout
+                    </p> */}
+                <div className="flex justify-center mt-8 gap-4">
+                    <Button>
+                        <Link href="/all-patients" className="flex items-center">
+                            <UsersIcon className="w-4 h-4 mr-2" />
+                            Gerenciar pacientes
+                        </Link>
                     </Button>
-                    <ChangeTheme />
+                    <Button>
+                        <Link href="/add-patient" className="flex items-center">
+                            <PlusIcon className="w-4 h-4 mr-2" />
+                            Cadastrar paciente
+                        </Link>
+                    </Button>
                 </div>
-            </main>
-        </div>
+            </div>
+            <div className="w-full h-1/2">
+                <Image src="https://images.unsplash.com/photo-1689028293838-a6a66b0ae2c5?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Techrapy" width={3840} height={2160} className="w-full h-full object-cover" />
+            </div>
+            <div className="absolute flex gap-4 items-center top-4 right-4">
+                <Button onClick={handleLogout} >
+                    Logout
+                </Button>
+                <ChangeTheme />
+            </div>
+        </main>
     );
 };
 

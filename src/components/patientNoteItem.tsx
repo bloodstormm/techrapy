@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import ReadOnlyNote from "./tiptap/ReadOnlyNote";
+import { decryptText } from '@/lib/encryption';
 
 const highlightText = (text: string, search: string) => {
   if (!search) return text;
@@ -70,71 +71,12 @@ const NoteHeader = ({
 const NoteContent = ({
   note,
   search,
-  openNotes,
-  toggleNote,
 }: {
   note: PatientNote;
-  search: string;
-  openNotes: { [key: string]: boolean };
-  toggleNote: (noteId: string) => void;
-}) => (
-  <Collapsible defaultOpen={false} className="pt-4">
-    <div className="flex items-center justify-between">
-      <CollapsibleTrigger
-        onClick={() => toggleNote(note.note_id)}
-        className="flex items-center gap-2 text-orange-400"
-      >
-        {openNotes[note.note_id] ? (
-          <>
-            <SizeIcon className="w-4 h-4" /> <p>Fechar</p>
-          </>
-        ) : (
-          <>
-            <PlusIcon className="w-4 h-4" /> <p>Ver tudo</p>
-          </>
-        )}
-      </CollapsibleTrigger>
-    </div>
-    {!openNotes[note.note_id] && (
-      <div>
-        <ReadOnlyNote
-          className="note-preview"
-          content={highlightText(note.note, search)}
-        />
-      </div>
-    )}
-    <CollapsibleContent>
-      <div
-        className={`overflow-hidden transition-all duration-300 ${
-          openNotes[note.note_id] ? "max-h-full" : "max-h-20"
-        }`}
-      >
-        <ReadOnlyNote content={highlightText(note.note, search)} />
-      </div>
-      {note.image_url && (
-        <Image
-          src={note.image_url}
-          alt="session"
-          width={1000}
-          height={1000}
-          placeholder="blur"
-          blurDataURL={note.image_url}
-          className="mt-8 border border-stroke rounded-xl"
-        />
-      )}
-    </CollapsibleContent>
-  </Collapsible>
-);
-
-const PatientNoteItem = ({
-  note,
-  onDelete,
-  search,
-}: {
-  note: PatientNote;
-  onDelete: (note_id: string) => void;
   search: string;
 }) => {
+  const decryptedNote = decryptText(note.note);
+
   const [openNotes, setOpenNotes] = useState<{ [key: string]: boolean }>({});
 
   const toggleNote = (noteId: string) => {
@@ -145,6 +87,65 @@ const PatientNoteItem = ({
   };
 
   return (
+    <Collapsible defaultOpen={false} className="pt-4">
+      <div className="flex items-center justify-between">
+        <CollapsibleTrigger
+          onClick={() => toggleNote(note.note_id)}
+          className="flex items-center gap-2 text-orange-400"
+        >
+          {openNotes[note.note_id] ? (
+            <>
+              <SizeIcon className="w-4 h-4" /> <p>Fechar</p>
+            </>
+          ) : (
+            <>
+              <PlusIcon className="w-4 h-4" /> <p>Ver tudo</p>
+            </>
+          )}
+        </CollapsibleTrigger>
+      </div>
+      {!openNotes[note.note_id] && (
+        <div>
+          <ReadOnlyNote
+            className="note-preview"
+            content={highlightText(decryptedNote, search)}
+          />
+        </div>
+      )}
+      <CollapsibleContent>
+        <div
+          className={`overflow-hidden transition-all duration-300 ${
+            openNotes[note.note_id] ? "max-h-full" : "max-h-20"
+          }`}
+        >
+          <ReadOnlyNote content={highlightText(decryptedNote, search)} />
+        </div>
+        {note.image_url && (
+          <Image
+            src={note.image_url}
+            alt="session"
+            width={1000}
+            height={1000}
+            placeholder="blur"
+            blurDataURL={note.image_url}
+            className="mt-8 border border-stroke rounded-xl"
+          />
+        )}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
+
+const PatientNoteItem = ({
+  note,
+  onDelete,
+  search,
+}: {
+  note: PatientNote;
+  onDelete: (note_id: string) => void;
+  search: string;
+}) => {
+  return (
     <div className="flex flex-col bg-[#FCF6F7] border border-[#E6E6E6] p-8 px-12 rounded-3xl w-full break-all">
       <NoteHeader
         noteDate={note.note_date}
@@ -152,10 +153,8 @@ const PatientNoteItem = ({
         noteId={note.note_id}
       />
       <NoteContent
-        note={note}
+        note={{ ...note, note: note.decryptedContent || '' }}
         search={search}
-        openNotes={openNotes}
-        toggleNote={toggleNote}
       />
     </div>
   );
