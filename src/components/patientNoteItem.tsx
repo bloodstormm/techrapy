@@ -47,7 +47,7 @@ const NoteHeader = ({
   const format = useFormatter();
   return (
     <div className="flex justify-between border-b border-orange-200 pb-4">
-      <h1 className="text-orange-900 text-xl font-medium">Resumo de sessão</h1>
+      <h1 className="text-orange-900 dark:text-orange-400 text-xl font-medium">Resumo de sessão</h1>
       <div className="flex items-center gap-2 text-orange-400">
         <CalendarIcon className="w-4 h-4 " />
         <div className="flex items-center gap-4">
@@ -146,7 +146,7 @@ const PatientNoteItem = ({
   search: string;
 }) => {
   return (
-    <div className="flex flex-col bg-[#FCF6F7] border border-[#E6E6E6] p-8 px-12 rounded-3xl w-full break-all">
+    <div className="flex flex-col bg-[#FCF6F7] dark:bg-[#242424] border border-[#E6E6E6] dark:border-foreground/10 p-8 px-12 rounded-3xl w-full break-all">
       <NoteHeader
         noteDate={note.note_date}
         onDelete={onDelete}

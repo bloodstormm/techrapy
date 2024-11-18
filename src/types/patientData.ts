@@ -20,7 +20,6 @@ export interface PatientData {
 export type NewPatientData = Omit<PatientData, "patient_id" | "created_at">;
 
 export const diseasesList = [
-    { value: "none", label: "Nenhuma" },
     { value: "depressão", label: "Depressão" },
     { value: "ansiedade", label: "Ansiedade" },
     { value: "transtorno bipolar", label: "Transtorno Bipolar" },
@@ -30,6 +29,38 @@ export const diseasesList = [
     { value: "transtorno de personalidade", label: "Transtorno de Personalidade" },
     { value: "transtorno alimentar", label: "Transtorno Alimentar" },
     { value: "transtorno somatoforme", label: "Transtorno Somatoforme" },
+  ];
+export const familyDiseasesList = [
+    { value: "depressão", label: "Depressão" },
+    { value: "ansiedade", label: "Ansiedade" },
+    { value: "transtorno bipolar", label: "Transtorno Bipolar" },
+    { value: "esquizofrenia", label: "Esquizofrenia" },
+    { value: "TOC", label: "Transtorno Obsessivo-Compulsivo (TOC)" },
+    { value: "TEPT", label: "Transtorno de Estresse Pós-Traumático (TEPT)" },
+    { value: "transtorno de personalidade", label: "Transtorno de Personalidade" },
+    { value: "transtorno alimentar", label: "Transtorno Alimentar" },
+    { value: "transtorno somatoforme", label: "Transtorno Somatoforme" },
+  ];
+
+  export const paymentTypes = [
+    { value: "sulamerica", label: "Sulamerica" },
+    { value: "bradesco", label: "Bradesco" },
+    { value: "unimed", label: "Unimed" },
+    { value: "amil", label: "Amil" },
+    { value: "hapvida", label: "Hapvida" },
+    { value: "notredame", label: "NotreDame" },
+    { value: "porto seguro", label: "Porto Seguro" },
+    { value: "samp", label: "Samp" },
+    { value: "intermedica", label: "Intermédica" },
+    { value: "saude caixa", label: "Saúde Caixa" },
+    { value: "particular", label: "Particular" },
+  ];
+  
+  export const maritalStatus = [
+    { value: "solteiro", label: "Solteiro" },
+    { value: "casado", label: "Casado" },
+    { value: "divorciado", label: "Divorciado" },
+    { value: "viuvo", label: "Viuvo" },
   ];
   
   export const tabs = [
@@ -46,3 +77,4 @@ export const diseasesList = [
     { value: "sexta-feira", label: "Sexta-feira" },
     { value: "sábado", label: "Sábado" },
   ];
+  

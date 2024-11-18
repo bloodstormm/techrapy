@@ -6,8 +6,8 @@ import { getLocale } from "next-intl/server";
 import { Toaster } from "sonner";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import { Providers } from "./providers";
-import "./globals.css";
-
+  import "./globals.css";
+  import ConfigButton from "@/components/configButton";
 const cabinetGrotesk = localFont({
   src: "./fonts/CabinetGrotesk-Variable.woff2",
   variable: "--font-cabinet-grotesk",
@@ -42,6 +42,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <Toaster position="top-right" closeButton />
+            <ConfigButton />
             <ConditionalNavbar />
             {children}
             </ThemeProvider>

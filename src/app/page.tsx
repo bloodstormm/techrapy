@@ -10,6 +10,7 @@ import { UsersIcon } from "@heroicons/react/24/outline";
 import { Techrapy_Image } from "../../public/images";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
+import LoadingSpinner from "@/components/loadingSpinner";
 interface AuthUser {
     id: string;
     email: string;
@@ -66,21 +67,10 @@ const Home = () => {
         };
     }, [supabase, router]);
 
-    const handleLogout = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-            toast.success('Logout realizado com sucesso');
-            router.push("/login");
-        } catch (error: any) {
-            toast.error(
-                error.message || "Erro ao realizar logout"
-            );
-        }
-    };
+
 
     if (loading) {
-        return <div className="min-h-screen flex flex-col justify-center items-center text-gray-800 p-8">Carregando...</div>;
+        return <LoadingSpinner mensagem="Carregando..." />;
     }
 
     if (!user) {
@@ -116,12 +106,7 @@ const Home = () => {
             <div className="w-full h-[45%]">
                 <Image priority src={Techrapy_Image} alt="Techrapy" width={3840} height={2160} className="w-full h-full object-cover" />
             </div>
-            <div className="absolute flex gap-4 items-center top-4 right-4">
-                <Button onClick={handleLogout} >
-                    Logout
-                </Button>
-                <ChangeTheme />
-            </div>
+
         </main>
     );
 };

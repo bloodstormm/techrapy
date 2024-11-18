@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Adult, Child, Teens, Couple } from "../../../public/images";
+import { diseasesList, weekDays, tabs, familyDiseasesList, paymentTypes, maritalStatus } from "@/types/patientData";
 
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -40,7 +41,7 @@ import { Calendar } from "@/components/ui/calendar";
 import React from "react";
 import { createPatient } from "@/services/patientService";
 import { ptBR } from 'date-fns/locale' // Importar a localidade em português
-import InputMask from "react-input-mask"; // Importar o InputMask
+import MaskedInput from 'react-text-mask'; // Importar o MaskedInput
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { toast } from "sonner";
 import { supabase } from '@/lib/supabaseClient';
@@ -54,20 +55,6 @@ export default function FormSteps({
   patientType,
   containerClassName,
 }: AnimatedTabsProps) {
-  const tabs = [
-    {
-      id: 1,
-      title: "Tipo de Paciente",
-    },
-    {
-      id: 2,
-      title: "Informações Básicas",
-    },
-    {
-      id: 3,
-      title: "Histórico",
-    },
-  ];
   const [date, setDate] = React.useState<Date>()
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -75,32 +62,6 @@ export default function FormSteps({
   const [selectedPatientType, setSelectedPatientType] =
     useState<string>(patientType);
   const [selectedTab, setSelectedTab] = useState(tabs[0].title);
-
-  const diseasesList = [
-    { value: "none", label: "Nenhuma" },
-    { value: "depressão", label: "Depressão" },
-    { value: "ansiedade", label: "Ansiedade" },
-    { value: "transtorno bipolar", label: "Transtorno Bipolar" },
-    { value: "esquizofrenia", label: "Esquizofrenia" },
-    { value: "TOC", label: "Transtorno Obsessivo-Compulsivo (TOC)" },
-    { value: "TEPT", label: "Transtorno de Estresse Pós-Traumático (TEPT)" },
-    { value: "transtorno de personalidade", label: "Transtorno de Personalidade" },
-    { value: "transtorno alimentar", label: "Transtorno Alimentar" },
-    { value: "transtorno somatoforme", label: "Transtorno Somatoforme" },
-  ];
-
-  const familyDiseasesList = [
-    { value: "none", label: "Nenhuma" },
-    { value: "depressão", label: "Depressão" },
-    { value: "ansiedade", label: "Ansiedade" },
-    { value: "transtorno bipolar", label: "Transtorno Bipolar" },
-    { value: "esquizofrenia", label: "Esquizofrenia" },
-    { value: "TOC", label: "Transtorno Obsessivo-Compulsivo (TOC)" },
-    { value: "TEPT", label: "Transtorno de Estresse Pós-Traumático (TEPT)" },
-    { value: "transtorno de personalidade", label: "Transtorno de Personalidade" },
-    { value: "transtorno alimentar", label: "Transtorno Alimentar" },
-    { value: "transtorno somatoforme", label: "Transtorno Somatoforme" },
-  ];
 
   const form = useForm({
     defaultValues: {
@@ -304,13 +265,13 @@ export default function FormSteps({
                   name="birthdate"
                   render={({ field }) => (
                     <FormItem className="flex w-full flex-col">
-                      <FormLabel>Data de Nascimento</FormLabel>
+                      <FormLabel className="leading-[1.7]">Data de Nascimento</FormLabel>
                       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "overflow-hidden bg-orange-100 dark:bg-gray-950 justify-start hover:bg-orange-400/10  dark:text-white",
+                              "overflow-hidden bg-orange-100 dark:bg-gray-950 h-10 justify-start hover:bg-orange-400/10  dark:text-white",
                               !date && "text-muted-foreground",
                             )}
                           >
@@ -364,25 +325,11 @@ export default function FormSteps({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Convênios</SelectLabel>
-                            <SelectItem value="sulamerica">
-                              Sulamerica
+                          {paymentTypes.map((payment) => (
+                            <SelectItem key={payment.value} value={payment.value}>
+                              {payment.label}
                             </SelectItem>
-                            <SelectItem value="bradesco">Bradesco</SelectItem>
-                            <SelectItem value="unimed">Unimed</SelectItem>
-                            <SelectItem value="amil">Amil</SelectItem>
-                            <SelectItem value="hapvida">Hapvida</SelectItem>
-                            <SelectItem value="notredame">NotreDame</SelectItem>
-                            <SelectItem value="porto seguro">Porto Seguro</SelectItem>
-                            <SelectItem value="samp">Samp</SelectItem>
-                            <SelectItem value="intermedica">Intermédica</SelectItem>
-                            <SelectItem value="saude caixa">Saúde Caixa</SelectItem>
-                          </SelectGroup>
-                          <SelectGroup>
-                            <SelectLabel></SelectLabel>
-                            <SelectItem value="particular">Particular</SelectItem>
-                          </SelectGroup>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -406,12 +353,11 @@ export default function FormSteps({
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectItem value="segunda-feira">Segunda-feira</SelectItem>
-                            <SelectItem value="terça-feira">Terça-feira</SelectItem>
-                            <SelectItem value="quarta-feira">Quarta-feira</SelectItem>
-                            <SelectItem value="quinta-feira">Quinta-feira</SelectItem>
-                            <SelectItem value="sexta-feira">Sexta-feira</SelectItem>
-                            <SelectItem value="sábado">Sábado</SelectItem>
+                            {weekDays.map((day) => (
+                              <SelectItem key={day.value} value={day.value}>
+                                {day.label}
+                              </SelectItem>
+                            ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -446,11 +392,10 @@ export default function FormSteps({
                         <FormItem>
                           <FormLabel>Telefone do responsável</FormLabel>
                           <FormControl>
-                            <InputMask
-                              className="input-style"
+                            <MaskedInput
+                              mask={['(', /[1-9]/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
                               placeholder="Digite o telefone do responsável"
-                              mask="(99) 99999-9999"
-                              maskChar={null}
+                              className="input-style"
                               {...field}
                             />
                           </FormControl>
@@ -470,11 +415,10 @@ export default function FormSteps({
                         <FormItem>
                           <FormLabel>Telefone do paciente</FormLabel>
                           <FormControl>
-                            <InputMask
-                              className="input-style"
+                            <MaskedInput
+                              mask={['(', /[1-9]/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
                               placeholder="Digite o telefone do paciente"
-                              mask="(99) 99999-9999"
-                              maskChar={null}
+                              className="input-style"
                               {...field}
                             />
                           </FormControl>
@@ -498,14 +442,11 @@ export default function FormSteps({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="solteiro">Solteiro</SelectItem>
-                                <SelectItem value="casado">Casado</SelectItem>
-                                <SelectItem value="divorciado">
-                                  Divorciado
+                              {maritalStatus.map((status) => (
+                                <SelectItem key={status.value} value={status.value}>
+                                  {status.label}
                                 </SelectItem>
-                                <SelectItem value="viuvo">Viuvo</SelectItem>
-                              </SelectGroup>
+                              ))}
                             </SelectContent>
                           </Select>
                         </FormItem>
@@ -563,7 +504,7 @@ export default function FormSteps({
                                     ))}
                                   </p>
                                 )
-                              : "Selecione o histórico de doenças"}
+                              : "Nenhuma"}
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56 self-start">
@@ -605,7 +546,7 @@ export default function FormSteps({
                                     ))}
                                   </p>
                                 )
-                              : "Selecione o histórico de doenças na família"}
+                              : "Nenhuma"}
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56 self-start">
@@ -633,7 +574,7 @@ export default function FormSteps({
 
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mais informações sobre o historico de doenças do paciente</FormLabel>
+                      <FormLabel>Mais informações sobre o histórico de doenças do paciente</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Digite mais informações sobre o paciente"

@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useFormatter } from "next-intl";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusIcon } from "@heroicons/react/24/outline";
@@ -15,7 +14,6 @@ import { toast } from 'sonner';
 import { Empty_Notes } from "../../../../public/images";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
-import ReadOnlyNote from "@/components/tiptap/ReadOnlyNote";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useRouter } from 'next/navigation';
 import { decryptText } from '@/lib/encryption';
@@ -33,8 +31,15 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   useEffect(() => {
     const successMessage = localStorage.getItem('successMessage');
     if (successMessage) {
-      toast.success(successMessage);
-      localStorage.removeItem('successMessage');
+      const messageShown = localStorage.getItem('messageShown');
+      if (!messageShown) {
+        setTimeout(() => {
+          toast.success(successMessage);
+          localStorage.removeItem('successMessage');
+          localStorage.removeItem('messageShown');
+        }, 100);
+        localStorage.setItem('messageShown', 'true');
+      }
     }
   }, []);
 
@@ -84,7 +89,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
         }
 
         setPatientNotes(notes);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Erro ao verificar autorização:', err);
         setError('Erro ao carregar dados do paciente');
       } finally {
@@ -153,23 +158,43 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
         return;
       }
 
-      // Deletar nota apenas se o paciente pertencer ao terapeuta
+      // Verificar se a nota pertence ao terapeuta
+      const { data: note, error: fetchError } = await supabase
+        .from('patient_notes')
+        .select('patient_id')
+        .eq('note_id', noteId)
+        .single();
+
+      if (fetchError || !note) {
+        throw fetchError || new Error('Nota não encontrada');
+      }
+
+      // Verificar se o paciente pertence ao terapeuta
+      const { data: patient, error: patientError } = await supabase
+        .from('patients')
+        .select('therapist_owner')
+        .eq('patient_id', note.patient_id)
+        .single();
+
+      if (patientError || !patient || patient.therapist_owner !== user.id) {
+        toast.error('Você não tem permissão para excluir esta nota');
+        return;
+      }
+
+      // Deletar a nota
       const { error } = await supabase
         .from('patient_notes')
         .delete()
-        .eq('note_id', noteId)
-        .eq('patient_id', params.patient_id) // Garante que a nota é deste paciente
-        .not('patients.therapist_owner', 'is', null) // Garante que existe um terapeuta vinculado
-        .eq('patients.therapist_owner', user.id); // Garante que o terapeuta é o dono
+        .eq('note_id', noteId);
 
       if (error) {
         throw error;
       }
 
-      setPatientNotes((prevNotes) => prevNotes.filter(note => note.note_id !== noteId));
+      setPatientNotes((prevNotes) => prevNotes.filter(n => n.note_id !== noteId));
       toast.success('Nota excluída com sucesso');
-    } catch (err) {
-      toast.error('Erro ao excluir a nota: ' + err);
+    } catch (err: any) {
+      toast.error('Erro ao excluir a nota: ' + err.message);
     }
   };
 
@@ -180,7 +205,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   return (
     <div className="container mx-auto flex lg:flex-row flex-col gap-10 mt-10 mb-32">
       {/* Lado esquerdo */}
-      <div className="flex relative flex-col h-fit bg-[#FCF6F7] p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
+      <div className="flex relative flex-col h-fit bg-[#FCF6F7] dark:bg-[#242424] p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
         <Link
           href="/all-patients"
           className="flex items-center gap-1 hover:gap-3 transition-all"
@@ -215,27 +240,25 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
               )}
             </div>
           </div>
-          {family_diseases_history && (
-            <div className="flex flex-col">
-              <span className=" text-orange-400">Histórico de doenças na família</span>
-              <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
-                {family_diseases_history ? (
-                  family_diseases_history.split(",").map((disease, index) => (
-                    <p
-                      key={index}
-                      className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
-                    >
-                      {disease.trim()}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    Não há histórico de doenças
+          <div className="flex flex-col">
+            <span className=" text-orange-400">Histórico de doenças na família</span>
+            <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
+              {family_diseases_history ? (
+                family_diseases_history.split(",").map((disease, index) => (
+                  <p
+                    key={index}
+                    className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
+                  >
+                    {disease.trim()}
                   </p>
-                )}
-              </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Não há histórico de doenças
+                </p>
+              )}
             </div>
-          )}
+          </div>
           <div className="flex flex-col">
             <span className="text-orange-400">Dia da consulta</span>
             <p className="text-sm text-gray-500 capitalize">{session_day}</p>
@@ -284,19 +307,21 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           {patientData.more_info_about_patient && (
             <>
               <Drawer>
-                <DrawerTrigger className="text-orange-400"><span className="w-full whitespace-normal h-full">Mais informações do paciente</span></DrawerTrigger>
-                <DrawerContent>
-                  <DrawerHeader className="container px-0 mx-auto">
-                    <DrawerTitle>Mais informações do paciente</DrawerTitle>
-                  </DrawerHeader>
-                  <DrawerDescription className="container mx-auto">
-                    <ReadOnlyNote content={patientData.more_info_about_patient} />
-                  </DrawerDescription>
-                  <DrawerFooter>
-                    <DrawerClose>
-                      <span className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300">Fechar</span>
-                    </DrawerClose>
-                  </DrawerFooter>
+                <DrawerTrigger className="text-orange-400"><Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">Mais informações do paciente</Button></DrawerTrigger>
+                <DrawerContent className="pb-4">
+                  <div className="w-full max-w-4xl mx-auto">
+                    <DrawerHeader className="px-0">
+                      <DrawerTitle className="text-orange-400">Mais informações do paciente</DrawerTitle>
+                    </DrawerHeader>
+                    <DrawerDescription>
+                      <p className="text-foreground text-sm">{patientData.more_info_about_patient}</p>
+                    </DrawerDescription>
+                    <DrawerFooter>
+                      <DrawerClose>
+                        <Button variant="outline" className="text-orange-400">Fechar</Button>
+                      </DrawerClose>
+                    </DrawerFooter>
+                  </div>
                 </DrawerContent>
               </Drawer>
             </>
@@ -306,17 +331,17 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           {patientData.more_info_about_diseases && (
             <>
               <Drawer>
-                <DrawerTrigger className="text-orange-400"><Button variant="ghost" className="w-full whitespace-normal h-full">Mais informações sobre doenças do paciente</Button></DrawerTrigger>
+                <DrawerTrigger className="text-orange-400"><Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">Mais informações sobre doenças do paciente</Button></DrawerTrigger>
                 <DrawerContent>
                   <DrawerHeader className="container px-0 mx-auto">
                     <DrawerTitle>Mais informações sobre doenças do paciente</DrawerTitle>
                   </DrawerHeader>
                   <DrawerDescription className="container mx-auto">
-                    <ReadOnlyNote content={patientData.more_info_about_diseases} />
+                    <p className="text-foreground text-sm">{patientData.more_info_about_diseases}</p>
                   </DrawerDescription>
                   <DrawerFooter>
                     <DrawerClose>
-                      <span className="text-orange-400">Fechar</span>
+                      <Button variant="outline" className="text-orange-400">Fechar</Button>
                     </DrawerClose>
                   </DrawerFooter>
                 </DrawerContent>
@@ -344,10 +369,10 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
               </div>
               {patientNotes.length === 0 ? (
                 <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
-                  <div className="flex bg-orange-100 p-20 rounded-3xl flex-col w-full justify-center items-center overflow-y-auto hide-scrollbar">
-                    <Image src={Empty_Notes} alt="Empty Notes" className="w-72 h-72" />
-                    <h2 className="text-foreground text-xl mt-4 font-medium">Nenhuma nota adicionada</h2>
-                    <p className="text-foreground text-sm font-normal">Adicione uma nota clicando no botão acima para começar a registrar os dados da sessão</p>
+                  <div className="flex bg-orange-100 dark:bg-[#242424] p-20 rounded-3xl flex-col w-full justify-center items-center overflow-y-auto hide-scrollbar">
+                    <Image priority src={Empty_Notes} alt="Empty Notes" className="w-72 h-72" />
+                    <h2 className="text-foreground text-xl mt-4 font-medium">Nenhum relato de sessão adicionado</h2>
+                    <p className="text-foreground text-sm font-normal">Adicione um clicando no botão acima para começar a registrar os relatos de sessão</p>
                   </div>
                 </TabsContent>
               ) : (

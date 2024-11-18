@@ -14,16 +14,16 @@ const SearchBar = ({ search, setSearch, placeholder }: SearchPatientsProps) => {
   }
 
   return (
-    <form className="flex items-center bg-[#FCF6F7] border border-orange-700/50 w-1/2 container rounded-xl p-4 h-14 shadow-lg transition-all duration-300" onSubmit={(e) => e.preventDefault()}>
+    <form className="flex items-center bg-white dark:bg-background border border-foreground/20 dark:border-foreground/10 w-1/2 container rounded-xl p-4 h-14 transition-all duration-300" onSubmit={(e) => e.preventDefault()}>
       <input
         type="text"
         placeholder={placeholder}
-        className="bg-transparent border-none w-full focus:outline-none placeholder-orange-700 text-orange-900"
+        className="bg-transparent border-none w-full focus:outline-none placeholder-orange-700 text-orange-900 dark:placeholder-foreground"
         onChange={handleSearch}
         value={search}
       />
       <button type="submit" className="ml-2">
-        <MagnifyingGlassIcon className="w-7 h-7 text-orange-700" />
+        <MagnifyingGlassIcon className="w-7 h-7 text-orange-700 dark:text-foreground" />
       </button>
     </form>
   )

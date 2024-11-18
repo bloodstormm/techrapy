@@ -52,7 +52,7 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
     );
 
     const renderLastNote = () => (
-        <div className="flex p-4 h-[125px] my-4 flex-col text-sm rounded-xl bg-orange-300/20 backdrop-blur-lg card-border">
+        <div className="flex p-4 h-[125px] my-4 flex-col text-sm rounded-xl justify-center bg-orange-300/20 backdrop-blur-lg card-border">
             <p><b>Último resumo: </b></p>
             <ReadOnlyNote content={lastNote!.note} className="note-preview" />
         </div>
@@ -66,12 +66,12 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
     );
 
     return (
-        <div className="bg-[#FCF6F7] backdrop-blur-lg p-4 rounded-xl flex flex-col justify-between w-full border border-[#472417]/30">
+        <div className="bg-[#FCF6F7] dark:bg-background backdrop-blur-lg p-4 rounded-xl flex flex-col justify-between w-full border border-[#472417]/30 dark:border-foreground/10">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-lg font-medium capitalize">{patientData.patient_name}</h1>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Cog6ToothIcon className="w-4 h-4 cursor-pointer" />
+                        <Cog6ToothIcon className="w-5 h-5 cursor-pointer" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={handleDeletePatient}>
@@ -101,7 +101,7 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
                 <Link href={`/patient-notes/${patientData.patient_id}`} className="w-full">
                     <Button className="w-full gap-2">
                         <DocumentIcon className="w-4 h-4" />
-                        <p className="font-medium">Ver resumos</p>
+                        <p className="font-medium">Ver relatos</p>
                     </Button>
                 </Link>
             </div>

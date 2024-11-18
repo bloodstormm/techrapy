@@ -27,7 +27,7 @@ const MenuBar = ({ editor, content, isContentEmpty, isSaving }: MenuBarProps) =>
   }
   return (
     <div
-      className="px-4 py-3 h-full xl:h-20 border-b border-orange-700 xl:gap-5 flex justify-between items-center
+      className="px-4 py-3 h-full xl:h-20 border-b border-orange-700 dark:border-foreground/30 xl:gap-5 flex justify-between items-center
     gap-2 w-full flex-wrap"
     >
       <div className="flex items-center justify-between gap-3 flex-wrap">

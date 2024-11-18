@@ -33,6 +33,11 @@
   display: none;  /* Chrome, Safari, and Opera */
 }
 
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  overflow: auto !important;
+} 
+
  /* Placeholder (at the top) */
  p.is-editor-empty:first-child::before {
   color: var(--gray-4);

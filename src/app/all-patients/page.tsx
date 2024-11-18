@@ -12,25 +12,14 @@ import { No_Patients, No_Results } from "../../../public/images";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/hooks/useAuth';
-
-// Componentes separados para melhor performance e reutilização
-const LoadingSpinner = () => (
-  <div className="flex flex-col gap-4">
-    <div className="flex justify-center items-center">
-      <div className="w-16 h-16 border-t-2 border-orange-900 border-solid rounded-full animate-spin" />
-    </div>
-    <p className="text-center text-orange-900 text-xl font-medium">
-      Carregando pacientes...
-    </p>
-  </div>
-);
+import LoadingSpinner from "@/components/loadingSpinner";
 
 const NoResults = ({ search }: { search: string }) => (
   <div className="col-span-full text-center text-gray-500 text-xl">
     <Image 
       src={No_Results} 
       alt="No Results" 
-      className="w-64 h-64 mb-4 mt-8 mx-auto"
+      className="w-64 h-64 mb-4 mx-auto"
       priority
     />
     <p className="text-orange-900 text-xl font-medium">
@@ -40,18 +29,21 @@ const NoResults = ({ search }: { search: string }) => (
 );
 
 const NoPatients = () => (
-  <div className="col-span-full text-center text-gray-500 text-xl">
+  <div className="col-span-full text-center text-gray-500 ">
     <Image 
       src={No_Patients} 
       alt="No Patients" 
-      className="w-80 h-80 mb-4 mt-8 mx-auto"
+      className="w-80 h-80 mx-auto"
       priority
     />
-    <p className="text-orange-900 text-xl font-medium">
-      Nenhum paciente cadastrado. <br /> Adicione o seu primeiro paciente!
+    <p className="text-foreground text-2xl mb-2 font-semibold">
+      Nenhum paciente cadastrado. 
+    </p>
+    <p className="text-foreground ">
+      Adicione o seu primeiro paciente!
     </p>
     <Link href="/add-patient">
-      <Button className="mt-4">Adicionar um novo paciente</Button>
+      <Button className="mt-8">Adicionar um novo paciente</Button>
     </Link>
   </div>
 );
@@ -74,9 +66,9 @@ const AllUsers = () => {
 
       if (error) throw error;
       setPatients(data as PatientData[]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao carregar pacientes:", error);
-      toast.error("Erro ao carregar pacientes");
+      toast.error("Erro ao carregar pacientes: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -126,12 +118,12 @@ const AllUsers = () => {
 
   // Renderização condicional inicial
   if (loading) {
-    return <div>Carregando...</div>;
+    return <LoadingSpinner mensagem="Carregando..." />;
   }
 
   return (
     <div className="flex flex-col items-center justify-center mt-16">
-      <h1 className="text-orange-900 text-4xl container text-center mb-2 font-cabinetGrotesk">
+      <h1 className="text-orange-900 dark:text-primary text-4xl container text-center mb-2 font-cabinetGrotesk">
         Todos os Pacientes
       </h1>
       <p className="text-lg text-center mb-12">
@@ -152,7 +144,7 @@ const AllUsers = () => {
         } grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 mt-10 gap-4 mb-32 container mx-auto w-full`}
       >
         {isLoading ? (
-          <LoadingSpinner />
+          <LoadingSpinner mensagem="Carregando pacientes..." />
         ) : filteredPatients.length > 0 ? (
           filteredPatients.map(patient => (
             <section key={patient.patient_id}>

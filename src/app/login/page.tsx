@@ -154,7 +154,7 @@ const Login = () => {
                                 </label>
                                 <Link
                                     href="/forgot-password"
-                                    className="text-sm text-orange-500 mb-2 hover:text-orange-800 underline"
+                                    className="text-sm text-orange-500 mb-2 transition-colors duration-150 hover:text-orange-800 underline"
                                 >
                                     Esqueceu sua senha?
                                 </Link>
@@ -169,7 +169,7 @@ const Login = () => {
                                 Não tem uma conta?{" "}
                                 <Link
                                     href="/register"
-                                    className="underline text-orange-500"
+                                    className="underline text-orange-500 transition-colors duration-150 hover:text-orange-800"
                                 >
                                     Crie uma agora!
                                 </Link>

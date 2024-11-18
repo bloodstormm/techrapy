@@ -40,7 +40,7 @@ const Register = () => {
                 therapist_password: data.therapist_password,
             });
 
-            toast.success("Conta criada com sucesso! Por favor, faça login.");
+            toast.success("Conta criada com sucesso. Aproveite!");
             reset();
             router.push("/login");
         } catch (error: any) {
@@ -61,11 +61,11 @@ const Register = () => {
                 className="h-screen object-cover object-bottom" />
             </div>
             <div className="w-full max-w-sm mx-auto">
-                <h1 className="text-5xl text-orange-900 mb-4 font-cabinetGrotesk text-center ">Techrapy</h1>
+                <h1 className="text-5xl text-orange-900 dark:text-foreground mb-4 font-cabinetGrotesk text-center ">Techrapy</h1>
                 <p className="text-gray-900 mb-10 text-center">Crie sua conta</p>
                 <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md flex flex-col gap-4">
                     <div className="flex flex-col">
-                        <label htmlFor="therapist_name" className="text-orange-900 mb-2">Nome Completo</label>
+                        <label htmlFor="therapist_name" className="text-orange-900 dark:text-foreground mb-2">Nome Completo</label>
                         <Input 
                             id="therapist_name" 
                             placeholder="Ex: Maria Oliveira" 
@@ -76,7 +76,7 @@ const Register = () => {
                     </div>
 
                     <div className="flex flex-col">
-                        <label htmlFor="therapist_email" className="text-orange-900 mb-2">Email</label>
+                        <label htmlFor="therapist_email" className="text-orange-900 dark:text-foreground mb-2">Email</label>
                         <Input 
                             id="therapist_email" 
                             type="email" 
@@ -94,7 +94,7 @@ const Register = () => {
                     </div>
 
                     <div className="flex flex-col">
-                        <label htmlFor="therapist_password" className="text-orange-900 mb-2">Senha</label>
+                        <label htmlFor="therapist_password" className="text-orange-900 dark:text-foreground mb-2">Senha</label>
                         <Input 
                             id="therapist_password" 
                             type="password" 
@@ -109,7 +109,7 @@ const Register = () => {
                     </div>
 
                     <div className="flex flex-col">
-                        <label htmlFor="confirm_password" className="text-orange-900 mb-2">Confirmar Senha</label>
+                        <label htmlFor="confirm_password" className="text-orange-900 dark:text-foreground mb-2">Confirmar Senha</label>
                         <Input 
                             id="confirm_password" 
                             type="password" 
@@ -126,7 +126,7 @@ const Register = () => {
                 </form>
 
                 <div className="flex items-center justify-center mt-12">
-                    <p className="text-sm text-gray-800 mb-2 hover:text-orange-900">Já tem uma conta? <Link href="/login" className="underline text-orange-500">Faça login!</Link></p>
+                    <p className="text-sm text-gray-800 mb-2 hover:text-orange-900 dark:text-foreground">Já tem uma conta? <Link href="/login" className="underline text-orange-500">Faça login!</Link></p>
                 </div>
             </div>
         </div>

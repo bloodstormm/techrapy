@@ -1,12 +1,12 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { navigate } from './actions';
 import Link from 'next/link';
 import { ArrowTopLeftIcon } from '@radix-ui/react-icons';
 import TipTap from '@/components/tiptap/';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/lib/supabaseClient'; // Certifique-se de que o cliente do Supabase está configurado
+import { supabase } from '@/lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import { encryptText } from '@/lib/encryption';
 
@@ -16,6 +16,18 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 	const [file, setFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+	useEffect(() => {
+		const checkUser = async () => {
+			const { data: { user } } = await supabase.auth.getUser();
+			if (!user) {
+				toast.error('Você precisa estar autenticado para adicionar uma nota.');
+				window.location.href = '/login'; // Redireciona para a página de login
+			}
+		};
+
+		checkUser();
+	}, []);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files[0]) {
@@ -83,19 +95,22 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 				return;
 			}
 		} else {
-			// Se não houver arquivo, defina uploadedFileURL como uma string vazia
 			uploadedFileURL = '';
 		}
 
-		// Salvar a nota
-		const success = await navigate(encryptedNote, params.patient_id, uploadedFileURL);
-		setIsSaving(false);
+		try {
+			const result = await navigate(encryptedNote, params.patient_id, uploadedFileURL);
+			setIsSaving(false);
 
-		if (success) {
-			localStorage.setItem('successMessage', 'Nota e imagem adicionadas com sucesso!');
-			window.location.href = `/patient-notes/${params.patient_id}`;
-		} else {
-			toast.error('Erro ao adicionar a nota.');
+			if (result.success) {
+				localStorage.setItem('successMessage', 'Nota e imagem adicionadas com sucesso!');
+				window.location.href = `/patient-notes/${params.patient_id}`;
+			} else {
+				toast.error(`Erro ao adicionar a nota: ${result.message}`);
+			}
+		} catch (error: any) {
+			setIsSaving(false);
+			toast.error(`Erro ao adicionar a nota: ${error.message || 'Erro desconhecido'}`);
 		}
 	};
 
@@ -109,13 +124,13 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 				Voltar
 			</Link>
 			<div className="flex flex-col items-center gap-1">
-				<h1 className="text-4xl text-orange-900 font-cabinetGrotesk mb-1">Adicionar Relato de sessão</h1>
+				<h1 className="text-4xl text-orange-900 dark:text-primary font-cabinetGrotesk mb-1">Adicionar Relato de sessão</h1>
 				<p className="text-lg text-center mb-8">Escolha o tipo de paciente que deseja adicionar</p>
 			</div>
 
 			<div className="w-3/4 mx-auto mb-32 space-y-6">
 				<TipTap onChange={setNote} isSaving={isSaving} />
-				<div className="flex flex-col items-center gap-1 border border-primary p-4 rounded-lg bg-orange-100 dark:bg-gray-950">
+				<div className="flex flex-col items-center gap-1 border border-primary dark:border-foreground/30 p-4 rounded-lg bg-orange-100 dark:bg-gray-950">
 					<label htmlFor="image" className="mt-4 block text-xl ">Adicionar Imagem</label>
 					<input type="file" className="mt-4 file:flex file:items-center file:justify-center file:w-full file:mb-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-orange-700 file:transition-all file:duration-150" id="image" onChange={handleFileChange} />
 					{imagePreview && (

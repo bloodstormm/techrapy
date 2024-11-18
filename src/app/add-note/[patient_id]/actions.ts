@@ -1,5 +1,4 @@
 'use server'
-
 import { supabase } from '@/lib/supabaseClient';
 
 export async function navigate(encryptedNote: string, patientId: string, imageUrl: string) {
@@ -15,9 +14,9 @@ export async function navigate(encryptedNote: string, patientId: string, imageUr
       ]);
 
     if (error) throw error;
-    return true;
-  } catch (error) {
+    return { success: true };
+  } catch (error: any) {
     console.error('Erro ao salvar nota:', error);
-    return false;
+    return { success: false, message: error.message };
   }
 }
