@@ -6,15 +6,16 @@ interface SearchPatientsProps {
   search: string;
   setSearch: (value: string) => void;
   placeholder: string;
+  className?: string;
 }
 
-const SearchBar = ({ search, setSearch, placeholder }: SearchPatientsProps) => {
+const SearchBar = ({ search, setSearch, placeholder, className }: SearchPatientsProps) => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   }
 
   return (
-    <form className="flex items-center bg-white dark:bg-background border border-foreground/20 dark:border-foreground/10 w-1/2 container rounded-xl p-4 h-14 transition-all duration-300" onSubmit={(e) => e.preventDefault()}>
+    <form className={` ${className} flex items-center bg-white dark:bg-background border border-foreground/20 dark:border-foreground/10 w-1/2 container rounded-xl p-4 h-14 transition-all duration-300`} onSubmit={(e) => e.preventDefault()}>
       <input
         type="text"
         placeholder={placeholder}

@@ -21,6 +21,7 @@ import {
 } from "./ui/dropdown-menu";
 import ReadOnlyNote from "./tiptap/ReadOnlyNote";
 import { decryptText } from '@/lib/encryption';
+import Link from "next/link";
 
 const highlightText = (text: string, search: string) => {
   if (!search) return text;
@@ -49,6 +50,11 @@ const NoteHeader = ({
               <Cog6ToothIcon className="w-4 h-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/edit-note/${noteId}`} className="cursor-pointer">
+                  Editar
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDelete(noteId)}>
                 Excluir
               </DropdownMenuItem>

@@ -30,7 +30,6 @@ export interface FamilyDisease {
   disease: string;
 }
 
-export type PatientDataWithoutId = Omit<PatientData, "patient_id" | "created_at">;
 
 export const tabs = [
   { id: 1, title: "Tipo de Paciente" },

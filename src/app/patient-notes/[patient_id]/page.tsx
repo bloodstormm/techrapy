@@ -2,14 +2,15 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GlobeAltIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftStartOnRectangleIcon, Cog6ToothIcon, GlobeAltIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { ArrowTopLeftIcon } from "@radix-ui/react-icons";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { FamilyDisease, Disease, PatientData } from "@/types/patientData";
 import { useEffect, useState } from "react";
 import { PatientNote } from "@/types/patientNotes";
 import PatientNoteItem from "@/components/patientNoteItem";
+import ReadOnlyNote from "@/components/tiptap/ReadOnlyNote";
 import { toast } from 'sonner';
 import { Empty_Notes } from "../../../../public/images";
 import Image from "next/image";
@@ -20,6 +21,20 @@ import { decryptText } from '@/lib/encryption';
 import { supabase } from '@/lib/supabaseClient';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { formatDate } from "@/i18n/formatDate";
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import AddDiseaseDialog from "@/components/addDiseaseDialog";
+import AddFamilyDiseaseDialog from "@/components/addFamilyDiseaseDialog";
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const router = useRouter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
@@ -28,9 +43,16 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const [familyDiseases, setFamilyDiseases] = useState<FamilyDisease[]>([]);
   const [decryptedNotes, setDecryptedNotes] = useState<PatientNote[]>([]);
   const [search, setSearch] = useState("");
+  const [searchNote, setSearchNote] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [newDisease, setNewDisease] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenPatientDisease, setIsOpenPatientDisease] = useState(false);
+  const [isOpenFamilyDisease, setIsOpenFamilyDisease] = useState(false);
 
   useEffect(() => {
     const successMessage = localStorage.getItem('successMessage');
@@ -123,6 +145,14 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
 
     checkAuthAndOwnership();
   }, [params.patient_id, router, supabase]);
+
+  const fetchFamilyDiseases = async () => {
+    const { data: newFamilyDiseases } = await supabase
+      .from('family_diseases')
+      .select('*')
+      .eq('patient_id', params.patient_id);
+    if (newFamilyDiseases) setFamilyDiseases(newFamilyDiseases);
+  }
 
   useEffect(() => {
     const decryptAllNotes = () => {
@@ -261,7 +291,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                       <TooltipTrigger>
                         <p
                           className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
-                  >
+                        >
                           {disease.disease.trim()}
                         </p>
                       </TooltipTrigger>
@@ -379,17 +409,19 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
               <Drawer>
                 <DrawerTrigger className="text-orange-400"><Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">Mais informações sobre doenças do paciente</Button></DrawerTrigger>
                 <DrawerContent>
-                  <DrawerHeader className="container px-0 mx-auto">
-                    <DrawerTitle>Mais informações sobre doenças do paciente</DrawerTitle>
-                  </DrawerHeader>
-                  <DrawerDescription className="container mx-auto">
-                    <p className="text-foreground text-sm">{patientData.more_info_about_diseases}</p>
-                  </DrawerDescription>
-                  <DrawerFooter>
-                    <DrawerClose>
-                      <Button variant="outline" className="text-orange-400">Fechar</Button>
-                    </DrawerClose>
-                  </DrawerFooter>
+                  <div className="max-w-4xl mx-auto">
+                    <DrawerHeader className="container px-0 mx-auto">
+                      <DrawerTitle>Mais informações sobre doenças do paciente</DrawerTitle>
+                    </DrawerHeader>
+                    <DrawerDescription className="container mx-auto">
+                      <p className="text-foreground text-sm">{patientData.more_info_about_diseases}</p>
+                    </DrawerDescription>
+                    <DrawerFooter>
+                      <DrawerClose>
+                        <Button variant="outline" className="text-orange-400">Fechar</Button>
+                      </DrawerClose>
+                    </DrawerFooter>
+                  </div>
                 </DrawerContent>
               </Drawer>
             </>
@@ -406,6 +438,36 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                   <TabsTrigger value="notes">Relatos de sessão</TabsTrigger>
                   <TabsTrigger value="notes_summary">Resumo de IA (Parte 2)</TabsTrigger>
                 </TabsList>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="">
+                    <Button variant="outline" className="flex items-center justify-center">
+                      <PlusIcon className="w-4 h-4 gap-2" />
+                      <p className="font-medium">Adicionar uma nova doença</p>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-white dark:bg-background text-center w-full">
+                    <AddDiseaseDialog
+                      isOpen={isOpen}
+                      setIsOpen={setIsOpen}
+                      patientId={params.patient_id}
+                      decryptedNotes={decryptedNotes}
+                      onDiseaseAdded={async () => {
+                        const { data: newDiseases } = await supabase
+                          .from('diseases')
+                          .select('*')
+                          .eq('patient_id', params.patient_id);
+                        if (newDiseases) setDiseases(newDiseases);
+                      }}
+                    />
+                    <AddFamilyDiseaseDialog
+                      isOpen={isOpenFamilyDisease}
+                      setIsOpen={setIsOpenFamilyDisease}
+                      patientId={params.patient_id}
+                      onDiseaseAdded={fetchFamilyDiseases}
+                    />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 <Link href={`/add-note/${patientData.patient_id}`}>
                   <Button variant="default" className=" flex items-center justify-center hover:bg-orange-500">
                     <PlusIcon className="w-4 h-4 gap-2" />

@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Adult, Child, Teens, Couple } from "../../../public/images";
-import { PatientData, PatientDataWithoutId, tabs } from "@/types/patientData";
+import { tabs } from "@/types/patientData";
 
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -45,7 +45,7 @@ import MaskedInput from 'react-text-mask'; // Importar o MaskedInput
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { toast } from "sonner";
 import { supabase } from '@/lib/supabaseClient';
-import { useLookupValues } from '@/hooks/useLookUpValues';
+import { useLookupValues } from '@/hooks/useLookupValues';
 
 // Adicione esta interface no início do arquivo
 interface FamilyDiseaseWithRelationship {
@@ -592,7 +592,7 @@ export default function FormSteps({
               </div>
             </TabsContent>
             <TabsContent value="Histórico">
-              <div className="grid gap-x-8 gap-y-4 grid-cols-2 mb-4 items-center justify-center">
+              <div className="grid gap-x-8 gap-y-4 grid-cols-2 mb-4 items-start justify-center">
                 <div>
                   <label>Histórico de doenças</label>
                   <div className="space-y-2">
@@ -667,7 +667,7 @@ export default function FormSteps({
                                 <p className="gap-y-3 items-center flex flex-wrap">
                                   {selectedFamilyDiseases.map((item) => (
                                     <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={item.disease}>
-                                      {item.disease} ({item.relationship || 'Parentesco não informado'})
+                                      {item.disease}
                                     </span>
                                   ))}
                                 </p>
