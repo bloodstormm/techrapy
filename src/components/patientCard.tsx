@@ -31,8 +31,8 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
-            const lastNote = await fetchLastNote(patientData.patient_id);
-            const patientNotesCount = await fetchPatientNotesCount(patientData.patient_id);
+            const lastNote = await fetchLastNote(patientData.patient_id!);
+            const patientNotesCount = await fetchPatientNotesCount(patientData.patient_id!);
             lastNote && (lastNote.note = decryptText(lastNote.note));
             setLastNote(lastNote);
             setPatientNotesCount(patientNotesCount);
@@ -42,7 +42,7 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
     }, [patientData.patient_id]);
 
     const handleDeletePatient = async () => {
-        await onDeletePatient(patientData.patient_id);
+        await onDeletePatient(patientData.patient_id!);
     };
 
     const renderLoadingState = () => (

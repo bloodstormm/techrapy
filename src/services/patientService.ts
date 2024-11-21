@@ -1,6 +1,7 @@
 import { PatientNote } from "@/types/patientNotes";
 import { PatientData } from "@/types/patientData";
 import { supabase } from '@/lib/supabaseClient';
+import { Disease, FamilyDisease } from '@/types/patientData';
 
 export const fetchPatientById = async (patientId: string) => {
   // Obter o usuário atual
@@ -104,33 +105,34 @@ export const deleteNoteById = async (note_id: string) => {
   }
 }
 
-export const createPatient = async (patientData: any) => {
+export const createPatient = async (patientData: PatientData): Promise<PatientData> => {
   const { data, error } = await supabase
-    .from("patients")
-    .insert([
-      {
-        patient_name: patientData.patient_name,
-        birthdate: patientData.birthdate,
-        marital_status: patientData.marital_status,
-        session_day: patientData.session_day,
-        guardian_name: patientData.guardian_name,
-        patient_type: patientData.patient_type,
-        payment_type: patientData.payment_type,
-        guardian_phone_number: patientData.guardian_phone_number,
-        phone_number: patientData.phone_number,
-        more_info_about_patient: patientData.more_info_about_patient,
-        more_info_about_diseases: patientData.more_info_about_diseases,
-        family_diseases_history: patientData.family_diseases_history,
-        diseases_history: patientData.diseases_history,
-        therapist_owner: patientData.therapist_owner,
-      },
-    ]);
+    .from('patients')
+    .insert(patientData)
+    .select('patient_id')
+    .single();
+  
+  if (error) throw error;
+  return data as PatientData;
+};
 
-  if (error) {
-    console.error("Erro ao criar paciente:", error); // Log para debug
-    throw new Error(error.message);
-  }
+export const addDisease = async (diseaseData: Disease) => {
+  const { data, error } = await supabase
+    .from('diseases')
+    .insert(diseaseData)
+    .single();
+  
+  if (error) throw error;
+  return data;
+};
 
+export const addFamilyDisease = async (familyDiseaseData: FamilyDisease) => {
+  const { data, error } = await supabase
+    .from('family_diseases')
+    .insert(familyDiseaseData)
+    .single();
+  
+  if (error) throw error;
   return data;
 };
 

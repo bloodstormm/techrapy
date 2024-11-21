@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import { encryptText } from '@/lib/encryption';
+import { Input } from '@/components/ui/input';
 
 const AddNote = ({ params }: { params: { patient_id: string } }) => {
 	const [note, setNote] = useState('');
@@ -103,7 +104,7 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 			setIsSaving(false);
 
 			if (result.success) {
-				localStorage.setItem('successMessage', 'Nota e imagem adicionadas com sucesso!');
+				localStorage.setItem('successMessage', 'Relato de sessão adicionado com sucesso!');
 				window.location.href = `/patient-notes/${params.patient_id}`;
 			} else {
 				toast.error(`Erro ao adicionar a nota: ${result.message}`);
@@ -132,7 +133,7 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 				<TipTap onChange={setNote} isSaving={isSaving} />
 				<div className="flex flex-col items-center gap-1 border border-primary dark:border-foreground/30 p-4 rounded-lg bg-orange-100 dark:bg-gray-950">
 					<label htmlFor="image" className="mt-4 block text-xl ">Adicionar Imagem</label>
-					<input type="file" className="mt-4 file:flex file:items-center file:justify-center file:w-full file:mb-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-orange-700 file:transition-all file:duration-150" id="image" onChange={handleFileChange} />
+					<Input type="file" className="mt-4 file:flex file:py-1 file:items-center justify-center file:w-full file:mb-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold bg-primary file:text-white hover:bg-orange-700 file:transition-all file:duration-150" id="image" onChange={handleFileChange} />
 					{imagePreview && (
 						<img src={imagePreview} alt="Pré-visualização da imagem" className="mt-4 max-w-[500px] h-auto rounded-lg" />
 					)}

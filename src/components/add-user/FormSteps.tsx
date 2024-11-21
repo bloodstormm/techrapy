@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Adult, Child, Teens, Couple } from "../../../public/images";
-import { diseasesList, weekDays, tabs, familyDiseasesList, paymentTypes, maritalStatus } from "@/types/patientData";
+import { PatientData, PatientDataWithoutId, tabs } from "@/types/patientData";
 
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -39,13 +39,19 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { CalendarIcon, ChevronsUpDown, ChevronRight } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import React from "react";
-import { createPatient } from "@/services/patientService";
+import { createPatient, addDisease, addFamilyDisease } from "@/services/patientService";
 import { ptBR } from 'date-fns/locale' // Importar a localidade em português
 import MaskedInput from 'react-text-mask'; // Importar o MaskedInput
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { toast } from "sonner";
 import { supabase } from '@/lib/supabaseClient';
+import { useLookupValues } from '@/hooks/useLookUpValues';
 
+// Adicione esta interface no início do arquivo
+interface FamilyDiseaseWithRelationship {
+  disease: string;
+  relationship: string;
+}
 
 type AnimatedTabsProps = {
   patientType: string;
@@ -76,23 +82,35 @@ export default function FormSteps({
       phone_number: "",
       more_info_about_patient: "",
       more_info_about_diseases: "",
-      family_diseases_history: "",
-      diseases_history: "",
       therapist_owner: "",
+      patient_gender: "",
     },
   });
 
   // Mover a definição dos estados para fora dos FormFields
   const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
-  const [selectedFamilyDiseases, setSelectedFamilyDiseases] = useState<string[]>([]);
+  const [selectedFamilyDiseases, setSelectedFamilyDiseases] = useState<FamilyDiseaseWithRelationship[]>([]);
+
+  const [otherDisease, setOtherDisease] = useState("");
+  const [otherFamilyDisease, setOtherFamilyDisease] = useState("");
+  const [showOtherDiseaseInput, setShowOtherDiseaseInput] = useState(false);
+  const [showOtherFamilyDiseaseInput, setShowOtherFamilyDiseaseInput] = useState(false);
+
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const handleDiseaseChange = (value: string) => {
     let newSelectedDiseases: string[];
 
+    if (value === "other") {
+      setShowOtherDiseaseInput(true);
+      return;
+    }
+
     if (value === "none") {
-      newSelectedDiseases = ["none"];
+      newSelectedDiseases = ["Nenhuma"];
+      setShowOtherDiseaseInput(false);
     } else {
-      if (selectedDiseases.includes("none")) {
+      if (selectedDiseases.includes("Nenhuma")) {
         newSelectedDiseases = [value];
       } else {
         newSelectedDiseases = selectedDiseases.includes(value)
@@ -102,31 +120,54 @@ export default function FormSteps({
     }
 
     setSelectedDiseases(newSelectedDiseases);
-    form.setValue("diseases_history", newSelectedDiseases.join(","));
   };
 
-  const handleFamilyDiseaseChange = (value: string) => {
-    let newSelectedFamilyDiseases: string[];
-
-    if (value === "none") {
-      newSelectedFamilyDiseases = ["none"];
-    } else {
-      if (selectedFamilyDiseases.includes("none")) {
-        newSelectedFamilyDiseases = [value];
-      } else {
-        newSelectedFamilyDiseases = selectedFamilyDiseases.includes(value)
-          ? selectedFamilyDiseases.filter((v) => v !== value)
-          : [...selectedFamilyDiseases, value];
-      }
+  const handleFamilyDiseaseChange = (diseaseLabel: string) => {
+    if (diseaseLabel === "other") {
+      setShowOtherFamilyDiseaseInput(!showOtherFamilyDiseaseInput);
+      return;
     }
 
-    setSelectedFamilyDiseases(newSelectedFamilyDiseases);
-    form.setValue("family_diseases_history", newSelectedFamilyDiseases.join(","));
+    setSelectedFamilyDiseases((prev) => {
+      const exists = prev.some(item => item.disease === diseaseLabel);
+      
+      if (exists) {
+        return prev.filter(item => item.disease !== diseaseLabel);
+      } else {
+        if (diseaseLabel === "Nenhuma") {
+          return [{ disease: "Nenhuma", relationship: "" }];
+        }
+        return prev[0]?.disease === "Nenhuma" 
+          ? [{ disease: diseaseLabel, relationship: "" }]
+          : [...prev, { disease: diseaseLabel, relationship: "" }];
+      }
+    });
+  };
+
+  const handleAddOtherDisease = () => {
+    if (otherDisease.trim()) {
+      const newSelectedDiseases = [...selectedDiseases, otherDisease.trim()];
+      setSelectedDiseases(newSelectedDiseases);
+      setOtherDisease("");
+      setShowOtherDiseaseInput(false);
+    }
+  };
+
+  const handleAddOtherFamilyDisease = () => {
+    if (otherFamilyDisease.trim()) {
+      setSelectedFamilyDiseases(prev => [
+        ...prev.filter(item => item.disease !== "Nenhuma"),
+        { disease: otherFamilyDisease, relationship: "" }
+      ]);
+      setOtherFamilyDisease("");
+      setShowOtherFamilyDiseaseInput(false);
+    }
   };
 
   const [therapistId, setTherapistId] = useState<string | null>(null);
+  const { lookupValues, isLoading, error } = useLookupValues();
 
-  // Buscar o ID do terapeuta quando o componente montar
+  // Mover o useEffect para antes de qualquer renderização condicional
   useEffect(() => {
     const getTherapistId = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -139,34 +180,58 @@ export default function FormSteps({
     getTherapistId();
   }, []);
 
+  // Renderização condicional após todos os hooks
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
+
+  if (error) {
+    return <div>Erro ao carregar dados: {error.message}</div>;
+  }
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
 
     try {
-      // Verificar se o ID do terapeuta está disponível
       if (!therapistId) {
         toast.error("Erro: Terapeuta não autenticado. Por favor, faça login novamente.");
         return;
       }
 
-      // Obter os valores do formulário
       const patientData = form.getValues();
       patientData.birthdate = date!;
       patientData.patient_type = selectedPatientType;
-      patientData.diseases_history = selectedDiseases.join(",");
-      patientData.family_diseases_history = selectedFamilyDiseases.join(",");
       patientData.therapist_owner = therapistId;
-      console.log("Patient Data:", patientData); // Log para debug
+      console.log("Patient Data:", patientData);
 
-      // Chamar a função para criar o paciente e aguardar sua conclusão
-      const data = await createPatient(patientData);
+      // Tipar o retorno como Patient
+      const createdPatient = await createPatient(patientData);
 
-      // Definir a mensagem de sucesso e redirecionar
+      // Adicionar doenças do paciente
+      for (const disease of selectedDiseases) {
+        await addDisease({
+          patient_id: createdPatient.patient_id!,
+          disease: disease,
+          note_id: null, // Ajuste conforme necessário
+          created_at: new Date(),
+        });
+      }
+
+      // Adicionar doenças da família
+      for (const disease of selectedFamilyDiseases) {
+        await addFamilyDisease({
+          patient_id: createdPatient.patient_id!,
+          disease: disease.disease,
+          relationship: disease.relationship,
+          created_at: new Date(),
+        });
+      }
+
       localStorage.setItem('successMessage', 'Paciente criado com sucesso');
       window.location.href = "/all-patients";
     } catch (error: any) {
-      console.error("Erro completo:", error); // Log para debug
+      console.error("Erro completo:", error);
       toast.error(`Erro ao criar paciente: ${error.message}`);
     } finally {
       setIsSaving(false);
@@ -203,7 +268,8 @@ export default function FormSteps({
             <div key={tab.id} className="flex items-center">
               <TabsTrigger
                 value={tab.title}
-                className=" cursor-auto border border-transparent rounded-full gap-1  data-[state=active]:border-orange-400 data-[state=active]:text-orange-600 data-[state=active]:bg-orange-400/10"
+                onClick={() => setSelectedTab(tab.title)}
+                className="border border-transparent rounded-full gap-1 data-[state=active]:border-orange-400 data-[state=active]:text-orange-600 data-[state=active]:bg-orange-400/10"
               >
                 <span>{tab.id}</span>
                 <p>{tab.title}</p>
@@ -243,7 +309,7 @@ export default function FormSteps({
               </div>
             </TabsContent>
             <TabsContent value="Informações Básicas">
-              <div className="grid gap-x-8 gap-y-4 grid-cols-2 items-center justify-center">
+              <div className="grid gap-x-8 mb-4 gap-y-4 grid-cols-2 items-center justify-center">
                 <FormField
                   control={form.control}
                   name="patient_name"
@@ -325,9 +391,9 @@ export default function FormSteps({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {paymentTypes.map((payment) => (
-                            <SelectItem key={payment.value} value={payment.value}>
-                              {payment.label}
+                          {lookupValues.payment_types?.map((item) => (
+                            <SelectItem key={item.value} value={item.label}>
+                              {item.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -341,26 +407,43 @@ export default function FormSteps({
                   name="session_day"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dia da sessão</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o dia da sessão" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectGroup>
-                            {weekDays.map((day) => (
-                              <SelectItem key={day.value} value={day.value}>
-                                {day.label}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Dias da sessão</FormLabel>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" className="w-full justify-start bg-orange-100 h-10 hover:bg-orange-10">
+                            {selectedDays.length > 0 ? (
+                              <p className="gap-y-3 items-center flex flex-wrap">
+                                {selectedDays.map((day) => (
+                                  <span key={day} className="mr-2 bg-orange-200 rounded-xl p-1 px-2">
+                                    {lookupValues.week_days?.find(d => d.label === day)?.label}
+                                  </span>
+                                ))}
+                              </p>
+                            ) : (
+                              "Selecione os dias da sessão"
+                            )}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56">
+                          <DropdownMenuLabel>Dias da Semana</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {lookupValues.week_days?.map((day) => (
+                            <DropdownMenuCheckboxItem
+                              key={day.value}
+                              checked={selectedDays.includes(day.label)}
+                              onCheckedChange={(checked) => {
+                                const newSelectedDays = checked
+                                  ? [...selectedDays, day.label]
+                                  : selectedDays.filter((d) => d !== day.label);
+                                setSelectedDays(newSelectedDays);
+                                field.onChange(newSelectedDays.join(','));
+                              }}
+                            >
+                              {day.label}
+                            </DropdownMenuCheckboxItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -442,8 +525,8 @@ export default function FormSteps({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {maritalStatus.map((status) => (
-                                <SelectItem key={status.value} value={status.value}>
+                              {lookupValues.marital_status?.map((status) => (
+                                <SelectItem key={status.value} value={status.label}>
                                   {status.label}
                                 </SelectItem>
                               ))}
@@ -457,22 +540,49 @@ export default function FormSteps({
                 )}
                 <FormField
                   control={form.control}
-                  name="more_info_about_patient"
+                  name="patient_gender"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mais informações sobre o paciente (Opcional)</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Digite mais informações iniciais sobre o paciente"
-                          {...field}
-                        />
-                      </FormControl>
+                      <FormLabel>Gênero do paciente</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o gênero do paciente" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {lookupValues.gender?.map((status) => (
+                            <SelectItem key={status.value} value={status.label}>
+                              {status.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-              <div className="col-span-2 flex justify-between mt-4">
+              <FormField
+                control={form.control}
+                name="more_info_about_patient"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Detalhes adicionais sobre o paciente (Opcional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Digite mais informações iniciais sobre o paciente"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="col-span-2 flex justify-between mt-8">
                 <Button type="button" onClick={handleBack}>
                   Voltar
                 </Button>
@@ -482,117 +592,175 @@ export default function FormSteps({
               </div>
             </TabsContent>
             <TabsContent value="Histórico">
-              <div className="grid gap-x-8 gap-y-4 grid-cols-2 items-center justify-center">
-                <FormField
-                  control={form.control}
-                  name="diseases_history"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Histórico de doenças</FormLabel>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" className="w-full h-full bg-transparent justify-start hover:bg-orange-400/10 whitespace-normal gap-4 ">
-                            {selectedDiseases.length > 0
-                              ? selectedDiseases.length === 1 && selectedDiseases[0] === "none"
-                                ? "Nenhuma"
-                                : (
-                                  <p className="gap-y-3 items-center flex flex-wrap">
-                                    {selectedDiseases.map((disease) => (
-                                      <span className="mr-2 bg-orange-100 rounded-xl p-1 px-2 capitalize" key={disease}>
-                                        {disease.replace(/_/g, ' ')}
-                                      </span>
-                                    ))}
-                                  </p>
-                                )
-                              : "Nenhuma"}
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56 self-start">
-                          <DropdownMenuLabel>Histórico de Doenças</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          {diseasesList.map((disease) => (
-                            <DropdownMenuCheckboxItem
-                              key={disease.value}
-                              checked={selectedDiseases.includes(disease.value)}
-                              onCheckedChange={() => handleDiseaseChange(disease.value)}
-                            >
-                              {disease.label}
-                            </DropdownMenuCheckboxItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </FormItem>
-                  )}
-                />
+              <div className="grid gap-x-8 gap-y-4 grid-cols-2 mb-4 items-center justify-center">
+                <div>
+                  <label>Histórico de doenças</label>
+                  <div className="space-y-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full bg-orange-100 h-full justify-start hover:bg-orange-400/10 whitespace-normal gap-4 ">
+                          {selectedDiseases.length > 0
+                            ? selectedDiseases.length === 1 && selectedDiseases[0] === "none"
+                              ? "Nenhuma"
+                              : (
+                                <p className="gap-y-3 items-center flex flex-wrap">
+                                  {selectedDiseases.map((disease) => (
+                                    <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={disease}>
+                                      {disease.replace(/_/g, ' ')}
+                                    </span>
+                                  ))}
+                                </p>
+                              )
+                            : "Nenhuma"}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56 self-start">
+                        <DropdownMenuLabel>Histórico de Doenças</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {lookupValues.diseases?.map((disease) => (
+                          <DropdownMenuCheckboxItem
+                            key={disease.value}
+                            checked={selectedDiseases.includes(disease.label)}
+                            onCheckedChange={() => handleDiseaseChange(disease.label)}
+                          >
+                            {disease.label}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                        <DropdownMenuCheckboxItem
+                          checked={showOtherDiseaseInput}
+                          onCheckedChange={() => handleDiseaseChange("other")}
+                        >
+                          Outra doença
+                        </DropdownMenuCheckboxItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
 
-                <FormField
-                  control={form.control}
-                  name="family_diseases_history"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Histórico de doenças na família</FormLabel>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" className="w-full h-full bg-transparent justify-start hover:bg-orange-400/10 whitespace-normal gap-4">
-                            {selectedFamilyDiseases.length > 0
-                              ? selectedFamilyDiseases.length === 1 && selectedFamilyDiseases[0] === "none"
-                                ? "Nenhuma"
-                                : (
-                                  <p className="gap-y-3 items-center flex flex-wrap">
-                                    {selectedFamilyDiseases.map((disease) => (
-                                      <span className="mr-2 bg-orange-100 rounded-xl p-1 px-2 capitalize" key={disease}>
-                                        {disease.replace(/_/g, ' ')}
-                                      </span>
-                                    ))}
-                                  </p>
-                                )
-                              : "Nenhuma"}
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56 self-start">
-                          <DropdownMenuLabel>Histórico de Doenças na Família</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          {familyDiseasesList.map((disease) => (
-                            <DropdownMenuCheckboxItem
-                              key={disease.value}
-                              checked={selectedFamilyDiseases.includes(disease.value)}
-                              onCheckedChange={() => handleFamilyDiseaseChange(disease.value)}
-                            >
-                              {disease.label}
-                            </DropdownMenuCheckboxItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </FormItem>
-                  )}
-                />
-
-
-                <FormField
-                  control={form.control}
-                  name="more_info_about_diseases"
-
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mais informações sobre o histórico de doenças do paciente</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Digite mais informações sobre o paciente"
-                          className="resize-none"
-                          {...field}
+                    {showOtherDiseaseInput && (
+                      <div className="flex gap-2">
+                        <Input
+                          value={otherDisease}
+                          onChange={(e) => setOtherDisease(e.target.value)}
+                          placeholder="Digite o nome da doença"
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="col-span-2 flex justify-between mt-4">
-                  <Button type="button" onClick={handleBack}>
-                    Voltar
-                  </Button>
-                  <Button type="submit" form="patientForm">Salvar</Button>
+                        <Button
+                          type="button"
+                          onClick={handleAddOtherDisease}
+                          variant="outline"
+                        >
+                          Adicionar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                <div>
+                  <label>Histórico de doenças na família</label>
+                  <div className="space-y-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full bg-orange-100 h-full justify-start hover:bg-orange-400/10 whitespace-normal gap-4">
+                          {selectedFamilyDiseases.length > 0
+                            ? selectedFamilyDiseases.length === 1 && selectedFamilyDiseases[0].disease === "Nenhuma"
+                              ? "Nenhuma"
+                              : (
+                                <p className="gap-y-3 items-center flex flex-wrap">
+                                  {selectedFamilyDiseases.map((item) => (
+                                    <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={item.disease}>
+                                      {item.disease} ({item.relationship || 'Parentesco não informado'})
+                                    </span>
+                                  ))}
+                                </p>
+                              )
+                            : "Nenhuma"}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56 self-start">
+                        <DropdownMenuLabel>Histórico de Doenças na Família</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {lookupValues.diseases?.map((disease) => (
+                          <DropdownMenuCheckboxItem
+                            key={disease.value}
+                            checked={selectedFamilyDiseases.some(d => d.disease === disease.label)}
+                            onCheckedChange={() => handleFamilyDiseaseChange(disease.label)}
+                          >
+                            {disease.label}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                        <DropdownMenuCheckboxItem
+                          checked={showOtherFamilyDiseaseInput}
+                          onCheckedChange={() => handleFamilyDiseaseChange("other")}
+                        >
+                          Outra doença
+                        </DropdownMenuCheckboxItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {selectedFamilyDiseases.length > 0 && selectedFamilyDiseases[0].disease !== "Nenhuma" && (
+                      <div className="space-y-2 mt-2">
+                        {selectedFamilyDiseases.map((item, index) => (
+                          <div key={index} className="flex gap-2 items-center">
+                            <span className="min-w-[120px]">{item.disease}:</span>
+                            <Input
+                              value={item.relationship}
+                              onChange={(e) => {
+                                const newSelectedDiseases = [...selectedFamilyDiseases];
+                                newSelectedDiseases[index].relationship = e.target.value;
+                                setSelectedFamilyDiseases(newSelectedDiseases);
+                              }}
+                              placeholder="Digite o parentesco"
+                              className="flex-1"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {showOtherFamilyDiseaseInput && (
+                      <div className="flex gap-2">
+                        <Input
+                          value={otherFamilyDisease}
+                          onChange={(e) => setOtherFamilyDisease(e.target.value)}
+                          placeholder="Digite o nome da doença"
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleAddOtherFamilyDisease}
+                          variant="outline"
+                        >
+                          Adicionar
+                        </Button>
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+
+              </div>
+
+              <FormField
+                control={form.control}
+                name="more_info_about_diseases"
+
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Detalhes adicionais sobre doenças (Opcional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Digite mais informações sobre o paciente"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="col-span-2 flex justify-between mt-8">
+                <Button type="button" onClick={handleBack}>
+                  Voltar
+                </Button>
+                <Button type="submit" form="patientForm">Salvar</Button>
               </div>
             </TabsContent>
           </form>

@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { Login_Image } from "../../../public/images";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { PasswordInput } from "@/components/ui/passwordInput";
 
 interface LoginData {
     therapist_email: string;
@@ -128,9 +129,8 @@ const Login = () => {
                                 >
                                     Senha
                                 </label>
-                                <Input
+                                <PasswordInput
                                     placeholder="•••••••••"
-                                    type="password"
                                     id="therapist_password"
                                     {...register("therapist_password", {
                                         required: "Senha é obrigatória",

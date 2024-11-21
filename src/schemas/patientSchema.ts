@@ -15,6 +15,7 @@ export const patientSchema = z.object({
   family_diseases_history: z.string(),
   diseases_history: z.string(),
   therapist_owner: z.string(),
+  patient_gender: z.string(),
 });
 
 export type PatientFormData = z.infer<typeof patientSchema>;

@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { createTherapist, TherapistData } from "@/services/therapistService";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { PasswordInput } from "@/components/ui/passwordInput";
 
 const Register = () => {
     const { 
@@ -95,9 +96,8 @@ const Register = () => {
 
                     <div className="flex flex-col">
                         <label htmlFor="therapist_password" className="text-orange-900 dark:text-foreground mb-2">Senha</label>
-                        <Input 
+                        <PasswordInput 
                             id="therapist_password" 
-                            type="password" 
                             placeholder="•••••••••" 
                             {...register("therapist_password", { 
                                 required: "Senha é obrigatória", 
@@ -110,9 +110,8 @@ const Register = () => {
 
                     <div className="flex flex-col">
                         <label htmlFor="confirm_password" className="text-orange-900 dark:text-foreground mb-2">Confirmar Senha</label>
-                        <Input 
+                        <PasswordInput 
                             id="confirm_password" 
-                            type="password" 
                             placeholder="•••••••••" 
                             {...register("confirm_password", { required: "Confirme sua senha" })} 
                             className="mb-5 h-12" 

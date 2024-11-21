@@ -2,11 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { GlobeAltIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { ArrowTopLeftIcon } from "@radix-ui/react-icons";
 
 import Link from "next/link";
-import { PatientData } from "@/types/patientData";
+import { FamilyDisease, Disease, PatientData } from "@/types/patientData";
 import { useEffect, useState } from "react";
 import { PatientNote } from "@/types/patientNotes";
 import PatientNoteItem from "@/components/patientNoteItem";
@@ -18,10 +18,14 @@ import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, Dr
 import { useRouter } from 'next/navigation';
 import { decryptText } from '@/lib/encryption';
 import { supabase } from '@/lib/supabaseClient';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { formatDate } from "@/i18n/formatDate";
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const router = useRouter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
+  const [diseases, setDiseases] = useState<Disease[]>([]);
+  const [familyDiseases, setFamilyDiseases] = useState<FamilyDisease[]>([]);
   const [decryptedNotes, setDecryptedNotes] = useState<PatientNote[]>([]);
   const [search, setSearch] = useState("");
 
@@ -95,6 +99,26 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
       } finally {
         setLoading(false);
       }
+
+      // Buscando doenças do paciente
+      const { data: diseases, error: diseasesError } = await supabase
+        .from('diseases')
+        .select('*')
+        .eq('patient_id', params.patient_id);
+      if (diseasesError) {
+        throw diseasesError;
+      }
+      setDiseases(diseases);
+
+      // Buscando doenças do paciente
+      const { data: familyDiseases, error: familyDiseasesError } = await supabase
+        .from('family_diseases')
+        .select('*')
+        .eq('patient_id', params.patient_id);
+      if (familyDiseasesError) {
+        throw familyDiseasesError;
+      }
+      setFamilyDiseases(familyDiseases);
     };
 
     checkAuthAndOwnership();
@@ -132,15 +156,15 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   </>;
   if (!patientData) return <>
     <div className="flex justify-center items-center h-screen">
-      <p className="text-center text-orange-400 text-xl font-medium">No patient data found</p>
+      <p className="text-center text-orange-400 text-xl font-medium">Nenhum paciente encontrado</p>
     </div>
   </>;
+
+  console.log(diseases);
 
   const {
     patient_name,
     patient_type,
-    diseases_history,
-    family_diseases_history,
     session_day,
     birthdate,
     phone_number,
@@ -148,7 +172,10 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     payment_type,
     guardian_phone_number,
     guardian_name,
+    patient_gender,
   } = patientData;
+
+
 
   const handleDeleteNote = async (noteId: string) => {
     try {
@@ -202,6 +229,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     item.decryptedContent?.toLowerCase().includes(search.toLowerCase())
   );
 
+
   return (
     <div className="container mx-auto flex lg:flex-row flex-col gap-10 mt-10 mb-32">
       {/* Lado esquerdo */}
@@ -222,16 +250,26 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
 
         <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
           <div className="flex flex-col">
-            <span className=" text-orange-400">Histórico de doenças</span>
+            <span className=" text-orange-400">Gênero</span>
+            <p className="text-sm text-gray-500 capitalize">{patient_gender}</p>
+            <span className=" text-orange-400 mt-4">Histórico de doenças</span>
             <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
-              {diseases_history ? (
-                diseases_history.split(",").map((disease, index) => (
-                  <p
-                    key={index}
-                    className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
+              {diseases ? (
+                diseases.map((disease, index) => (
+                  <TooltipProvider key={index}>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <p
+                          className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
                   >
-                    {disease.trim()}
-                  </p>
+                          {disease.disease.trim()}
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm capitalize">Data: {formatDate(new Date(disease.created_at))}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ))
               ) : (
                 <p className="text-sm text-gray-500">
@@ -241,16 +279,24 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
             </div>
           </div>
           <div className="flex flex-col">
-            <span className=" text-orange-400">Histórico de doenças na família</span>
+            <span className="text-orange-400">Histórico de doenças na família</span>
             <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
-              {family_diseases_history ? (
-                family_diseases_history.split(",").map((disease, index) => (
-                  <p
-                    key={index}
-                    className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
-                  >
-                    {disease.trim()}
-                  </p>
+              {familyDiseases ? (
+                familyDiseases.map((disease, index) => (
+                  <TooltipProvider key={index}>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <p
+                          className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
+                        >
+                          {disease.disease.trim()}
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm capitalize">Parentesco: {disease.relationship}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ))
               ) : (
                 <p className="text-sm text-gray-500">
@@ -260,7 +306,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-orange-400">Dia da consulta</span>
+            <span className="text-orange-400">Dia(s) da sessão</span>
             <p className="text-sm text-gray-500 capitalize">{session_day}</p>
           </div>
           <div className="flex flex-col">

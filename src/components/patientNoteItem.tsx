@@ -1,5 +1,5 @@
 import { PatientNote } from "@/types/patientNotes";
-import { useFormatter } from "next-intl";
+import { formatDate } from "@/i18n/formatDate";
 import { useState } from "react";
 import {
   CalendarIcon,
@@ -27,14 +27,7 @@ const highlightText = (text: string, search: string) => {
   const regex = new RegExp(`(${search})`, "gi");
   return text.replace(regex, "<mark>$1</mark>");
 };
-
-const formatDate = (date: Date, format: any) =>
-  format.dateTime(date, {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
+  
 const NoteHeader = ({
   noteDate,
   onDelete,
@@ -44,14 +37,13 @@ const NoteHeader = ({
   onDelete: (note_id: string) => void;
   noteId: string;
 }) => {
-  const format = useFormatter();
   return (
     <div className="flex justify-between border-b border-orange-200 pb-4">
       <h1 className="text-orange-900 dark:text-orange-400 text-xl font-medium">Resumo de sessão</h1>
       <div className="flex items-center gap-2 text-orange-400">
         <CalendarIcon className="w-4 h-4 " />
         <div className="flex items-center gap-4">
-          <p>{formatDate(new Date(noteDate), format)}</p>
+          <p>{formatDate(new Date(noteDate))}</p>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Cog6ToothIcon className="w-4 h-4" />
@@ -85,6 +77,7 @@ const NoteContent = ({
       [noteId]: !prev[noteId],
     }));
   };
+  console.log(note.image_url)
 
   return (
     <Collapsible defaultOpen={false} className="pt-4">
