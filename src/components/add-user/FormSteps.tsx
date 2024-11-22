@@ -679,7 +679,7 @@ export default function FormSteps({
                               {selectedDiseases.map((disease) => (
                                 <span 
                                   key={disease} 
-                                  className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize"
+                                  className="mr-2 bg-orange-200 dark:bg-gray-800 rounded-xl p-1 px-2 capitalize"
                                 >
                                   {disease === "none" ? "Nenhuma" : disease.replace(/_/g, ' ')}
                                 </span>
@@ -738,7 +738,7 @@ export default function FormSteps({
                           .map((disease) => (
                             <span 
                               key={disease}
-                              className="bg-orange-200 text-sm rounded-xl p-1 px-2 capitalize flex items-center gap-2"
+                              className="bg-orange-200 dark:bg-gray-800 text-sm rounded-xl p-1 px-2 capitalize flex items-center gap-2"
                             >
                               {disease.replace(/_/g, ' ')}
                               <button
@@ -759,7 +759,7 @@ export default function FormSteps({
                   <div className="space-y-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full bg-orange-100 h-full justify-start mt-1 hover:bg-orange-400/10 whitespace-normal gap-4">
+                        <Button variant="outline" className="w-full bg-orange-100  h-full justify-start mt-1 hover:bg-orange-400/10 whitespace-normal gap-4">
                           {selectedFamilyDiseases.length > 0 ? (
                             selectedFamilyDiseases[0].disease === "Nenhuma" ? (
                               <span className="text-muted-foreground">Nenhuma</span>
@@ -768,7 +768,7 @@ export default function FormSteps({
                                 {selectedFamilyDiseases.map((item) => (
                                   <span 
                                     key={item.disease} 
-                                    className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize"
+                                    className="mr-2 bg-orange-200 dark:bg-gray-800 rounded-xl p-1 px-2 capitalize"
                                   >
                                     {item.disease.replace(/_/g, ' ')}
                                   </span>
@@ -848,7 +848,7 @@ export default function FormSteps({
                      selectedFamilyDiseases[0].disease !== "Nenhuma" && (
                       <div className="space-y-2 mt-2">
                         {selectedFamilyDiseases.map((item, index) => (
-                          <div key={index} className="flex gap-2 items-center">
+                          <div key={index} className="flex flex-wrap gap-2 items-center">
                             <span className="min-w-[120px] capitalize">{item.disease.replace(/_/g, ' ')}:</span>
                             <Input
                               value={item.relationship}
@@ -858,7 +858,7 @@ export default function FormSteps({
                                 setSelectedFamilyDiseases(newSelectedDiseases);
                               }}
                               placeholder="Digite o parentesco"
-                              className="flex-1"
+                              className="flex-1 min-w-[120px]"
                             />
                           </div>
                         ))}
