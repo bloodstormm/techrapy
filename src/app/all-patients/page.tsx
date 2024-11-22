@@ -62,7 +62,7 @@ const AllUsers = () => {
         .from('patients')
         .select('*')
         .eq('therapist_owner', user.id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setPatients(data as PatientData[]);

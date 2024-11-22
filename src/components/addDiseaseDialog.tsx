@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { formatDate } from "@/i18n/formatDate";
 import ReadOnlyNote from "./tiptap/ReadOnlyNote";
 import { PatientNote } from "@/types/patientNotes";
+import { useLookupValues } from "@/hooks/useLookupValues";
 
 interface AddDiseaseDialogProps {
   isOpen: boolean;
@@ -22,13 +23,29 @@ interface AddDiseaseDialogProps {
 
 const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDiseaseAdded }: AddDiseaseDialogProps) => {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [newDisease, setNewDisease] = useState('');
+  const [selectedDisease, setSelectedDisease] = useState('');
+  const [showOtherDiseaseInput, setShowOtherDiseaseInput] = useState(false);
+  const [otherDisease, setOtherDisease] = useState('');
   const [searchNote, setSearchNote] = useState('');
+  const { lookupValues } = useLookupValues();
+
+  const handleDiseaseChange = (disease: string) => {
+    if (disease === "other") {
+      setShowOtherDiseaseInput(!showOtherDiseaseInput);
+      setSelectedDisease('');
+    } else {
+      setSelectedDisease(disease);
+      setShowOtherDiseaseInput(false);
+      setOtherDisease('');
+    }
+  };
 
   const handleAddDisease = async () => {
     try {
-      if (!newDisease.trim()) {
-        toast.error('Digite o nome da doença');
+      const finalDisease = showOtherDiseaseInput ? otherDisease.trim() : selectedDisease;
+
+      if (!finalDisease) {
+        toast.error('Digite ou selecione o nome da doença');
         return;
       }
       
@@ -40,7 +57,7 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
       const { error } = await supabase
         .from('diseases')
         .insert({
-          disease: newDisease.trim(),
+          disease: finalDisease,
           patient_id: patientId,
           note_id: selectedNoteId
         });
@@ -49,15 +66,16 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
       
       toast.success('Doença adicionada com sucesso');
       setIsOpen(false);
-      setNewDisease('');
+      setSelectedDisease('');
+      setOtherDisease('');
       setSelectedNoteId(null);
+      setShowOtherDiseaseInput(false);
       onDiseaseAdded();
       
     } catch (error) {
       toast.error('Erro ao adicionar doença');
     }
   };
-
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -87,12 +105,46 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
               <Label htmlFor="disease" className="text-right">
                 Nome da doença
               </Label>
-              <Input
-                id="disease"
-                value={newDisease}
-                onChange={(e) => setNewDisease(e.target.value)}
-                className="col-span-3"
-              />
+              <div className="col-span-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="w-full bg-orange-100 h-10 justify-start hover:bg-orange-400/10 whitespace-normal gap-4"
+                    >
+                      {selectedDisease || (showOtherDiseaseInput ? "Outra doença" : "Selecione uma doença")}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-96 overflow-y-auto max-h-96">
+                    <DropdownMenuLabel>Doenças Psicológicas</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {lookupValues.diseases?.map((disease) => (
+                      <DropdownMenuCheckboxItem
+                        key={disease.value}
+                        checked={selectedDisease === disease.label}
+                        onCheckedChange={() => handleDiseaseChange(disease.label)}
+                      >
+                        {disease.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuCheckboxItem
+                      checked={showOtherDiseaseInput}
+                      onCheckedChange={() => handleDiseaseChange("other")}
+                    >
+                      Outra doença
+                    </DropdownMenuCheckboxItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {showOtherDiseaseInput && (
+                  <Input
+                    value={otherDisease}
+                    onChange={(e) => setOtherDisease(e.target.value)}
+                    placeholder="Digite o nome da doença"
+                    className="mt-2"
+                  />
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4 mb-4">
@@ -140,7 +192,7 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
         <DialogFooter>
           <Button 
             type="submit" 
-            disabled={!newDisease.trim() || !selectedNoteId || decryptedNotes.length === 0}
+            disabled={!selectedDisease && !showOtherDiseaseInput || !selectedNoteId || decryptedNotes.length === 0}
             onClick={handleAddDisease}
           >
             Adicionar

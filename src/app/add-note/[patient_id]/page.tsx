@@ -112,6 +112,7 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 		} catch (error) {
 			setIsSaving(false);
 			toast.error('Erro ao adicionar a nota');
+			console.error('Erro ao adicionar a nota:', error);
 		}
 	};
 
