@@ -56,7 +56,7 @@ const Register = () => {
     };
 
     return (
-        <div className="grid sm:grid-cols-2 grid-cols-1 container sm:mx-0 sm:max-w-full items-center justify-center h-screen">
+        <div className="grid sm:grid-cols-2 grid-cols-1 px-6 sm:px-0 items-center justify-center h-screen">
             <div className="w-full sm:block hidden">
                 <Image src={Register_Image} alt="Register Image"
                 placeholder="blur"

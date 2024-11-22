@@ -83,7 +83,7 @@ const Login = () => {
     };
 
     return (
-        <div className="grid sm:grid-cols-2 grid-cols-1 container sm:mx-0 sm:max-w-full items-center justify-center h-screen">
+        <div className="grid sm:grid-cols-2 grid-cols-1 px-6 sm:px-0 items-center justify-center h-screen">
             {isLoading ? (
                 <div className="col-span-2 flex justify-center items-center">
                     Carregando...
