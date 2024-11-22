@@ -1,16 +1,14 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeftStartOnRectangleIcon, Cog6ToothIcon, GlobeAltIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { ArrowTopLeftIcon } from "@radix-ui/react-icons";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { FamilyDisease, Disease, PatientData } from "@/types/patientData";
 import { useEffect, useState } from "react";
 import { PatientNote } from "@/types/patientNotes";
 import PatientNoteItem from "@/components/patientNoteItem";
-import ReadOnlyNote from "@/components/tiptap/ReadOnlyNote";
 import { toast } from 'sonner';
 import { Empty_Notes } from "../../../../public/images";
 import Image from "next/image";
@@ -20,7 +18,6 @@ import { useRouter } from 'next/navigation';
 import { decryptText } from '@/lib/encryption';
 import { supabase } from '@/lib/supabaseClient';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
-import { formatDate } from "@/i18n/formatDate";
 import AddDiseaseDialog from "@/components/addDiseaseDialog";
 import AddFamilyDiseaseDialog from "@/components/addFamilyDiseaseDialog";
 import { Trash2 } from "lucide-react";
@@ -135,7 +132,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     };
 
     checkAuthAndOwnership();
-  }, [params.patient_id, router, supabase]);
+  }, [params.patient_id, router]);
 
   const fetchFamilyDiseases = async () => {
     const { data: newFamilyDiseases } = await supabase
@@ -359,7 +356,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                 diseases.map((disease, index) => (
                   <Dialog>
                     <DialogTrigger asChild>
-                      <div className="text-sm px-3 py-1 rounded-xl bg-orange-50 border border-orange-300 text-orange-900 relative group cursor-pointer">
+                      <div key={index} className="text-sm px-3 py-1 rounded-xl bg-orange-50 border border-orange-300 text-orange-900 relative group cursor-pointer">
                         <p className="capitalize">{disease.disease.trim()}</p>
                         <div className="absolute inset-0 bg-red-50/0 group-hover:bg-red-50/50 transition-colors rounded-xl flex items-center justify-center">
                           <Trash2 className="w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />

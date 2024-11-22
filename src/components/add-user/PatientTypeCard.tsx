@@ -1,13 +1,12 @@
 "use client";
 
 import Image, { StaticImageData } from "next/image";
-import Link from "next/link";
 
 interface PatientTypeCardProps {
   src: StaticImageData;
   alt: string;
   type: string;
-  onClick: (e: React.MouseEvent) => void; // Adicione esta linha
+  onClick: (e: React.MouseEvent) => void;
 }
 
 export default function PatientTypeCard({

@@ -58,6 +58,10 @@ export const fetchLastNote = async (patient_id: string): Promise<PatientNote | n
     .order("note_date", { ascending: false })
     .limit(1);
 
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data![0] || null;
 }
 

@@ -112,7 +112,7 @@ const AllUsers = () => {
         item.patient_name.toLowerCase().includes(search.toLowerCase())
       )
       .sort((a, b) => 
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        new Date(a.created_at || '').getTime() - new Date(b.created_at || '').getTime()
       );
   }, [patients, search]);
 

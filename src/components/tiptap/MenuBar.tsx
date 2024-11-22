@@ -21,7 +21,7 @@ type MenuBarProps = {
   isSaving: boolean; // Adicione esta linha
 };
 
-const MenuBar = ({ editor, content, isContentEmpty, isSaving }: MenuBarProps) => {
+const MenuBar = ({ editor }: MenuBarProps) => {
   if (!editor) {
     return null;
   }

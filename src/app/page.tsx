@@ -1,9 +1,7 @@
 "use client";
-import ChangeTheme from "@/components/changeTheme";
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { toast } from 'sonner';
 import Link from "next/link";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { UsersIcon } from "@heroicons/react/24/outline";
@@ -65,7 +63,7 @@ const Home = () => {
         return () => {
             subscription.unsubscribe();
         };
-    }, [supabase, router]);
+    }, [router]);
 
 
 

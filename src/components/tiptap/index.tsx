@@ -41,7 +41,7 @@ export default ({ content = "", onChange, isSaving }: EditorProps & { isSaving: 
         class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl focus:outline-none px-4 min-h-72 pb-6',
       },
     },
-    onUpdate: ({ editor, transaction }) => {
+    onUpdate: ({ editor }) => {
       const newContent = editor.getHTML();
       setCurrentContent(newContent);
       onChange(newContent);

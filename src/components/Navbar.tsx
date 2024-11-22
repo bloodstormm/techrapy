@@ -5,7 +5,6 @@ import {
   HomeIcon,
   GlobeAltIcon,
   UserPlusIcon,
-  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 

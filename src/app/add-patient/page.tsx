@@ -1,5 +1,4 @@
-import { PatientTypeCard, FormSteps } from "@/components/add-user";
-import { Adult, Child, Teens, Couple } from "../../../public/images";
+import { FormSteps } from "@/components/add-user";
 
 export default function AddPatient() {
   return (

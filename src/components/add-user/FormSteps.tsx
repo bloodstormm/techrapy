@@ -1,14 +1,13 @@
-// @NOTE: in case you are using Next.js
 "use client";
 
 import { useState, useEffect } from "react";
 
+// import { zodResolver } from "@hookform/resolvers/zod";
+// import { z } from "zod";
 import { cn } from "@/lib/utils";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Adult, Child, Teens, Couple } from "../../../public/images";
+import { Adult, Child, Teens } from "../../../public/images";
 import { tabs } from "@/types/patientData";
 
 import { Button } from "@/components/ui/button";
@@ -27,9 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
@@ -331,7 +328,7 @@ export default function FormSteps({
                 <FormField
                   control={form.control}
                   name="birthdate"
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem className="flex w-full flex-col">
                       <FormLabel className="leading-[1.7]">Data de Nascimento</FormLabel>
                       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
@@ -811,7 +808,20 @@ export default function FormSteps({
                 <Button type="button" onClick={handleBack}>
                   Voltar
                 </Button>
-                <Button type="submit" form="patientForm">Salvar</Button>
+                <Button 
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex items-center gap-2"
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Salvando...
+                    </>
+                  ) : (
+                    'Salvar'
+                  )}
+                </Button>
               </div>
             </TabsContent>
           </form>

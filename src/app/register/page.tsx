@@ -17,7 +17,6 @@ const Register = () => {
         handleSubmit, 
         formState: { errors }, 
         reset, 
-        watch 
     } = useForm<TherapistData & { confirm_password: string }>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
     const response = NextResponse.json({ message: 'Logout realizado com sucesso' });
 
     // Remove os cookies relacionados à autenticação do supabase
