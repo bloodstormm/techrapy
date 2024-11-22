@@ -172,9 +172,10 @@ const EditNote = ({ params }: { params: { note_id: string } }) => {
       setIsSaving(false);
       toast.success('Nota atualizada com sucesso!');
       router.push(`/patient-notes/${patientId}`);
-    } catch (error: any) {
+    } catch (error) {
       setIsSaving(false);
-      toast.error(`Erro ao atualizar a nota: ${error.message || 'Erro desconhecido'}`);
+      toast.error('Erro ao atualizar a nota');
+      console.error(error);
     }
   };
 

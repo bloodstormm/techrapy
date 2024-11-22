@@ -106,7 +106,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
         }
 
         setPatientNotes(notes);
-      } catch (err: any) {
+      } catch (err) {
         console.error('Erro ao verificar autorização:', err);
         setError('Erro ao carregar dados do paciente');
       } finally {
@@ -241,8 +241,9 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
 
       setPatientNotes((prevNotes) => prevNotes.filter(n => n.note_id !== noteId));
       toast.success('Nota excluída com sucesso');
-    } catch (err: any) {
-      toast.error('Erro ao excluir a nota: ' + err.message);
+    } catch (err) {
+      toast.error('Erro ao excluir a nota: Consulte o log para mais detalhes');
+      console.error(err);
     }
   };
 
@@ -324,8 +325,8 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
       // Atualiza o estado local
       setFamilyDiseases(prev => prev.filter(d => d.relative_disease_id !== diseaseId));
       toast.success('Doença familiar removida com sucesso');
-    } catch (error: any) {
-      toast.error('Erro ao remover doença familiar: ' + error.message);
+    } catch (error) {
+      toast.error('Erro ao remover doença familiar: ');
       console.error(error);
     }
   };

@@ -107,11 +107,11 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 				localStorage.setItem('successMessage', 'Relato de sessão adicionado com sucesso!');
 				window.location.href = `/patient-notes/${params.patient_id}`;
 			} else {
-				toast.error(`Erro ao adicionar a nota: ${result.message}`);
+				toast.error('Erro ao adicionar a nota');
 			}
-		} catch (error: any) {
+		} catch (error) {
 			setIsSaving(false);
-			toast.error(`Erro ao adicionar a nota: ${error.message || 'Erro desconhecido'}`);
+			toast.error('Erro ao adicionar a nota');
 		}
 	};
 

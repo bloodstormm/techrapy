@@ -88,7 +88,7 @@ export async function POST(req: Request) {
         }
 
         return response;
-    } catch (err: any) {
+    } catch (err) {
         console.error('Erro na criação do terapeuta:', err);
         return NextResponse.json(
             { error: 'Erro inesperado ao criar terapeuta' },

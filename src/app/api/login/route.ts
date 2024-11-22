@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         response.cookies.set('sb-refresh-token', data.session.refresh_token, refreshTokenOptions);
 
         return response;
-    } catch (err: any) {
+    } catch (err) {
         console.error('Erro no login:', err);
         return NextResponse.json(
             { error: 'Erro inesperado durante o login' },

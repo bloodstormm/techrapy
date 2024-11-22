@@ -232,9 +232,9 @@ export default function FormSteps({
 
       localStorage.setItem('successMessage', 'Paciente criado com sucesso');
       window.location.href = "/all-patients";
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro completo:", error);
-      toast.error(`Erro ao criar paciente: ${error.message}`);
+      toast.error(`Erro ao criar paciente: consulte o log para mais detalhes`);
     } finally {
       setIsSaving(false);
     }

@@ -15,8 +15,8 @@ export async function navigate(encryptedNote: string, patientId: string, imageUr
 
     if (error) throw error;
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Erro ao salvar nota:', error);
-    return { success: false, message: error.message };
+    return { success: false };
   }
 }

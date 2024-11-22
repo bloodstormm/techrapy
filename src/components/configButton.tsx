@@ -16,10 +16,11 @@ const ConfigButton = () => {
             if (error) throw error;
             toast.success('Logout realizado com sucesso');
             router.push("/login");
-        } catch (error: any) {
+        } catch (error) {
             toast.error(
-                error.message || "Erro ao realizar logout"
+                "Erro ao realizar logout"
             );
+            console.error(error);
         }
     };
     if (pathname === "/login" || pathname === "/register") {

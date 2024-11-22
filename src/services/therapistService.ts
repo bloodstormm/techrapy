@@ -47,9 +47,9 @@ export const createTherapist = async (data: TherapistData) => {
         }
 
         return authData;
-    } catch (error: any) {
+    } catch (error) {
         // Traduzir mensagens de erro comuns
-        if (error.message.includes('User already registered')) {
+        if (error instanceof Error && error.message.includes('User already registered')) {
             throw new Error('Este e-mail já está registrado');
         }
         throw error;

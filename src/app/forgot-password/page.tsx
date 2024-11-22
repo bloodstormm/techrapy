@@ -31,8 +31,9 @@ const ForgotPassword = () => {
 
             toast.success("Email de redefinição de senha enviado com sucesso!");
             router.push("/login");
-        } catch (error: any) {
-            toast.error(error.message || "Erro ao enviar o email de redefinição de senha");
+        } catch (error) {
+            toast.error("Erro ao enviar o email de redefinição de senha");
+            console.error(error);
         } finally {
             setIsSubmitting(false);
         }

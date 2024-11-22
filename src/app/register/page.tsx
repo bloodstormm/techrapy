@@ -44,10 +44,13 @@ const Register = () => {
             toast.success("Conta criada com sucesso. Aproveite!");
             reset();
             router.push("/login");
-        } catch (error: any) {
+        } catch (error) {
             console.error("Erro detalhado:", error);
-            const errorMessage = error.message || "Erro ao criar conta";
-            toast.error(errorMessage);
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("Erro ao criar conta");
+            }
         } finally {
             setIsSubmitting(false);
         }

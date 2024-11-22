@@ -66,9 +66,9 @@ const AllUsers = () => {
 
       if (error) throw error;
       setPatients(data as PatientData[]);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao carregar pacientes:", error);
-      toast.error("Erro ao carregar pacientes: " + error.message);
+      toast.error("Erro ao carregar pacientes");
     } finally {
       setIsLoading(false);
     }

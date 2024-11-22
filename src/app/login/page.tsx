@@ -11,6 +11,7 @@ import Image from "next/image";
 import { Login_Image } from "../../../public/images";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { PasswordInput } from "@/components/ui/passwordInput";
+import { AuthError } from '@supabase/supabase-js';
 
 interface LoginData {
     therapist_email: string;
@@ -65,12 +66,17 @@ const Login = () => {
                 router.push('/'); // Redireciona para a home
                 router.refresh(); // Atualiza o estado da navegação
             }
-        } catch (error: any) {
-            toast.error(
-                error.message === 'Invalid login credentials'
-                    ? 'Email ou senha inválidos'
-                    : 'Erro ao realizar login'
-            );
+        } catch (error: unknown) {
+            if (error instanceof AuthError) {
+                toast.error(
+                    error.message === 'Invalid login credentials'
+                        ? 'Email ou senha inválidos'
+                        : 'Erro ao realizar login'
+                );
+            } else {
+                toast.error('Erro inesperado ao realizar login');
+                console.error(error);
+            }
         } finally {
             setIsSubmitting(false);
         }
