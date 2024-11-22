@@ -493,7 +493,7 @@ export default function FormSteps({
                             {selectedDays.length > 0 ? (
                               <p className="gap-y-3 items-center flex flex-wrap">
                                 {selectedDays.map((day) => (
-                                  <span key={day} className="mr-2 bg-orange-200 rounded-xl p-1 px-2">
+                                  <span key={day} className="mr-2 bg-orange-200 dark:bg-gray-800 rounded-xl p-1 px-2">
                                     {lookupValues.week_days?.find(d => d.label === day)?.label}
                                   </span>
                                 ))}
