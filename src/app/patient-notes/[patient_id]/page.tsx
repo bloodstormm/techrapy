@@ -21,20 +21,11 @@ import { decryptText } from '@/lib/encryption';
 import { supabase } from '@/lib/supabaseClient';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { formatDate } from "@/i18n/formatDate";
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import AddDiseaseDialog from "@/components/addDiseaseDialog";
 import AddFamilyDiseaseDialog from "@/components/addFamilyDiseaseDialog";
+import { Trash2 } from "lucide-react";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const router = useRouter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
@@ -43,16 +34,16 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const [familyDiseases, setFamilyDiseases] = useState<FamilyDisease[]>([]);
   const [decryptedNotes, setDecryptedNotes] = useState<PatientNote[]>([]);
   const [search, setSearch] = useState("");
-  const [searchNote, setSearchNote] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [newDisease, setNewDisease] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenPatientDisease, setIsOpenPatientDisease] = useState(false);
   const [isOpenFamilyDisease, setIsOpenFamilyDisease] = useState(false);
+  const [isEditingDiseases, setIsEditingDiseases] = useState(false);
+  const [editedDiseaseInfo, setEditedDiseaseInfo] = useState("");
+  const [isEditingPatientInfo, setIsEditingPatientInfo] = useState(false);
+  const [editedPatientInfo, setEditedPatientInfo] = useState("");
 
   useEffect(() => {
     const successMessage = localStorage.getItem('successMessage');
@@ -259,6 +250,85 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
     item.decryptedContent?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleUpdateDiseaseInfo = async () => {
+    try {
+      const { error } = await supabase
+        .from('patients')
+        .update({ more_info_about_diseases: editedDiseaseInfo })
+        .eq('patient_id', params.patient_id);
+
+      if (error) throw error;
+
+      setPatientData(prev => prev ? {
+        ...prev,
+        more_info_about_diseases: editedDiseaseInfo
+      } : null);
+
+      setIsEditingDiseases(false);
+      toast.success('Informações atualizadas com sucesso');
+    } catch (error) {
+      toast.error('Erro ao atualizar informações');
+      console.error(error);
+    }
+  };
+
+  const handleUpdatePatientInfo = async () => {
+    try {
+      const { error } = await supabase
+        .from('patients')
+        .update({ more_info_about_patient: editedPatientInfo })
+        .eq('patient_id', params.patient_id);
+
+      if (error) throw error;
+
+      setPatientData(prev => prev ? {
+        ...prev,
+        more_info_about_patient: editedPatientInfo
+      } : null);
+
+      setIsEditingPatientInfo(false);
+      toast.success('Informações atualizadas com sucesso');
+    } catch (error) {
+      toast.error('Erro ao atualizar informações');
+      console.error(error);
+    }
+  };
+
+  const handleDeleteDisease = async (diseaseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('diseases')
+        .delete()
+        .eq('disease_id', diseaseId);
+
+      if (error) throw error;
+
+      // Atualiza o estado local
+      setDiseases(prev => prev.filter(d => d.disease_id !== diseaseId));
+      toast.success('Doença removida com sucesso');
+    } catch (error) {
+      toast.error('Erro ao remover doença');
+      console.error(error);
+    }
+  };
+
+  const handleDeleteFamilyDisease = async (diseaseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('family_diseases')
+        .delete()
+        .eq('relative_disease_id', diseaseId);
+
+      if (error) throw error;
+
+      // Atualiza o estado local
+      setFamilyDiseases(prev => prev.filter(d => d.relative_disease_id !== diseaseId));
+      toast.success('Doença familiar removida com sucesso');
+    } catch (error: any) {
+      toast.error('Erro ao remover doença familiar: ' + error.message);
+      console.error(error);
+    }
+  };
 
   return (
     <div className="container mx-auto flex lg:flex-row flex-col gap-10 mt-10 mb-32">
@@ -284,22 +354,37 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
             <p className="text-sm text-gray-500 capitalize">{patient_gender}</p>
             <span className=" text-orange-400 mt-4">Histórico de doenças</span>
             <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
-              {diseases ? (
+              {diseases && diseases.length > 0 ? (
                 diseases.map((disease, index) => (
-                  <TooltipProvider key={index}>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <p
-                          className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <div className="text-sm px-3 py-1 rounded-xl bg-orange-50 border border-orange-300 text-orange-900 relative group cursor-pointer">
+                        <p className="capitalize">{disease.disease.trim()}</p>
+                        <div className="absolute inset-0 bg-red-50/0 group-hover:bg-red-50/50 transition-colors rounded-xl flex items-center justify-center">
+                          <Trash2 className="w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Remover doença</DialogTitle>
+                        <DialogDescription>
+                          Tem certeza que deseja remover {disease.disease.trim()}?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancelar</Button>
+                        </DialogClose>
+                        <Button
+                          variant="destructive"
+                          onClick={() => handleDeleteDisease(disease.disease_id)}
                         >
-                          {disease.disease.trim()}
-                        </p>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-sm capitalize">Data: {formatDate(new Date(disease.created_at))}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                          Remover
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 ))
               ) : (
                 <p className="text-sm text-gray-500">
@@ -311,16 +396,40 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           <div className="flex flex-col">
             <span className="text-orange-400">Histórico de doenças na família</span>
             <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
-              {familyDiseases ? (
+              {familyDiseases && familyDiseases.length > 0 ? (
                 familyDiseases.map((disease, index) => (
                   <TooltipProvider key={index}>
                     <Tooltip>
                       <TooltipTrigger>
-                        <p
-                          className="text-sm px-3 py-1 break-all rounded-xl bg-orange-50 border border-orange-300 text-orange-900 capitalize"
-                        >
-                          {disease.disease.trim()}
-                        </p>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <div className="text-sm px-3 py-1 rounded-xl bg-orange-50 border border-orange-300 text-orange-900 relative group cursor-pointer">
+                              <p className="capitalize">{disease.disease.trim()}</p>
+                              <div className="absolute inset-0 bg-red-50/0 group-hover:bg-red-50/50 transition-colors rounded-xl flex items-center justify-center">
+                                <Trash2 className="w-4 h-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Remover doença familiar</DialogTitle>
+                              <DialogDescription>
+                                Tem certeza que deseja remover {disease.disease.trim()}?
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Cancelar</Button>
+                              </DialogClose>
+                              <Button
+                                variant="destructive"
+                                onClick={() => handleDeleteFamilyDisease(disease.relative_disease_id)}
+                              >
+                                Remover
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="text-sm capitalize">Parentesco: {disease.relationship}</p>
@@ -383,19 +492,54 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           {patientData.more_info_about_patient && (
             <>
               <Drawer>
-                <DrawerTrigger className="text-orange-400"><Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">Mais informações do paciente</Button></DrawerTrigger>
+                <DrawerTrigger className="text-orange-400">
+                  <Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">
+                    Mais informações do paciente
+                  </Button>
+                </DrawerTrigger>
                 <DrawerContent className="pb-4">
                   <div className="w-full max-w-4xl mx-auto">
                     <DrawerHeader className="px-0">
                       <DrawerTitle className="text-orange-400">Mais informações do paciente</DrawerTitle>
                     </DrawerHeader>
                     <DrawerDescription>
-                      <p className="text-foreground text-sm">{patientData.more_info_about_patient}</p>
+                      {isEditingPatientInfo ? (
+                        <textarea
+
+                          value={editedPatientInfo}
+                          onChange={(e) => setEditedPatientInfo(e.target.value)}
+                          className="w-full p-2 border rounded-md min-h-[150px] text-sm"
+                        />
+                      ) : (
+                        <p className="text-foreground text-sm">{patientData.more_info_about_patient}</p>
+                      )}
                     </DrawerDescription>
-                    <DrawerFooter>
-                      <DrawerClose>
-                        <Button variant="outline" className="text-orange-400">Fechar</Button>
-                      </DrawerClose>
+                    <DrawerFooter className="flex gap-2">
+                      {isEditingPatientInfo ? (
+                        <Button
+                          variant="default"
+                          onClick={handleUpdatePatientInfo}
+                          className="bg-orange-400 w-full hover:bg-orange-500"
+                        >
+                          Salvar alterações
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2 mt-6 w-full justify-center">
+                          <DrawerClose>
+                            <Button variant="default" className="w-80">Fechar</Button>
+                          </DrawerClose>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setIsEditingPatientInfo(true);
+                              setEditedPatientInfo(patientData.more_info_about_patient || "");
+                            }}
+                            className="w-80 text-orange-400"
+                          >
+                            Editar
+                          </Button>
+                        </div>
+                      )}
                     </DrawerFooter>
                   </div>
                 </DrawerContent>
@@ -407,19 +551,53 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           {patientData.more_info_about_diseases && (
             <>
               <Drawer>
-                <DrawerTrigger className="text-orange-400"><Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">Mais informações sobre doenças do paciente</Button></DrawerTrigger>
+                <DrawerTrigger className="text-orange-400">
+                  <Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">
+                    Mais informações sobre doenças do paciente
+                  </Button>
+                </DrawerTrigger>
                 <DrawerContent>
                   <div className="max-w-4xl mx-auto">
                     <DrawerHeader className="container px-0 mx-auto">
                       <DrawerTitle>Mais informações sobre doenças do paciente</DrawerTitle>
                     </DrawerHeader>
                     <DrawerDescription className="container mx-auto">
-                      <p className="text-foreground text-sm">{patientData.more_info_about_diseases}</p>
+                      {isEditingDiseases ? (
+                        <textarea
+                          value={editedDiseaseInfo}
+                          onChange={(e) => setEditedDiseaseInfo(e.target.value)}
+                          className="w-full p-2 border rounded-md min-h-[150px] text-sm"
+                        />
+                      ) : (
+                        <p className="text-foreground text-sm">{patientData.more_info_about_diseases}</p>
+                      )}
                     </DrawerDescription>
-                    <DrawerFooter>
-                      <DrawerClose>
-                        <Button variant="outline" className="text-orange-400">Fechar</Button>
-                      </DrawerClose>
+                    <DrawerFooter className="flex gap-2">
+                      {isEditingDiseases ? (
+                        <Button
+                          variant="default"
+                          onClick={handleUpdateDiseaseInfo}
+                          className="bg-orange-400 w-full hover:bg-orange-500"
+                        >
+                          Salvar alterações
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2 mt-6 w-full justify-center">
+                          <DrawerClose>
+                            <Button variant="default" className="w-80">Fechar</Button>
+                          </DrawerClose>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setIsEditingDiseases(true);
+                              setEditedDiseaseInfo(patientData.more_info_about_diseases || "");
+                            }}
+                            className="w-80 text-orange-400"
+                          >
+                            Editar
+                          </Button>
+                        </div>
+                      )}
                     </DrawerFooter>
                   </div>
                 </DrawerContent>
@@ -432,73 +610,62 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
       <div className="flex flex-col w-full">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-8 w-full overflow-y-auto hide-scrollbar">
-            <Tabs defaultValue="notes" className="w-full">
-              <div className="flex justify-between items-center mb-6">
-                <TabsList>
-                  <TabsTrigger value="notes">Relatos de sessão</TabsTrigger>
-                  <TabsTrigger value="notes_summary">Resumo de IA (Parte 2)</TabsTrigger>
-                </TabsList>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="">
-                    <Button variant="outline" className="flex items-center justify-center">
-                      <PlusIcon className="w-4 h-4 gap-2" />
-                      <p className="font-medium">Adicionar uma nova doença</p>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-white dark:bg-background text-center w-full">
-                    <AddDiseaseDialog
-                      isOpen={isOpen}
-                      setIsOpen={setIsOpen}
-                      patientId={params.patient_id}
-                      decryptedNotes={decryptedNotes}
-                      onDiseaseAdded={async () => {
-                        const { data: newDiseases } = await supabase
-                          .from('diseases')
-                          .select('*')
-                          .eq('patient_id', params.patient_id);
-                        if (newDiseases) setDiseases(newDiseases);
-                      }}
-                    />
-                    <AddFamilyDiseaseDialog
-                      isOpen={isOpenFamilyDisease}
-                      setIsOpen={setIsOpenFamilyDisease}
-                      patientId={params.patient_id}
-                      onDiseaseAdded={fetchFamilyDiseases}
-                    />
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                <Link href={`/add-note/${patientData.patient_id}`}>
-                  <Button variant="default" className=" flex items-center justify-center hover:bg-orange-500">
+            <div className="flex justify-between items-center mb-6">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="">
+                  <Button variant="outline" className="flex items-center justify-center">
                     <PlusIcon className="w-4 h-4 gap-2" />
-                    <p className="font-medium">Adicionar um novo relato de sessão</p>
+                    <p className="font-medium">Adicionar uma nova doença</p>
                   </Button>
-                </Link>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white dark:bg-background text-center w-full">
+                  <AddDiseaseDialog
+                    isOpen={isOpen}
+                    setIsOpen={setIsOpen}
+                    patientId={params.patient_id}
+                    decryptedNotes={decryptedNotes}
+                    onDiseaseAdded={async () => {
+                      const { data: newDiseases } = await supabase
+                        .from('diseases')
+                        .select('*')
+                        .eq('patient_id', params.patient_id);
+                      if (newDiseases) setDiseases(newDiseases);
+                    }}
+                  />
+                  <AddFamilyDiseaseDialog
+                    isOpen={isOpenFamilyDisease}
+                    setIsOpen={setIsOpenFamilyDisease}
+                    patientId={params.patient_id}
+                    onDiseaseAdded={fetchFamilyDiseases}
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Link href={`/add-note/${patientData.patient_id}`}>
+                <Button variant="default" className=" flex items-center justify-center hover:bg-orange-500">
+                  <PlusIcon className="w-4 h-4 gap-2" />
+                  <p className="font-medium">Adicionar um novo relato de sessão</p>
+                </Button>
+              </Link>
+            </div>
+            {patientNotes.length === 0 ? (
+              <div className="flex bg-orange-100 dark:bg-[#242424] p-20 rounded-3xl flex-col w-full justify-center items-center overflow-y-auto hide-scrollbar">
+                <Image priority src={Empty_Notes} alt="Empty Notes" className="w-72 h-72" />
+                <h2 className="text-foreground text-xl mt-4 font-medium">Nenhum relato de sessão adicionado</h2>
+                <p className="text-foreground text-sm font-normal">Adicione um clicando no botão acima para começar a registrar os relatos de sessão</p>
               </div>
-              {patientNotes.length === 0 ? (
-                <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
-                  <div className="flex bg-orange-100 dark:bg-[#242424] p-20 rounded-3xl flex-col w-full justify-center items-center overflow-y-auto hide-scrollbar">
-                    <Image priority src={Empty_Notes} alt="Empty Notes" className="w-72 h-72" />
-                    <h2 className="text-foreground text-xl mt-4 font-medium">Nenhum relato de sessão adicionado</h2>
-                    <p className="text-foreground text-sm font-normal">Adicione um clicando no botão acima para começar a registrar os relatos de sessão</p>
+            ) : (
+              <>
+                <SearchBar search={search} setSearch={setSearch} placeholder="Pesquisar por qualquer palavra" />
+                {filteredNotes.length > 0 ? (filteredNotes.map((note) => (
+                  <PatientNoteItem search={search} key={note.note_id} note={note} onDelete={handleDeleteNote} />
+                ))) : (
+                  <div className="col-span-full text-center text-gray-500 text-xl break-all">
+                    Nenhuma nota corresponde com o texto: "{search}".
                   </div>
-                </TabsContent>
-              ) : (
-                <>
-                  <TabsContent value="notes" className="w-full flex flex-col mx-auto items-center space-y-8">
-                    <SearchBar search={search} setSearch={setSearch} placeholder="Pesquisar por qualquer palavra" />
-                    {filteredNotes.length > 0 ? (filteredNotes.map((note) => (
-                      <PatientNoteItem search={search} key={note.note_id} note={note} onDelete={handleDeleteNote} />
-                    ))) : (
-                      <div className="col-span-full text-center text-gray-500 text-xl break-all">
-                        Nenhuma nota corresponde com o texto: "{search}".
-                      </div>
-                    )}
-                  </TabsContent>
-                </>
-              )}
-              <TabsContent value="notes_summary"><p className="font-medium text-center text-xl">Resumos de IA ficarão por aqui. (Parte 2 do projeto)</p></TabsContent>
-            </Tabs>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

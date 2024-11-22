@@ -130,14 +130,14 @@ export default function FormSteps({
 
     setSelectedFamilyDiseases((prev) => {
       const exists = prev.some(item => item.disease === diseaseLabel);
-      
+
       if (exists) {
         return prev.filter(item => item.disease !== diseaseLabel);
       } else {
         if (diseaseLabel === "Nenhuma") {
           return [{ disease: "Nenhuma", relationship: "" }];
         }
-        return prev[0]?.disease === "Nenhuma" 
+        return prev[0]?.disease === "Nenhuma"
           ? [{ disease: diseaseLabel, relationship: "" }]
           : [...prev, { disease: diseaseLabel, relationship: "" }];
       }
@@ -213,8 +213,9 @@ export default function FormSteps({
         await addDisease({
           patient_id: createdPatient.patient_id!,
           disease: disease,
-          note_id: null, // Ajuste conforme necessário
+          note_id: null,
           created_at: new Date(),
+          disease_id: "",
         });
       }
 
@@ -225,6 +226,7 @@ export default function FormSteps({
           disease: disease.disease,
           relationship: disease.relationship,
           created_at: new Date(),
+          relative_disease_id: "",
         });
       }
 
@@ -594,29 +596,29 @@ export default function FormSteps({
             <TabsContent value="Histórico">
               <div className="grid gap-x-8 gap-y-4 grid-cols-2 mb-4 items-start justify-center">
                 <div>
-                  <label>Histórico de doenças</label>
+                  <label className="text-sm">Histórico de doenças</label>
                   <div className="space-y-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full bg-orange-100 h-full justify-start hover:bg-orange-400/10 whitespace-normal gap-4 ">
+                        <Button variant="outline" className="w-full bg-orange-100 h-full justify-start mt-1 hover:bg-orange-400/10 whitespace-normal gap-4">
                           {selectedDiseases.length > 0
                             ? selectedDiseases.length === 1 && selectedDiseases[0] === "none"
                               ? "Nenhuma"
                               : (
                                 <p className="gap-y-3 items-center flex flex-wrap">
-                                  {selectedDiseases.map((disease) => (
-                                    <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={disease}>
-                                      {disease.replace(/_/g, ' ')}
-                                    </span>
-                                  ))}
+                                  {selectedDiseases
+                                    .filter(disease => lookupValues.diseases?.some(d => d.label === disease))
+                                    .map((disease) => (
+                                      <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={disease}>
+                                        {disease.replace(/_/g, ' ')}
+                                      </span>
+                                    ))}
                                 </p>
                               )
                             : "Nenhuma"}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 self-start">
-                        <DropdownMenuLabel>Histórico de Doenças</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
                         {lookupValues.diseases?.map((disease) => (
                           <DropdownMenuCheckboxItem
                             key={disease.value}
@@ -636,7 +638,7 @@ export default function FormSteps({
                     </DropdownMenu>
 
                     {showOtherDiseaseInput && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mt-2">
                         <Input
                           value={otherDisease}
                           onChange={(e) => setOtherDisease(e.target.value)}
@@ -651,33 +653,57 @@ export default function FormSteps({
                         </Button>
                       </div>
                     )}
+
+                    {selectedDiseases
+                      .filter(disease => !lookupValues.diseases?.some(d => d.label === disease))
+                      .length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <p className="text-sm">Doenças adicionais:</p>
+                        {selectedDiseases
+                          .filter(disease => !lookupValues.diseases?.some(d => d.label === disease))
+                          .map((disease) => (
+                            <span 
+                              key={disease}
+                              className="bg-orange-200 text-sm rounded-xl p-1 px-2 capitalize flex items-center gap-2"
+                            >
+                              {disease.replace(/_/g, ' ')}
+                              <button
+                                onClick={() => setSelectedDiseases(prev => prev.filter(d => d !== disease))}
+                                className="hover:text-red-500 text-gray-500"
+                              >
+                                ×
+                              </button>
+                            </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div>
-                  <label>Histórico de doenças na família</label>
+                  <label className="text-sm">Histórico de doenças na família</label>
                   <div className="space-y-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full bg-orange-100 h-full justify-start hover:bg-orange-400/10 whitespace-normal gap-4">
+                        <Button variant="outline" className="w-full bg-orange-100 h-full justify-start mt-1 hover:bg-orange-400/10 whitespace-normal gap-4">
                           {selectedFamilyDiseases.length > 0
                             ? selectedFamilyDiseases.length === 1 && selectedFamilyDiseases[0].disease === "Nenhuma"
                               ? "Nenhuma"
                               : (
                                 <p className="gap-y-3 items-center flex flex-wrap">
-                                  {selectedFamilyDiseases.map((item) => (
-                                    <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={item.disease}>
-                                      {item.disease}
-                                    </span>
-                                  ))}
+                                  {selectedFamilyDiseases
+                                    .filter(item => lookupValues.diseases?.some(d => d.label === item.disease))
+                                    .map((item) => (
+                                      <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={item.disease}>
+                                        {item.disease}
+                                      </span>
+                                    ))}
                                 </p>
                               )
                             : "Nenhuma"}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 self-start">
-                        <DropdownMenuLabel>Histórico de Doenças na Família</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
                         {lookupValues.diseases?.map((disease) => (
                           <DropdownMenuCheckboxItem
                             key={disease.value}
@@ -696,6 +722,48 @@ export default function FormSteps({
                       </DropdownMenuContent>
                     </DropdownMenu>
 
+                    {showOtherFamilyDiseaseInput && (
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          value={otherFamilyDisease}
+                          onChange={(e) => setOtherFamilyDisease(e.target.value)}
+                          placeholder="Digite o nome da doença"
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleAddOtherFamilyDisease}
+                          variant="outline"
+                        >
+                          Adicionar
+                        </Button>
+                      </div>
+                    )}
+
+                    {selectedFamilyDiseases
+                      .filter(item => !lookupValues.diseases?.some(d => d.label === item.disease))
+                      .length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {selectedFamilyDiseases
+                          .filter(item => !lookupValues.diseases?.some(d => d.label === item.disease))
+                          .map((item) => (
+                            <span 
+                              key={item.disease}
+                              className="bg-orange-200 rounded-xl p-1 px-2 capitalize flex items-center gap-2"
+                            >
+                              {item.disease}
+                              <button
+                                onClick={() => setSelectedFamilyDiseases(prev => 
+                                  prev.filter(d => d.disease !== item.disease)
+                                )}
+                                className="hover:text-red-500 text-gray-500"
+                              >
+                                ×
+                              </button>
+                            </span>
+                        ))}
+                      </div>
+                    )}
+
                     {selectedFamilyDiseases.length > 0 && selectedFamilyDiseases[0].disease !== "Nenhuma" && (
                       <div className="space-y-2 mt-2">
                         {selectedFamilyDiseases.map((item, index) => (
@@ -713,23 +781,6 @@ export default function FormSteps({
                             />
                           </div>
                         ))}
-                      </div>
-                    )}
-
-                    {showOtherFamilyDiseaseInput && (
-                      <div className="flex gap-2">
-                        <Input
-                          value={otherFamilyDisease}
-                          onChange={(e) => setOtherFamilyDisease(e.target.value)}
-                          placeholder="Digite o nome da doença"
-                        />
-                        <Button
-                          type="button"
-                          onClick={handleAddOtherFamilyDisease}
-                          variant="outline"
-                        >
-                          Adicionar
-                        </Button>
                       </div>
                     )}
 

@@ -15,7 +15,7 @@ const SearchBar = ({ search, setSearch, placeholder, className }: SearchPatients
   }
 
   return (
-    <form className={` ${className} flex items-center bg-white dark:bg-background border border-foreground/20 dark:border-foreground/10 w-1/2 container rounded-xl p-4 h-14 transition-all duration-300`} onSubmit={(e) => e.preventDefault()}>
+    <form className={` ${className} flex items-center bg-white dark:bg-background border border-foreground/20 dark:border-foreground/10 w-full container rounded-xl p-4 h-14 transition-all duration-300`} onSubmit={(e) => e.preventDefault()}>
       <input
         type="text"
         placeholder={placeholder}

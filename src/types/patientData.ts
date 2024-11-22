@@ -17,6 +17,7 @@ export interface PatientData {
 }
 
 export interface Disease {
+  disease_id: string;
   created_at: Date;
   patient_id: string;
   note_id: string | null;
@@ -24,6 +25,7 @@ export interface Disease {
 }
 
 export interface FamilyDisease {
+  relative_disease_id: string;
   created_at: Date;
   patient_id: string;
   relationship: string;
