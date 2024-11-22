@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 // import { zodResolver } from "@hookform/resolvers/zod";
-// import { z } from "zod";
+import { z } from "zod";
 import { cn } from "@/lib/utils";
 
 import { useForm } from "react-hook-form";
@@ -43,6 +43,9 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { toast } from "sonner";
 import { supabase } from '@/lib/supabaseClient';
 import { useLookupValues } from '@/hooks/useLookupValues';
+import { patientSchema, type PatientFormData } from "@/schemas/patientSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import LoadingSpinner from "../loadingSpinner";
 
 // Adicione esta interface no início do arquivo
 interface FamilyDiseaseWithRelationship {
@@ -66,10 +69,10 @@ export default function FormSteps({
     useState<string>(patientType);
   const [selectedTab, setSelectedTab] = useState(tabs[0].title);
 
-  const form = useForm({
+  const form = useForm<PatientFormData>({
+    resolver: zodResolver(patientSchema),
     defaultValues: {
       patient_name: "",
-      birthdate: new Date(),
       marital_status: "",
       session_day: "",
       guardian_name: "",
@@ -82,6 +85,7 @@ export default function FormSteps({
       therapist_owner: "",
       patient_gender: "",
     },
+    mode: "onSubmit",
   });
 
   // Mover a definição dos estados para fora dos FormFields
@@ -164,7 +168,6 @@ export default function FormSteps({
   const [therapistId, setTherapistId] = useState<string | null>(null);
   const { lookupValues, isLoading, error } = useLookupValues();
 
-  // Mover o useEffect para antes de qualquer renderização condicional
   useEffect(() => {
     const getTherapistId = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -177,17 +180,16 @@ export default function FormSteps({
     getTherapistId();
   }, []);
 
-  // Renderização condicional após todos os hooks
   if (isLoading) {
-    return <div>Carregando...</div>;
+    return <LoadingSpinner mensagem="Carregando..." />;
   }
 
   if (error) {
     return <div>Erro ao carregar dados: {error.message}</div>;
   }
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // Modifique o onSubmit para usar o handleSubmit do react-hook-form
+  const onSubmit = form.handleSubmit(async (data) => {
     setIsSaving(true);
 
     try {
@@ -196,13 +198,24 @@ export default function FormSteps({
         return;
       }
 
-      const patientData = form.getValues();
-      patientData.birthdate = date!;
-      patientData.patient_type = selectedPatientType;
-      patientData.therapist_owner = therapistId;
+      const patientData = {
+        patient_name: data.patient_name,
+        birthdate: date!,
+        marital_status: data.marital_status,
+        session_day: data.session_day,
+        guardian_name: data.guardian_name,
+        patient_type: selectedPatientType,
+        payment_type: data.payment_type,
+        guardian_phone_number: data.guardian_phone_number,
+        phone_number: data.phone_number,
+        more_info_about_patient: data.more_info_about_patient,
+        more_info_about_diseases: data.more_info_about_diseases,
+        therapist_owner: therapistId,
+        patient_gender: data.patient_gender,
+      };
+
       console.log("Patient Data:", patientData);
 
-      // Tipar o retorno como Patient
       const createdPatient = await createPatient(patientData);
 
       // Adicionar doenças do paciente
@@ -235,7 +248,7 @@ export default function FormSteps({
     } finally {
       setIsSaving(false);
     }
-  };
+  });
 
   const handleNext = (type?: string) => {
     if (type) {
@@ -256,7 +269,60 @@ export default function FormSteps({
 
   const handlePatientTypeClick = (type: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    setSelectedPatientType(type);
+    form.setValue('patient_type', type);
     handleNext(type);
+  };
+
+  const RequiredField: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <FormLabel className="flex gap-1">
+      {children}
+      <span className="text-red-500">*</span>
+    </FormLabel>
+  );
+
+  // Adicione este hook para monitorar a validade do formulário
+  const { formState: { isValid, errors } } = form;
+
+  // Adicione um componente para mostrar erros pendentes
+  const FormErrors = () => {
+    if (Object.keys(errors).length === 0) return null;
+
+    return (
+      <div className="bg-red-50 mt-6 dark:bg-orange-900/10 p-6 rounded-xl mb-4">
+        <p className="text-foreground dark:text-orange-400 font-medium mb-2">
+          Por favor, corrija os seguintes erros:
+        </p>
+        <ul className="list-disc list-inside text-orange-500 dark:text-orange-400">
+          {Object.entries(errors).map(([field, error]) => (
+            <li key={field}>
+              {(() => {
+                switch (field) {
+                  case 'patient_name':
+                    return 'Nome do paciente é obrigatório';
+                  case 'birthdate':
+                    return 'Data de nascimento é obrigatória';
+                  case 'session_day':
+                    return 'Selecione pelo menos um dia para a sessão';
+                  case 'payment_type':
+                    return 'Selecione uma forma de pagamento';
+                  case 'patient_gender':
+                    return 'Selecione o gênero do paciente';
+                  case 'guardian_name':
+                    return 'Nome do responsável é obrigatório';
+                  case 'guardian_phone_number':
+                    return 'Telefone do responsável é obrigatório';
+                  case 'phone_number':
+                    return 'Telefone do paciente é obrigatório';
+                  default:
+                    return error?.message || 'Campo obrigatório';
+                }
+              })()}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   return (
@@ -314,55 +380,57 @@ export default function FormSteps({
                   name="patient_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome Completo</FormLabel>
+                      <RequiredField>Nome Completo</RequiredField>
                       <FormControl>
                         <Input
                           placeholder="Digite o nome completo do paciente"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
                   name="birthdate"
-                  render={() => (
+                  render={({ field }) => (
                     <FormItem className="flex w-full flex-col">
-                      <FormLabel className="leading-[1.7]">Data de Nascimento</FormLabel>
+                      <RequiredField>Data de Nascimento</RequiredField>
                       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "overflow-hidden bg-orange-100 dark:bg-gray-950 h-10 justify-start hover:bg-orange-400/10  dark:text-white",
-                              !date && "text-muted-foreground",
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? (
-                              <span>
-                                {window.innerWidth > 1024
-                                  ? format(date, "PPP", { locale: ptBR })
-                                  : format(date, "d MMM", { locale: ptBR })
-                                }
-                              </span>
-                            ) : (
-                              <span className="hidden sm:block">Selecionar uma data</span>
-                            )}
-                            <ChevronsUpDown className="sm:ml-2 h-4 w-4 shrink-0 opacity-50 " />
-                          </Button>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "overflow-hidden bg-orange-100 dark:bg-gray-950 h-10 justify-start hover:bg-orange-400/10 dark:text-white w-full",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                <span>
+                                  {window.innerWidth > 1024
+                                    ? format(field.value, "PPP", { locale: ptBR })
+                                    : format(field.value, "d MMM", { locale: ptBR })
+                                  }
+                                </span>
+                              ) : (
+                                <span className="hidden sm:block">Selecionar uma data</span>
+                              )}
+                              <ChevronsUpDown className="sm:ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={date}
-                            onSelect={(e) => {
-                              setDate(e);
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setDate(date);
                               setIsCalendarOpen(false);
                             }}
-                            defaultMonth={date || new Date()}
+                            defaultMonth={field.value || new Date()}
                             captionLayout="dropdown-buttons"
                             fromYear={1990}
                             toYear={2025}
@@ -370,7 +438,6 @@ export default function FormSteps({
                           />
                         </PopoverContent>
                       </Popover>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -379,7 +446,7 @@ export default function FormSteps({
                   name="payment_type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tipo de pagamento</FormLabel>
+                      <RequiredField>Tipo de pagamento</RequiredField>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -397,7 +464,6 @@ export default function FormSteps({
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -406,7 +472,7 @@ export default function FormSteps({
                   name="session_day"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dias da sessão</FormLabel>
+                      <RequiredField>Dias da sessão</RequiredField>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="outline" className="w-full justify-start bg-orange-100 h-10 hover:bg-orange-10">
@@ -419,7 +485,9 @@ export default function FormSteps({
                                 ))}
                               </p>
                             ) : (
-                              "Selecione os dias da sessão"
+                              <p className="text-muted-foreground">
+                                Selecione os dias da sessão
+                              </p>
                             )}
                           </Button>
                         </DropdownMenuTrigger>
@@ -443,7 +511,6 @@ export default function FormSteps({
                           ))}
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -455,7 +522,7 @@ export default function FormSteps({
                       name="guardian_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nome do responsável</FormLabel>
+                          <RequiredField>Nome do responsável</RequiredField>
                           <FormControl>
                             <Input
                               type="text"
@@ -463,7 +530,6 @@ export default function FormSteps({
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -472,7 +538,7 @@ export default function FormSteps({
                       name="guardian_phone_number"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Telefone do responsável</FormLabel>
+                          <RequiredField>Telefone do responsável</RequiredField>
                           <FormControl>
                             <MaskedInput
                               mask={['(', /[1-9]/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
@@ -481,7 +547,6 @@ export default function FormSteps({
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -495,7 +560,7 @@ export default function FormSteps({
                       name="phone_number"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Telefone do paciente</FormLabel>
+                          <RequiredField>Telefone do paciente</RequiredField>
                           <FormControl>
                             <MaskedInput
                               mask={['(', /[1-9]/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
@@ -504,7 +569,6 @@ export default function FormSteps({
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -542,7 +606,7 @@ export default function FormSteps({
                   name="patient_gender"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Gênero do paciente</FormLabel>
+                      <RequiredField>Gênero do paciente</RequiredField>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -560,7 +624,6 @@ export default function FormSteps({
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -577,7 +640,6 @@ export default function FormSteps({
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -800,10 +862,10 @@ export default function FormSteps({
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
+              <FormErrors />
               <div className="col-span-2 flex justify-between mt-8">
                 <Button type="button" onClick={handleBack}>
                   Voltar
