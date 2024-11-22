@@ -446,7 +446,7 @@ export default function FormSteps({
                             }}
                             defaultMonth={field.value || new Date()}
                             captionLayout="dropdown-buttons"
-                            fromYear={1990}
+                            fromYear={1950}
                             toYear={2025}
                             locale={ptBR}
                           />
