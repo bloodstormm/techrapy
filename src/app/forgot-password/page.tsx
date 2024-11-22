@@ -40,7 +40,7 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center px-6 sm:px-0 h-screen">
             <div className="w-full max-w-sm mx-auto p-6 bg-white shadow-md rounded-lg">
                 <h1 className="text-2xl font-bold text-center mb-4 text-orange-900">Esqueci Minha Senha</h1>
                 <p className="text-center text-gray-700 mb-6">
