@@ -306,9 +306,9 @@ export default function FormSteps({
     if (Object.keys(errors).length === 0) return null;
 
     return (
-      <div className="bg-red-50 mt-6 dark:bg-orange-900/10 p-6 rounded-xl mb-4">
+      <div className="bg-orange-50 mt-6 dark:bg-orange-900/10 p-6 rounded-xl mb-4">
         <p className="text-foreground dark:text-orange-400 font-medium mb-2">
-          Por favor, corrija os seguintes erros:
+          Por favor, preencha todos os campos obrigatórios:
         </p>
         <ul className="list-disc list-inside text-orange-500 dark:text-orange-400">
           {Object.entries(errors).map(([field, error]) => (
@@ -369,7 +369,7 @@ export default function FormSteps({
             className="w-full"
           >
             <TabsContent value="Tipo de Paciente">
-              <div className="flex gap-4 items-center rounded-xl p-6 mx-auto max-w-4xl">
+              <div className="flex flex-col sm:flex-row gap-4 items-center rounded-xl py-4 mx-auto max-w-4xl">
                 <PatientTypeCard
                   src={Child}
                   alt="Criança"
@@ -391,7 +391,7 @@ export default function FormSteps({
               </div>
             </TabsContent>
             <TabsContent value="Informações Básicas">
-              <div className="grid gap-x-8 mb-4 gap-y-4 grid-cols-2 items-center justify-center">
+              <div className="grid md:gap-x-8 mb-4 gap-y-4 md:grid-cols-2 items-center w-full md:justify-center">
                 <FormField
                   control={form.control}
                   name="patient_name"
@@ -426,10 +426,7 @@ export default function FormSteps({
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {field.value ? (
                                 <span>
-                                  {window.innerWidth > 1024
-                                    ? format(field.value, "PPP", { locale: ptBR })
-                                    : format(field.value, "d MMM", { locale: ptBR })
-                                  }
+                                  {format(field.value, "PPP", { locale: ptBR })}
                                 </span>
                               ) : (
                                 <span className="hidden sm:block">Selecionar uma data</span>
@@ -670,7 +667,7 @@ export default function FormSteps({
               </div>
             </TabsContent>
             <TabsContent value="Histórico">
-              <div className="grid gap-x-8 gap-y-4 grid-cols-2 mb-4 items-start justify-center">
+              <div className="grid gap-x-8 gap-y-4 md:grid-cols-2 mb-4 items-start sm:justify-center">
                 <div>
                   <label className="text-sm">Histórico de doenças</label>
                   <div className="space-y-2">

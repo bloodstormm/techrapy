@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 const ConfigButton = () => {
     const pathname = usePathname();
     const router = useRouter();
+
     const handleLogout = async () => {
         try {
             const { error } = await supabase.auth.signOut();
@@ -28,8 +29,11 @@ const ConfigButton = () => {
     }
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger className="fixed z-0 bottom-8 right-8 opacity-20 hover:opacity-100 transition-all duration-300">
-                <Cog6ToothIcon className="w-7 h-7" />
+            <DropdownMenuTrigger className="py-6 px-0">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                </svg>
+
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-white dark:bg-background text-center">
                 <DropdownMenuItem>

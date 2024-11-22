@@ -83,7 +83,7 @@ const Login = () => {
     };
 
     return (
-        <div className="grid grid-cols-2 items-center justify-center h-screen">
+        <div className="grid sm:grid-cols-2 grid-cols-1 container sm:mx-0 sm:max-w-full items-center justify-center h-screen">
             {isLoading ? (
                 <div className="col-span-2 flex justify-center items-center">
                     Carregando...
@@ -99,7 +99,7 @@ const Login = () => {
                         </p>
                         <form
                             onSubmit={handleSubmit(onSubmit)}
-                            className="w-full max-w-md flex flex-col gap-4"
+                            className="w-full max-w-md flex flex-col sm:gap-4"
                         >
                             <div className="flex flex-col">
                                 <label
@@ -172,7 +172,7 @@ const Login = () => {
 
                         <div className="flex items-center justify-center mt-12">
                             <p className="text-sm text-gray-800 dark:text-white mb-2 hover:text-orange-900">
-                                Não tem uma conta?{" "}
+                            Não tem uma conta?{" "}
                                 <Link
                                     href="/register"
                                     className="underline text-orange-500 transition-colors duration-150 hover:text-orange-800"
@@ -182,7 +182,7 @@ const Login = () => {
                             </p>
                         </div>
                     </div>
-                    <div className="w-full">
+                    <div className="w-full sm:block hidden">
                         <Image
                             placeholder="blur"
                             src={Login_Image}

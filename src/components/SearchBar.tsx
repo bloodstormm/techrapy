@@ -15,11 +15,11 @@ const SearchBar = ({ search, setSearch, placeholder, className }: SearchPatients
   }
 
   return (
-    <form className={` ${className} flex items-center bg-white dark:bg-background border border-foreground/20 dark:border-foreground/10 w-full container rounded-xl p-4 h-14 transition-all duration-300`} onSubmit={(e) => e.preventDefault()}>
+    <form className={` ${className} flex items-center bg-[#FCF6F7] dark:bg-background border border-foreground/20 dark:border-foreground/10 w-full container rounded-xl p-4 h-14 transition-all duration-300`} onSubmit={(e) => e.preventDefault()}>
       <input
         type="text"
         placeholder={placeholder}
-        className="bg-transparent border-none w-full focus:outline-none placeholder-orange-700 text-orange-900 dark:placeholder-foreground"
+        className="bg-transparent border-none w-full focus:outline-none placeholder-orange-700 text-orange-900 dark:placeholder-foreground dark:text-foreground"
         onChange={handleSearch}
         value={search}
       />

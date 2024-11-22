@@ -22,6 +22,7 @@ import AddDiseaseDialog from "@/components/addDiseaseDialog";
 import AddFamilyDiseaseDialog from "@/components/addFamilyDiseaseDialog";
 import { Trash2 } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import LoadingSpinner from "@/components/loadingSpinner";
 
 const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   const router = useRouter();
@@ -157,14 +158,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   }, [patientNotes]);
 
   if (loading) return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-center items-center">
-          <div className="w-16 h-16 border-t-2 border-orange-900 border-solid rounded-full animate-spin"></div>
-        </div>
-        <p className="text-center text-orange-900 text-xl font-medium">Carregando dados do paciente...</p>
-      </div>
-    </div>
+    <LoadingSpinner mensagem="Carregando dados do paciente..." />
   );
 
   if (error) return <>
@@ -174,7 +168,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   </>;
   if (!patientData) return <>
     <div className="flex justify-center items-center h-screen">
-      <p className="text-center text-orange-400 text-xl font-medium">Nenhum paciente encontrado</p>
+      <p className="text-center text-primary text-xl font-medium">Nenhum paciente encontrado</p>
     </div>
   </>;
 
@@ -329,7 +323,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
   };
 
   return (
-    <div className="container mx-auto flex lg:flex-row flex-col gap-10 mt-10 mb-32">
+    <div className="container mx-auto px-4 md:px-8 xl:px-0 flex lg:flex-row flex-col gap-10 mt-10 mb-32">
       {/* Lado esquerdo */}
       <div className="flex relative flex-col h-fit bg-[#FCF6F7] dark:bg-[#242424] p-8 space-y-4 rounded-3xl shadow-lg overflow-hidden w-full lg:w-96">
         <Link
@@ -346,7 +340,7 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+        <div className="grid gap-4">
           <div className="flex flex-col">
             <span className=" text-orange-400">Gênero</span>
             <p className="text-sm text-gray-500 capitalize">{patient_gender}</p>
@@ -408,14 +402,14 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                               </div>
                             </div>
                           </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
+                          <DialogContent className="w-11/12 sm:w-full">
+                            <DialogHeader className="mt-8 sm:mt-6">
                               <DialogTitle>Remover doença familiar</DialogTitle>
                               <DialogDescription>
-                                Tem certeza que deseja remover {disease.disease.trim()}?
+                                Tem certeza que deseja remover <b>{disease.disease.trim()}</b>?
                               </DialogDescription>
                             </DialogHeader>
-                            <DialogFooter>
+                            <DialogFooter className="gap-3 sm:gap-0">
                               <DialogClose asChild>
                                 <Button variant="outline">Cancelar</Button>
                               </DialogClose>
@@ -498,12 +492,11 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                 <DrawerContent className="pb-4">
                   <div className="w-full max-w-4xl mx-auto">
                     <DrawerHeader className="px-0">
-                      <DrawerTitle className="text-orange-400">Mais informações do paciente</DrawerTitle>
+                      <DrawerTitle>Mais informações do paciente</DrawerTitle>
                     </DrawerHeader>
-                    <DrawerDescription>
+                    <DrawerDescription className="px-4 sm:px-0">
                       {isEditingPatientInfo ? (
                         <textarea
-
                           value={editedPatientInfo}
                           onChange={(e) => setEditedPatientInfo(e.target.value)}
                           className="w-full p-2 border rounded-md min-h-[150px] text-sm"
@@ -512,27 +505,36 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                         <p className="text-foreground text-sm">{patientData.more_info_about_patient}</p>
                       )}
                     </DrawerDescription>
-                    <DrawerFooter className="flex gap-2">
+                    <DrawerFooter className="flex gap-2 px-4 sm:px-0">
                       {isEditingPatientInfo ? (
-                        <Button
-                          variant="default"
-                          onClick={handleUpdatePatientInfo}
-                          className="bg-orange-400 w-full hover:bg-orange-500"
-                        >
-                          Salvar alterações
-                        </Button>
-                      ) : (
-                        <div className="flex gap-2 mt-6 w-full justify-center">
-                          <DrawerClose>
-                            <Button variant="default" className="w-80">Fechar</Button>
-                          </DrawerClose>
+                        <div className="flex gap-2 w-full">
                           <Button
                             variant="outline"
+                            onClick={() => setIsEditingPatientInfo(false)}
+                            className="w-full"
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            variant="default"
+                            onClick={handleUpdatePatientInfo}
+                            className="bg-orange-400 w-full hover:bg-orange-500"
+                          >
+                            Salvar alterações
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col sm:flex-row sm:px-0 gap-2 mt-6 w-full justify-center">
+                          <DrawerClose className="w-full">
+                            <Button variant="outline" className="w-full">Fechar</Button>
+                          </DrawerClose>
+                          <Button
+                            variant="default" 
                             onClick={() => {
                               setIsEditingPatientInfo(true);
                               setEditedPatientInfo(patientData.more_info_about_patient || "");
                             }}
-                            className="w-80 text-orange-400"
+                            className="w-full"
                           >
                             Editar
                           </Button>
@@ -555,11 +557,11 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                   </Button>
                 </DrawerTrigger>
                 <DrawerContent>
-                  <div className="max-w-4xl mx-auto">
+                  <div className="w-full max-w-4xl px-4 sm:px-0 mx-auto">
                     <DrawerHeader className="container px-0 mx-auto">
                       <DrawerTitle>Mais informações sobre doenças do paciente</DrawerTitle>
                     </DrawerHeader>
-                    <DrawerDescription className="container mx-auto">
+                    <DrawerDescription className="px-4 sm:px-0">
                       {isEditingDiseases ? (
                         <textarea
                           value={editedDiseaseInfo}
@@ -570,27 +572,35 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
                         <p className="text-foreground text-sm">{patientData.more_info_about_diseases}</p>
                       )}
                     </DrawerDescription>
-                    <DrawerFooter className="flex gap-2">
+                    <DrawerFooter className="flex gap-2 px-4 sm:px-0">
                       {isEditingDiseases ? (
-                        <Button
-                          variant="default"
-                          onClick={handleUpdateDiseaseInfo}
-                          className="bg-orange-400 w-full hover:bg-orange-500"
-                        >
-                          Salvar alterações
-                        </Button>
-                      ) : (
-                        <div className="flex gap-2 mt-6 w-full justify-center">
-                          <DrawerClose>
-                            <Button variant="default" className="w-80">Fechar</Button>
-                          </DrawerClose>
+                        <div className="flex gap-2 w-full">
                           <Button
                             variant="outline"
+                            onClick={() => setIsEditingDiseases(false)}
+                            className="w-full"
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            variant="default"
+                            onClick={handleUpdateDiseaseInfo}
+                            className="bg-orange-400 w-full hover:bg-orange-500"
+                          >
+                            Salvar alterações
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col sm:flex-row sm:px-0 gap-2 mt-6 w-full justify-center">
+                          <DrawerClose className="w-full">
+                            <Button variant="outline" className="w-full">Fechar</Button>
+                          </DrawerClose>
+                          <Button
                             onClick={() => {
                               setIsEditingDiseases(true);
                               setEditedDiseaseInfo(patientData.more_info_about_diseases || "");
                             }}
-                            className="w-80 text-orange-400"
+                            className="w-full"
                           >
                             Editar
                           </Button>
@@ -608,10 +618,10 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
       <div className="flex flex-col w-full">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-8 w-full overflow-y-auto hide-scrollbar">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-start sm:items-center mb-6">
               <DropdownMenu>
                 <DropdownMenuTrigger className="">
-                  <Button variant="outline" className="flex items-center justify-center">
+                  <Button variant="outline" className="flex items-center border-orange-400 dark:border-orange-400 justify-center">
                     <PlusIcon className="w-4 h-4 gap-2" />
                     <p className="font-medium">Adicionar uma nova doença</p>
                   </Button>
@@ -647,10 +657,10 @@ const PatientSummaries = ({ params }: { params: { patient_id: string } }) => {
               </Link>
             </div>
             {patientNotes.length === 0 ? (
-              <div className="flex bg-orange-100 dark:bg-[#242424] p-20 rounded-3xl flex-col w-full justify-center items-center overflow-y-auto hide-scrollbar">
-                <Image priority src={Empty_Notes} alt="Empty Notes" className="w-72 h-72" />
-                <h2 className="text-foreground text-xl mt-4 font-medium">Nenhum relato de sessão adicionado</h2>
-                <p className="text-foreground text-sm font-normal">Adicione um clicando no botão acima para começar a registrar os relatos de sessão</p>
+              <div className="flex bg-orange-100 dark:bg-[#242424] p-14 sm:p-20 rounded-3xl flex-col w-full justify-center items-center overflow-y-auto hide-scrollbar">
+                <Image priority src={Empty_Notes} alt="Empty Notes" className="w-48 h-48 sm:w-72 sm:h-72" />
+                <h2 className="text-foreground text-center sm:text-left text-xl mt-4 font-medium">Nenhum relato de sessão adicionado</h2>
+                <p className="text-foreground text-center sm:text-left text-sm font-normal">Adicione um clicando no botão acima para começar a registrar os relatos de sessão</p>
               </div>
             ) : (
               <>

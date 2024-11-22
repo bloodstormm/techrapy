@@ -82,8 +82,8 @@ const AddFamilyDiseaseDialog = ({ isOpen, setIsOpen, patientId, onDiseaseAdded }
           </span>
         </DropdownMenuItem>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="w-11/12 sm:max-w-2xl">
+        <DialogHeader className="mt-8">
           <DialogTitle>Adicionar doença psicológica familiar</DialogTitle>
           <DialogDescription>
             Adicione uma doença psicológica de um familiar do paciente.
@@ -99,7 +99,7 @@ const AddFamilyDiseaseDialog = ({ isOpen, setIsOpen, patientId, onDiseaseAdded }
                   {selectedDisease || (showOtherDiseaseInput ? "Outra doença" : "Selecione uma doença")}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-96 overflow-y-auto max-h-96">
+              <DropdownMenuContent className="sm:w-96 overflow-y-auto max-h-96">
                 <DropdownMenuLabel>Doenças Psicológicas</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {lookupValues.diseases?.map((disease) => (

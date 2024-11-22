@@ -56,8 +56,8 @@ const Register = () => {
     };
 
     return (
-        <div className="grid grid-cols-2 items-center justify-center h-screen">
-            <div className="w-full ">
+        <div className="grid sm:grid-cols-2 grid-cols-1 container sm:mx-0 sm:max-w-full items-center justify-center h-screen">
+            <div className="w-full sm:block hidden">
                 <Image src={Register_Image} alt="Register Image"
                 placeholder="blur"
                 blurDataURL={Register_Image.src}
@@ -66,7 +66,7 @@ const Register = () => {
             <div className="w-full max-w-sm mx-auto">
                 <h1 className="text-5xl text-orange-900 dark:text-foreground mb-4 font-cabinetGrotesk text-center ">Techrapy</h1>
                 <p className="text-gray-900 mb-10 text-center">Crie sua conta</p>
-                <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md flex flex-col gap-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md flex flex-col sm:gap-4">
                     <div className="flex flex-col">
                         <label htmlFor="therapist_name" className="text-orange-900 dark:text-foreground mb-2">Nome Completo</label>
                         <Input 
@@ -121,7 +121,7 @@ const Register = () => {
                         {errors.confirm_password && <span className="text-red-500 text-sm">{errors.confirm_password.message}</span>}
                     </div>
 
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button className="mt-4" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "Salvando..." : "Criar conta"}
                     </Button>
                 </form>

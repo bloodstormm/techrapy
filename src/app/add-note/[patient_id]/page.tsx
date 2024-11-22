@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import { encryptText } from '@/lib/encryption';
 import { Input } from '@/components/ui/input';
+import ImageUploader from '@/components/imageUploader';
 
 const AddNote = ({ params }: { params: { patient_id: string } }) => {
 	const [note, setNote] = useState('');
@@ -17,6 +18,7 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 	const [file, setFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
+	const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
 
 	useEffect(() => {
 		const checkUser = async () => {
@@ -30,12 +32,9 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 		checkUser();
 	}, []);
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files && e.target.files[0]) {
-			const selectedFile = e.target.files[0];
+	const handleFileChange = (selectedFile: File | null) => {
+		if (selectedFile) {
 			setFile(selectedFile);
-
-			// Criar uma URL de objeto para a pré-visualização
 			const previewUrl = URL.createObjectURL(selectedFile);
 			setImagePreview(previewUrl);
 		}
@@ -116,8 +115,38 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 		}
 	};
 
+	const handleRemoveImage = async () => {
+		try {
+		  if (currentImageUrl) {
+			const oldFileName = currentImageUrl.split('/').pop();
+			if (oldFileName) {
+			  await supabase.storage
+				.from('notes-images')
+				.remove([oldFileName]);
+			}
+		  }
+		  
+		  const { error } = await supabase
+			.from('patient_notes')
+			.update({
+			  image_url: null
+			})
+			.eq('note_id', params.patient_id);
+	
+		  if (error) throw error;
+	
+		  setCurrentImageUrl(null);
+		  setImagePreview(null);
+		  setFile(null);
+		  toast.success('Imagem removida com sucesso');
+		} catch (error) {
+		  toast.error('Erro ao remover a imagem');
+		  console.error(error);
+		}
+	  };
+
 	return (
-		<form onSubmit={handleSubmit} className="w-full h-full flex flex-col container mx-auto justify-center mt-12">
+		<form onSubmit={handleSubmit} className="w-full h-full px-4 sm:px-0 flex flex-col container mx-auto justify-center mt-12">
 			<Link
 				href={`/patient-notes/${params.patient_id}`}
 				className="flex items-center gap-1 hover:gap-3 transition-all"
@@ -126,19 +155,18 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 				Voltar
 			</Link>
 			<div className="flex flex-col items-center gap-1">
-				<h1 className="text-4xl text-orange-900 dark:text-primary font-cabinetGrotesk mb-1">Adicionar Relato de sessão</h1>
-				<p className="text-lg text-center mb-8">Escolha o tipo de paciente que deseja adicionar</p>
+				<h1 className="text-3xl mt-10 sm:text-4xl text-center sm:text-left text-orange-900 dark:text-primary font-cabinetGrotesk mb-1">Adicionar Relato de sessão</h1>
+				<p className="text-lg text-center sm:text-left mb-8">Escolha o tipo de paciente que deseja adicionar</p>
 			</div>
 
-			<div className="w-3/4 mx-auto mb-32 space-y-6">
+			<div className="w-full sm:w-3/4 mx-auto mb-32 space-y-6">
 				<TipTap onChange={setNote} isSaving={isSaving} />
-				<div className="flex flex-col items-center gap-1 border border-primary dark:border-foreground/30 p-4 rounded-lg bg-orange-100 dark:bg-gray-950">
-					<label htmlFor="image" className="mt-4 block text-xl ">Adicionar Imagem</label>
-					<Input type="file" className="mt-4 file:flex file:py-1 file:items-center justify-center file:w-full file:mb-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold bg-primary file:text-white hover:bg-orange-700 file:transition-all file:duration-150" id="image" onChange={handleFileChange} />
-					{imagePreview && (
-						<img src={imagePreview} alt="Pré-visualização da imagem" className="mt-4 max-w-[500px] h-auto rounded-lg" />
-					)}
-				</div>
+				<ImageUploader
+					onFileChange={handleFileChange}
+					currentImageUrl={currentImageUrl}
+					onRemoveImage={handleRemoveImage}
+					imagePreview={imagePreview}
+				/>
 				<Button
 					type="submit"
 					className={`mt-4 transition-all duration-300 w-full h-12 ${note ? 'bg-primary' : 'disabled'} ${isSaving || isUploading ? 'bg-orange-700' : 'bg-primary'}`}

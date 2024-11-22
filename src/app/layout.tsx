@@ -7,7 +7,6 @@ import { Toaster } from "sonner";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import { Providers } from "./providers";
   import "./globals.css";
-  import ConfigButton from "@/components/configButton";
 const cabinetGrotesk = localFont({
   src: "./fonts/CabinetGrotesk-Variable.woff2",
   variable: "--font-cabinet-grotesk",
@@ -18,6 +17,11 @@ const manrope = Manrope({
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-manrope",
 });
+
+export const metadata = {
+  title: 'Techrapy',
+  description: 'Um sistema de gerenciamento de relatos de sessão',
+}
 
 export default async function RootLayout({
   children,
@@ -42,7 +46,6 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <Toaster position="top-right" closeButton />
-            <ConfigButton />
             <ConditionalNavbar />
             {children}
             </ThemeProvider>

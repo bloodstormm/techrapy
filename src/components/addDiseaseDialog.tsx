@@ -87,8 +87,8 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
           </span>
         </DropdownMenuItem>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="w-11/12 sm:max-w-2xl">
+        <DialogHeader className="mt-8 ">
           <DialogTitle>Adicionar uma nova doença</DialogTitle>
           <DialogDescription>
             Adicione uma nova doença ao paciente e vincule a um relato de sessão.
@@ -115,7 +115,7 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
                       {selectedDisease || (showOtherDiseaseInput ? "Outra doença" : "Selecione uma doença")}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-96 overflow-y-auto max-h-96">
+                  <DropdownMenuContent className="sm:w-96 overflow-y-auto max-h-96">
                     <DropdownMenuLabel>Doenças Psicológicas</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {lookupValues.diseases?.map((disease) => (
@@ -147,18 +147,15 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
               </div>
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4 mb-4">
-              <Label className="text-right">
-                Procurar por relatos
-              </Label>
-              <div className="col-span-3 space-y-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <div className="col-span-4 space-y-4">
                 <div className="relative">
                   <Input
                     type="text"
                     value={searchNote}
                     onChange={(e) => setSearchNote(e.target.value)}
                     placeholder="Pesquisar em todos os relatos..."
-                    className="w-full h-10 px-3 py-2 text-sm"
+                    className="w-full h-10 px-3 mt-3 bg-foreground/5 border border-foreground/20 text-sm"
                   />
                   <MagnifyingGlassIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>

@@ -28,7 +28,7 @@ const highlightText = (text: string, search: string) => {
   const regex = new RegExp(`(${search})`, "gi");
   return text.replace(regex, "<mark>$1</mark>");
 };
-  
+
 const NoteHeader = ({
   noteDate,
   onDelete,
@@ -39,12 +39,15 @@ const NoteHeader = ({
   noteId: string;
 }) => {
   return (
-    <div className="flex justify-between border-b border-orange-200 pb-4">
+    <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between border-b border-orange-200 pb-4">
       <h1 className="text-orange-900 dark:text-orange-400 text-xl font-medium">Resumo de sessão</h1>
-      <div className="flex items-center gap-2 text-orange-400">
-        <CalendarIcon className="w-4 h-4 " />
-        <div className="flex items-center gap-4">
+      <div className="flex justify-between sm:justify-start items-center gap-3 text-orange-400">
+        <div className="flex items-center gap-2">
+          <CalendarIcon className="w-4 h-4 " />
           <p>{formatDate(new Date(noteDate))}</p>
+
+        </div>
+        <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Cog6ToothIcon className="w-4 h-4" />
@@ -113,9 +116,8 @@ const NoteContent = ({
       )}
       <CollapsibleContent>
         <div
-          className={`overflow-hidden transition-all duration-300 ${
-            openNotes[note.note_id] ? "max-h-full" : "max-h-20"
-          }`}
+          className={`overflow-hidden transition-all duration-300 ${openNotes[note.note_id] ? "max-h-full" : "max-h-20"
+            }`}
         >
           <ReadOnlyNote content={highlightText(decryptedNote, search)} />
         </div>
@@ -145,7 +147,7 @@ const PatientNoteItem = ({
   search: string;
 }) => {
   return (
-    <div className="flex flex-col bg-[#FCF6F7] dark:bg-[#242424] border border-[#E6E6E6] dark:border-foreground/10 p-8 px-12 rounded-3xl w-full break-all">
+    <div className="flex flex-col bg-[#FCF6F7] dark:bg-[#242424] border border-[#E6E6E6] dark:border-foreground/10 p-8 sm:px-12 rounded-3xl w-full break-all">
       <NoteHeader
         noteDate={note.note_date}
         onDelete={onDelete}

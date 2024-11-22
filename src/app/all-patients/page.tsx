@@ -22,7 +22,7 @@ const NoResults = ({ search }: { search: string }) => (
       className="w-64 h-64 mb-4 mx-auto"
       priority
     />
-    <p className="text-orange-900 text-xl font-medium">
+    <p className="text-orange-900 dark:text-foreground text-xl font-medium">
       Nenhum paciente encontrado com o nome "{search}".
     </p>
   </div>
@@ -122,9 +122,9 @@ const AllUsers = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center mt-16">
-      <h1 className="text-orange-900 dark:text-primary text-4xl container text-center mb-2 font-cabinetGrotesk">
-        Todos os Pacientes
+    <div className="flex flex-col px-4 md:px-8 xl:px-0 items-center justify-center mt-16">
+      <h1 className="text-orange-900 dark:text-primary text-4xl text-center mb-2 font-cabinetGrotesk">
+      Todos os Pacientes
       </h1>
       <p className="text-lg text-center mb-12">
         Nessa seção você pode ver todos os pacientes cadastrados no seu perfil.

@@ -85,6 +85,7 @@ export const deleteNoteById = async (note_id: string) => {
   if (fetchError) {
     throw new Error(fetchError.message);
   }
+  
 
   // Se a nota tiver uma imagem, deletar a imagem do bucket
   if (noteData?.image_url) {
