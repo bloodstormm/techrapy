@@ -76,17 +76,14 @@ const Home = () => {
     }
 
     return (
-        <main className="flex flex-col justify-center h-screen items-center flex-gcol">
-            <div className="h-[55%] w-full bg-background flex flex-col justify-center text-center">
-                <h1 className="text-6xl text-orange-900 dark:text-orange-500 mb-4 font-cabinetGrotesk">Techrapy</h1>
+        <main className="flex flex-col justify-center h-screen items-center">
+            <div className="h-[55%] px-6 sm:px-0 w-full bg-background flex flex-col justify-center text-center">
+                <h1 className="text-5xl md:text-6xl text-foreground dark:text-orange-500 mb-4 font-cabinetGrotesk">Techrapy</h1>
 
                 <p className="text-md text-gray-700 dark:text-white">
                     Bem-vindo, {(user.full_name?.split(' ')[0]) || 'Terapeuta'}! O que deseja fazer hoje?
                 </p>
-                {/* <p className="text-md mt-8 p-4 bg-orange-100 dark:bg-gray-800 rounded-2xl font-bold text-gray-500 dark:text-white">
-                        seu ID é {user.id}
-                    </p> */}
-                <div className="flex justify-center mt-8 gap-4">
+                <div className="flex flex-col sm:flex-row justify-center mt-8 gap-4">
                     <Button>
                         <Link href="/all-patients" className="flex items-center">
                             <UsersIcon className="w-4 h-4 mr-2" />
