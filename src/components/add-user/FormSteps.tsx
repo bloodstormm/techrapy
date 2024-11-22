@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from 'uuid';
 
 // import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
@@ -145,7 +146,14 @@ export default function FormSteps({
 
   const handleAddOtherDisease = () => {
     if (otherDisease.trim()) {
-      const newSelectedDiseases = [...selectedDiseases, otherDisease.trim()];
+      // Remover "Nenhuma" se estiver presente
+      const newSelectedDiseases = selectedDiseases.filter(d => d !== "none");
+      
+      // Adicionar a nova doença se ela ainda não existir
+      if (!newSelectedDiseases.includes(otherDisease.trim())) {
+        newSelectedDiseases.push(otherDisease.trim());
+      }
+      
       setSelectedDiseases(newSelectedDiseases);
       setOtherDisease("");
       setShowOtherDiseaseInput(false);
@@ -154,10 +162,21 @@ export default function FormSteps({
 
   const handleAddOtherFamilyDisease = () => {
     if (otherFamilyDisease.trim()) {
-      setSelectedFamilyDiseases(prev => [
-        ...prev.filter(item => item.disease !== "Nenhuma"),
-        { disease: otherFamilyDisease, relationship: "" }
-      ]);
+      setSelectedFamilyDiseases(prev => {
+        // Remover "Nenhuma" se estiver presente
+        const filteredDiseases = prev.filter(item => item.disease !== "Nenhuma");
+        
+        // Verificar se a doença já existe
+        if (!filteredDiseases.some(item => item.disease === otherFamilyDisease.trim())) {
+          return [
+            ...filteredDiseases,
+            { disease: otherFamilyDisease.trim(), relationship: "" }
+          ];
+        }
+        
+        return filteredDiseases;
+      });
+      
       setOtherFamilyDisease("");
       setShowOtherFamilyDiseaseInput(false);
     }
@@ -223,7 +242,7 @@ export default function FormSteps({
           disease: disease,
           note_id: null,
           created_at: new Date(),
-          disease_id: "",
+          disease_id: uuidv4(),
         });
       }
 
@@ -234,7 +253,7 @@ export default function FormSteps({
           disease: disease.disease,
           relationship: disease.relationship,
           created_at: new Date(),
-          relative_disease_id: "",
+          relative_disease_id: uuidv4(),
         });
       }
 
@@ -558,7 +577,7 @@ export default function FormSteps({
                       name="phone_number"
                       render={({ field }) => (
                         <FormItem>
-                          <RequiredField>Telefone do paciente</RequiredField>
+                          <FormLabel>Telefone do paciente</FormLabel>
                           <FormControl>
                             <MaskedInput
                               mask={['(', /[1-9]/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
@@ -658,21 +677,22 @@ export default function FormSteps({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="w-full bg-orange-100 h-full justify-start mt-1 hover:bg-orange-400/10 whitespace-normal gap-4">
-                          {selectedDiseases.length > 0
-                            ? selectedDiseases.length === 1 && selectedDiseases[0] === "none"
-                              ? "Nenhuma"
-                              : (
-                                <p className="gap-y-3 items-center flex flex-wrap">
-                                  {selectedDiseases
-                                    .filter(disease => lookupValues.diseases?.some(d => d.label === disease))
-                                    .map((disease) => (
-                                      <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={disease}>
-                                        {disease.replace(/_/g, ' ')}
-                                      </span>
-                                    ))}
-                                </p>
-                              )
-                            : "Nenhuma"}
+                          {selectedDiseases.length > 0 ? (
+                            <p className="gap-y-3 items-center flex flex-wrap">
+                              {selectedDiseases.map((disease) => (
+                                <span 
+                                  key={disease} 
+                                  className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize"
+                                >
+                                  {disease === "none" ? "Nenhuma" : disease.replace(/_/g, ' ')}
+                                </span>
+                              ))}
+                            </p>
+                          ) : (
+                            <p className="text-muted-foreground">
+                              Selecione as doenças
+                            </p>
+                          )}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 self-start">
@@ -714,8 +734,8 @@ export default function FormSteps({
                     {selectedDiseases
                       .filter(disease => !lookupValues.diseases?.some(d => d.label === disease))
                       .length > 0 && (
-                      <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <p className="text-sm">Doenças adicionais:</p>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <p className="text-sm w-full">Doenças adicionais:</p>
                         {selectedDiseases
                           .filter(disease => !lookupValues.diseases?.some(d => d.label === disease))
                           .map((disease) => (
@@ -743,21 +763,26 @@ export default function FormSteps({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="w-full bg-orange-100 h-full justify-start mt-1 hover:bg-orange-400/10 whitespace-normal gap-4">
-                          {selectedFamilyDiseases.length > 0
-                            ? selectedFamilyDiseases.length === 1 && selectedFamilyDiseases[0].disease === "Nenhuma"
-                              ? "Nenhuma"
-                              : (
-                                <p className="gap-y-3 items-center flex flex-wrap">
-                                  {selectedFamilyDiseases
-                                    .filter(item => lookupValues.diseases?.some(d => d.label === item.disease))
-                                    .map((item) => (
-                                      <span className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize" key={item.disease}>
-                                        {item.disease}
-                                      </span>
-                                    ))}
-                                </p>
-                              )
-                            : "Nenhuma"}
+                          {selectedFamilyDiseases.length > 0 ? (
+                            selectedFamilyDiseases[0].disease === "Nenhuma" ? (
+                              <span className="text-muted-foreground">Nenhuma</span>
+                            ) : (
+                              <p className="gap-y-3 items-center flex flex-wrap">
+                                {selectedFamilyDiseases.map((item) => (
+                                  <span 
+                                    key={item.disease} 
+                                    className="mr-2 bg-orange-200 rounded-xl p-1 px-2 capitalize"
+                                  >
+                                    {item.disease.replace(/_/g, ' ')}
+                                  </span>
+                                ))}
+                              </p>
+                            )
+                          ) : (
+                            <p className="text-muted-foreground">
+                              Selecione as doenças na família
+                            </p>
+                          )}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 self-start">
@@ -800,14 +825,15 @@ export default function FormSteps({
                       .filter(item => !lookupValues.diseases?.some(d => d.label === item.disease))
                       .length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
+                        <p className="text-sm w-full">Doenças adicionais:</p>
                         {selectedFamilyDiseases
                           .filter(item => !lookupValues.diseases?.some(d => d.label === item.disease))
                           .map((item) => (
                             <span 
                               key={item.disease}
-                              className="bg-orange-200 rounded-xl p-1 px-2 capitalize flex items-center gap-2"
+                              className="bg-orange-200 text-sm rounded-xl p-1 px-2 capitalize flex items-center gap-2"
                             >
-                              {item.disease}
+                              {item.disease.replace(/_/g, ' ')}
                               <button
                                 onClick={() => setSelectedFamilyDiseases(prev => 
                                   prev.filter(d => d.disease !== item.disease)
@@ -821,11 +847,12 @@ export default function FormSteps({
                       </div>
                     )}
 
-                    {selectedFamilyDiseases.length > 0 && selectedFamilyDiseases[0].disease !== "Nenhuma" && (
+                    {selectedFamilyDiseases.length > 0 && 
+                     selectedFamilyDiseases[0].disease !== "Nenhuma" && (
                       <div className="space-y-2 mt-2">
                         {selectedFamilyDiseases.map((item, index) => (
                           <div key={index} className="flex gap-2 items-center">
-                            <span className="min-w-[120px]">{item.disease}:</span>
+                            <span className="min-w-[120px] capitalize">{item.disease.replace(/_/g, ' ')}:</span>
                             <Input
                               value={item.relationship}
                               onChange={(e) => {
@@ -840,7 +867,6 @@ export default function FormSteps({
                         ))}
                       </div>
                     )}
-
                   </div>
                 </div>
 
