@@ -9,7 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabaseClient";
 import { formatDate } from "@/i18n/formatDate";
-import ReadOnlyNote from "./tiptap/ReadOnlyNote";
+import ReadOnlyNote from "../tiptap/ReadOnlyNote";
 import { PatientNote } from "@/types/patientNotes";
 import { useLookupValues } from "@/hooks/useLookupValues";
 
@@ -18,7 +18,7 @@ interface AddDiseaseDialogProps {
   setIsOpen: (value: boolean) => void;
   patientId: string;
   decryptedNotes: PatientNote[];
-  onDiseaseAdded: () => void;
+  onDiseaseAdded?: () => void;
 }
 
 const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDiseaseAdded }: AddDiseaseDialogProps) => {
@@ -54,15 +54,19 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
         return;
       }
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('diseases')
         .insert({
           disease: finalDisease,
           patient_id: patientId,
           note_id: selectedNoteId
-        });
+        })
+        .select()
+        .single();
         
       if (error) throw error;
+      
+      onDiseaseAdded?.();
       
       toast.success('Doença adicionada com sucesso');
       setIsOpen(false);
@@ -70,8 +74,6 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
       setOtherDisease('');
       setSelectedNoteId(null);
       setShowOtherDiseaseInput(false);
-      onDiseaseAdded();
-      
     } catch (error) {
       toast.error('Erro ao adicionar doença');
     }

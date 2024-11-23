@@ -1,6 +1,6 @@
 import { PatientNote } from "@/types/patientNotes";
 import { formatDate } from "@/i18n/formatDate";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   CalendarIcon,
   PlusIcon,
@@ -18,10 +18,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import ReadOnlyNote from "./tiptap/ReadOnlyNote";
+} from "../ui/dropdown-menu";
+import ReadOnlyNote from "../tiptap/ReadOnlyNote";
 import { decryptText } from '@/lib/encryption';
 import Link from "next/link";
+import { supabase } from "@/lib/supabaseClient";
 
 const highlightText = (text: string, search: string) => {
   if (!search) return text;
@@ -33,18 +34,34 @@ const NoteHeader = ({
   noteDate,
   onDelete,
   noteId,
+  diseases,
 }: {
   noteDate: string;
   onDelete: (note_id: string) => void;
   noteId: string;
+  diseases?: string[];
 }) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between border-b border-orange-200 pb-4">
-      <h1 className="text-orange-900 dark:text-orange-400 text-xl font-medium">Resumo de sessão</h1>
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className="text-orange-900 dark:text-orange-400 text-xl font-medium">Resumo de sessão</h1>
+        {diseases && diseases.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {diseases.map((disease, index) => (
+              <span 
+                key={index}
+                className="px-2 py-1 text-sm rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-foreground"
+              >
+                {disease}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
       <div className="flex justify-between sm:justify-start items-center gap-3 text-orange-400">
         <div className="flex items-center gap-2">
           <CalendarIcon className="w-4 h-4 " />
-          <p>{formatDate(new Date(noteDate))}</p>
+          <p className="whitespace-nowrap">{formatDate(new Date(noteDate))}</p>
 
         </div>
         <div className="flex items-center gap-4">
@@ -147,11 +164,12 @@ const PatientNoteItem = ({
   search: string;
 }) => {
   return (
-    <div className="flex flex-col bg-[#FCF6F7] dark:bg-[#242424] border border-[#E6E6E6] dark:border-foreground/10 p-8 sm:px-12 rounded-3xl w-full break-all">
+    <div className="flex flex-col bg-[#fcf6f3] dark:bg-[#242424] border border-[#E6E6E6] dark:border-foreground/10 p-8 sm:px-12 rounded-3xl w-full break-all">
       <NoteHeader
         noteDate={note.note_date}
         onDelete={onDelete}
         noteId={note.note_id}
+        diseases={note.associatedDiseases}
       />
       <NoteContent
         note={{ ...note, note: note.decryptedContent || '' }}

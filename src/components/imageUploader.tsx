@@ -79,27 +79,28 @@ const ImageUploader = ({
     <div 
       className={`flex flex-col items-center gap-1 border-2 border-dashed ${
         isDragging ? 'border-primary bg-orange-50 dark:bg-gray-900' : 'border-primary/30 dark:border-foreground/30'
-      } p-8 rounded-lg transition-colors relative`}
+      } p-8 rounded-lg transition-colors relative cursor-pointer`}
       onDragEnter={handleDragEnter}
       onDragOver={handleDrag}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onClick={() => document.getElementById('image')?.click()}
     >
       {isDragging && (
         <div className="absolute inset-0 bg-transparent z-10" />
       )}
-      <label htmlFor="image" className="text-xl text-center pointer-events-none">
-        Arraste uma imagem ou clique para selecionar
+      <label className="text-xl text-center">
+        Arraste uma imagem do seu relato de sessão ou clique para selecionar
       </label>
       <Input 
         type="file"
         accept=".jpg,.jpeg,.png,.webp"
-        className="mt-4 file:flex file:py-1 file:items-center justify-center file:w-full file:mb-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold bg-primary file:text-white hover:bg-orange-700 file:transition-all file:duration-150 pointer-events-none" 
+        className="hidden" 
         id="image" 
         onChange={handleFileChange} 
       />
       {(imagePreview || currentImageUrl) && (
-        <div className="mt-4 space-y-4">
+        <div className="mt-4 space-y-4" onClick={(e) => e.stopPropagation()}>
           <img 
             src={imagePreview || currentImageUrl || ''} 
             alt="Pré-visualização da imagem" 
@@ -108,7 +109,10 @@ const ImageUploader = ({
           <Button 
             type="button"
             variant="destructive"
-            onClick={onRemoveImage}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemoveImage();
+            }}
             className="w-full"
           >
             Remover imagem

@@ -14,10 +14,9 @@ interface AddFamilyDiseaseDialogProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   patientId: string;
-  onDiseaseAdded: () => void;
 }
 
-const AddFamilyDiseaseDialog = ({ isOpen, setIsOpen, patientId, onDiseaseAdded }: AddFamilyDiseaseDialogProps) => {
+const AddFamilyDiseaseDialog = ({ isOpen, setIsOpen, patientId }: AddFamilyDiseaseDialogProps) => {
   const [selectedDisease, setSelectedDisease] = useState('');
   const [relationship, setRelationship] = useState('');
   const [showOtherDiseaseInput, setShowOtherDiseaseInput] = useState(false);
@@ -65,8 +64,7 @@ const AddFamilyDiseaseDialog = ({ isOpen, setIsOpen, patientId, onDiseaseAdded }
       setRelationship('');
       setOtherDisease('');
       setShowOtherDiseaseInput(false);
-      onDiseaseAdded();
-      
+        
     } catch (error) {
       toast.error('Erro ao adicionar doença familiar');
     }

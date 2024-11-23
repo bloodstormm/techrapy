@@ -66,7 +66,7 @@ const PatientCard = ({ patientData, onDeletePatient }: PatientCardProps) => {
     );
 
     return (
-        <div className="bg-[#FCF6F7] dark:bg-background backdrop-blur-lg p-4 rounded-xl flex flex-col justify-between w-full border border-[#472417]/30 dark:border-foreground/10">
+        <div className="bg-[#fcf6f3] dark:bg-background backdrop-blur-lg p-4 rounded-xl flex flex-col justify-between w-full border border-[#472417]/30 dark:border-foreground/10">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-lg font-medium capitalize">{patientData.patient_name}</h1>
                 <DropdownMenu>
