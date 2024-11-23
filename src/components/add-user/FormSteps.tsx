@@ -493,7 +493,7 @@ export default function FormSteps({
                             {selectedDays.length > 0 ? (
                               <p className="gap-y-3 items-center flex flex-wrap">
                                 {selectedDays.map((day) => (
-                                  <span key={day} className="mr-2 bg-orange-200 dark:bg-gray-800 rounded-xl p-1 px-2">
+                                  <span key={day} className="mr-2 bg-orange-200 dark:bg-zinc-900 rounded-xl p-1 px-2">
                                     {lookupValues.week_days?.find(d => d.label === day)?.label}
                                   </span>
                                 ))}
@@ -679,7 +679,7 @@ export default function FormSteps({
                               {selectedDiseases.map((disease) => (
                                 <span 
                                   key={disease} 
-                                  className="mr-2 bg-orange-200 dark:bg-gray-800 rounded-xl p-1 px-2 capitalize"
+                                  className="mr-2 bg-orange-200 dark:bg-zinc-900 rounded-xl p-1 px-2 capitalize"
                                 >
                                   {disease === "none" ? "Nenhuma" : disease.replace(/_/g, ' ')}
                                 </span>
@@ -738,7 +738,7 @@ export default function FormSteps({
                           .map((disease) => (
                             <span 
                               key={disease}
-                              className="bg-orange-200 dark:bg-gray-800 text-sm rounded-xl p-1 px-2 capitalize flex items-center gap-2"
+                              className="bg-orange-200 dark:bg-zinc-900 text-sm rounded-xl p-1 px-2 capitalize flex items-center gap-2"
                             >
                               {disease.replace(/_/g, ' ')}
                               <button
@@ -768,7 +768,7 @@ export default function FormSteps({
                                 {selectedFamilyDiseases.map((item) => (
                                   <span 
                                     key={item.disease} 
-                                    className="mr-2 bg-orange-200 dark:bg-gray-800 rounded-xl p-1 px-2 capitalize"
+                                    className="mr-2 bg-orange-200 dark:bg-zinc-900 rounded-xl p-1 px-2 capitalize"
                                   >
                                     {item.disease.replace(/_/g, ' ')}
                                   </span>

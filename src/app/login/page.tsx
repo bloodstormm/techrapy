@@ -171,7 +171,7 @@ const Login = () => {
                         </form>
 
                         <div className="flex items-center justify-center mt-12">
-                            <p className="text-sm text-gray-800 dark:text-white mb-2 hover:text-orange-900">
+                            <p className="text-sm text-zinc-900 dark:text-white mb-2 hover:text-orange-900">
                             Não tem uma conta?{" "}
                                 <Link
                                     href="/register"

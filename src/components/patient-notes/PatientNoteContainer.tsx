@@ -198,7 +198,7 @@ export default function PatientNoteContainer({ patientId, patientData }: Patient
 
   return (
     <div className="flex flex-col gap-6 col-span-12 lg:col-span-8 xl:col-span-9">
-      <div className="flex w-full justify-between">
+      <div className="flex w-full flex-wrap gap-4 md:justify-between">
         <Link href={`/add-note/${patientId}`}>
           <Button className="w-fit">
             <PlusIcon className="w-4 h-4 mr-2" />

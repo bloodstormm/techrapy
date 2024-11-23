@@ -127,7 +127,7 @@ const Register = () => {
                 </form>
 
                 <div className="flex items-center justify-center mt-12">
-                    <p className="text-sm text-gray-800 mb-2 hover:text-orange-900 dark:text-foreground">Já tem uma conta? <Link href="/login" className="underline text-orange-500">Faça login!</Link></p>
+                    <p className="text-sm text-zinc-900 mb-2 hover:text-orange-900 dark:text-foreground">Já tem uma conta? <Link href="/login" className="underline text-orange-500">Faça login!</Link></p>
                 </div>
             </div>
         </div>

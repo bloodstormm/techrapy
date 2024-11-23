@@ -174,7 +174,7 @@ const AddDiseaseDialog = ({ isOpen, setIsOpen, patientId, decryptedNotes, onDise
                 <div
                   key={note.note_id}
                   className={`p-4 rounded-xl cursor-pointer border ${
-                    selectedNoteId === note.note_id ? 'border-orange-500 bg-orange-50' : 'border-foreground/20'
+                    selectedNoteId === note.note_id ? 'border-orange-500 bg-orange-50 dark:bg-zinc-900' : 'border-foreground/20'
                   }`}
                   onClick={() => setSelectedNoteId(note.note_id)}
                 >
