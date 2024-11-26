@@ -397,7 +397,7 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
                     <textarea
                       value={editedPatientInfo}
                       onChange={(e) => setEditedPatientInfo(e.target.value)}
-                      className="w-full p-2 border rounded-md min-h-[150px] text-sm"
+                      className="w-full p-2 border border-border bg-foreground/5 text-foreground rounded-md min-h-[150px] text-sm"
                     />
                   ) : (
                     <p className="text-foreground text-sm">{patientData.more_info_about_patient}</p>
