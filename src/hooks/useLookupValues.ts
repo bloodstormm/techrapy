@@ -19,6 +19,7 @@ export function useLookupValues() {
       const { data, error: supabaseError } = await supabase
         .from('lookup_values')
         .select('*')
+        .order('label', { ascending: true })
 
       if (supabaseError) {
         throw new Error(supabaseError.message);

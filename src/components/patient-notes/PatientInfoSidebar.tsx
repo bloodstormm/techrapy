@@ -222,10 +222,10 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
 
       <div className="grid gap-4">
         <div className="flex flex-col">
-          <span className="text-orange-400">Gênero</span>
+          <span className="text-orange-400 dark:text-foreground">Gênero</span>
           <p className="text-sm text-gray-500 capitalize">{patientData.patient_gender}</p>
 
-          <span className="text-orange-400 mt-4">Histórico de doenças</span>
+          <span className="text-orange-400 dark:text-foreground mt-4">Histórico de doenças</span>
           <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
             {diseases && diseases.length > 0 ? (
               diseases.map((disease) => (
@@ -277,7 +277,7 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
         </div>
 
         <div className="flex flex-col">
-          <span className="text-orange-400">Histórico de doenças na família</span>
+          <span className="text-orange-400 dark:text-foreground">Histórico de doenças na família</span>
           <div className="flex gap-2 gap-y-3 mt-2 flex-wrap w-full">
             {familyDiseases && familyDiseases.length > 0 ? (
               familyDiseases.map((disease) => (
@@ -286,7 +286,7 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
                     <TooltipTrigger>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <div className="text-sm px-3 py-1 rounded-xl bg-orange-50 border border-orange-300 dark:bg-orange-900 text-orange-600 
+                          <div className="text-sm px-3 py-1 rounded-xl bg-orange-50 border border-orange-300 dark:bg-orange-900 text-foreground 
                           dark:border-none
                           dark:text-foreground relative group cursor-pointer">
                             <p className="capitalize">{disease.disease.trim()}</p>
@@ -331,12 +331,12 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
         </div>
 
         <div className="flex flex-col">
-          <span className="text-orange-400">Dia(s) da sessão</span>
+          <span className="text-orange-400 dark:text-foreground">Dia(s) da sessão</span>
           <p className="text-sm text-gray-500 capitalize">{patientData.session_day}</p>
         </div>
 
         <div className="flex flex-col">
-          <span className="text-orange-400">Idade</span>
+          <span className="text-orange-400 dark:text-foreground">Idade</span>
           <p className="text-sm text-gray-500">
             {new Date().getFullYear() - new Date(patientData.birthdate).getFullYear()} anos
           </p>
@@ -345,11 +345,11 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
         {patientData.patient_type === "Criança" ? (
           <div className="flex flex-col space-y-4">
             <div>
-              <span className="text-orange-400">Nome do responsável</span>
+              <span className="text-orange-400 dark:text-foreground">Nome do responsável</span>
               <p className="text-sm text-gray-500">{patientData.guardian_name}</p>
             </div>
             <div>
-              <span className="text-orange-400">Telefone do responsável</span>
+              <span className="text-orange-400 dark:text-foreground">Telefone do responsável</span>
               {patientData.guardian_phone_number ? (
                 <p className="text-sm text-gray-500">{patientData.guardian_phone_number}</p>
               ) : (
@@ -360,18 +360,18 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
         ) : (
           <>
             <div className="flex flex-col">
-              <span className="text-orange-400">Telefone</span>
+              <span className="text-orange-400 dark:text-foreground">Telefone</span>
               <p className="text-sm text-gray-500">{patientData.phone_number}</p>
             </div>
             <div className="flex flex-col">
-              <span className="text-orange-400">Estado civil</span>
+              <span className="text-orange-400 dark:text-foreground">Estado civil</span>
               <p className="text-sm text-gray-500 capitalize">{patientData.marital_status}</p>
             </div>
           </>
         )}
 
         <div className="flex flex-col">
-          <span className="text-orange-400">Tipo de pagamento</span>
+          <span className="text-orange-400 dark:text-foreground">Tipo de pagamento</span>
           <p className="text-sm text-gray-500 capitalize">{patientData.payment_type}</p>
         </div>
       </div>
@@ -382,7 +382,7 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
 
         {patientData.more_info_about_patient && (
           <Drawer>
-            <DrawerTrigger className="text-orange-400 mt-4">
+            <DrawerTrigger className="text-orange-400 dark:text-foreground mt-4">
               <Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">
                 Mais informações do paciente
               </Button>
@@ -441,7 +441,7 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
 
         {patientData.more_info_about_diseases && (
           <Drawer>
-            <DrawerTrigger className="text-orange-400 mt-4">
+            <DrawerTrigger className="text-orange-400 dark:text-foreground mt-4">
               <Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">
                 Mais informações sobre doenças
               </Button>
@@ -456,7 +456,7 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
                     <textarea
                       value={editedDiseaseInfo}
                       onChange={(e) => setEditedDiseaseInfo(e.target.value)}
-                      className="w-full p-2 border rounded-md min-h-[150px] text-sm"
+                      className="w-full p-2 border border-border bg-foreground/5 text-foreground rounded-md min-h-[150px] text-sm"
                     />
                   ) : (
                     <p className="text-foreground text-sm">{patientData.more_info_about_diseases}</p>
