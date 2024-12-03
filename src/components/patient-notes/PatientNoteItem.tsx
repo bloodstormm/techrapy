@@ -22,12 +22,11 @@ import {
 import ReadOnlyNote from "../tiptap/ReadOnlyNote";
 import { decryptText } from '@/lib/encryption';
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
 
 const highlightText = (text: string, search: string) => {
   if (!search) return text;
   const regex = new RegExp(`(${search})`, "gi");
-  return text.replace(regex, "<mark>$1</mark>");
+  return text.replace(regex, '<mark>$1</mark>');
 };
 
 const NoteHeader = ({

@@ -12,6 +12,7 @@ import {
   Undo,
   Redo,
   Code,
+  Highlighter,
 } from "lucide-react";
 
 type MenuBarProps = {
@@ -136,6 +137,19 @@ const MenuBar = ({ editor }: MenuBarProps) => {
           }
         >
           <Quote className="w-5 h-5" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            editor.chain().focus().toggleHighlight().run();
+          }}
+          className={
+            editor.isActive("highlight")
+              ? "bg-orange-700 text-white p-1 rounded-lg"
+              : "text-orange-400 p-1"
+          }
+        >
+          <Highlighter className="w-5 h-5" />
         </button>
         <button
           onClick={(e) => {

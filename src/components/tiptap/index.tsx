@@ -7,7 +7,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import underline from "@tiptap/extension-underline";
-
+import Highlight from "@tiptap/extension-highlight";
 import MenuBar from "./MenuBar";
 import Heading from "@tiptap/extension-heading";
 
@@ -33,6 +33,7 @@ export default ({ content = "", onChange, isSaving }: EditorProps & { isSaving: 
         levels: [1, 2, 3],
       }),
       underline,
+      Highlight,
     ],
     content,
     immediatelyRender: false,

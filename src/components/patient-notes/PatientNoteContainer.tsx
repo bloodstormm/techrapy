@@ -13,6 +13,13 @@ import { PlusIcon } from "@radix-ui/react-icons";
 import AddDiseaseButton from "./AddDiseaseButton";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FunnelIcon } from "@heroicons/react/24/outline";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 type NoteWithDisease = PatientNote & {
   associatedDiseases?: string[];
@@ -28,6 +35,7 @@ export default function PatientNoteContainer({ patientId, patientData }: Patient
   const [decryptedNotesWithDiseases, setDecryptedNotesWithDiseases] = useState<NoteWithDisease[]>([]);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
   // Função para buscar notas
   const fetchNotes = async () => {
@@ -77,9 +85,21 @@ export default function PatientNoteContainer({ patientId, patientData }: Patient
   // Atualizar notas decriptadas quando patientNotes mudar
   useEffect(() => {
     if (patientNotes.length > 0) {
-      fetchNotesWithDiseases();
+      const sortedNotes = [...patientNotes].sort((a, b) => {
+        const dateA = new Date(a.note_date).getTime();
+        const dateB = new Date(b.note_date).getTime();
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+      });
+      
+      const notesWithDecryption = sortedNotes.map(note => ({
+        ...note,
+        decryptedContent: decryptText(note.note),
+        associatedDiseases: note.associatedDiseases || []
+      }));
+      
+      setDecryptedNotesWithDiseases(notesWithDecryption);
     }
-  }, [patientNotes]);
+  }, [patientNotes, sortOrder]);
 
   // Subscription para notas
   useEffect(() => {
@@ -202,10 +222,27 @@ export default function PatientNoteContainer({ patientId, patientData }: Patient
         <Link href={`/add-note/${patientId}`}>
           <Button className="w-fit">
             <PlusIcon className="w-4 h-4 mr-2" />
-          Adicionar um novo relato de sessão
+            Adicionar um novo relato de sessão
           </Button>
         </Link>
-        <AddDiseaseButton patientId={patientId} decryptedNotes={decryptedNotesWithDiseases} />
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="gap-2 outline-none">
+                <FunnelIcon className="w-6 h-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setSortOrder('desc')}>
+                Mais recente primeiro
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortOrder('asc')}>
+                Mais antiga primeiro
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <AddDiseaseButton patientId={patientId} decryptedNotes={decryptedNotesWithDiseases} />
+        </div>
       </div>
       <SearchBar
         search={search}
