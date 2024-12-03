@@ -82,23 +82,43 @@ export default function PatientNoteContainer({ patientId, patientData }: Patient
     fetchNotes();
   }, [patientId]);
 
-  // Atualizar notas decriptadas quando patientNotes mudar
+  // Atualizar notas decriptadas e buscar doenças quando patientNotes mudar
   useEffect(() => {
-    if (patientNotes.length > 0) {
-      const sortedNotes = [...patientNotes].sort((a, b) => {
-        const dateA = new Date(a.note_date).getTime();
-        const dateB = new Date(b.note_date).getTime();
-        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
-      });
-      
-      const notesWithDecryption = sortedNotes.map(note => ({
-        ...note,
-        decryptedContent: decryptText(note.note),
-        associatedDiseases: note.associatedDiseases || []
-      }));
-      
-      setDecryptedNotesWithDiseases(notesWithDecryption);
-    }
+    const fetchAndDecryptNotes = async () => {
+      if (patientNotes.length > 0) {
+        const sortedNotes = [...patientNotes].sort((a, b) => {
+          const dateA = new Date(a.note_date).getTime();
+          const dateB = new Date(b.note_date).getTime();
+          return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+        });
+
+        const notesWithDecryption = await Promise.all(sortedNotes.map(async (note) => {
+          const { data: diseasesData, error } = await supabase
+            .from('diseases')
+            .select('disease')
+            .eq('note_id', note.note_id);
+
+          if (error) {
+            console.error('Erro ao buscar doenças:', error);
+            return {
+              ...note,
+              decryptedContent: decryptText(note.note),
+              associatedDiseases: []
+            };
+          }
+
+          return {
+            ...note,
+            decryptedContent: decryptText(note.note),
+            associatedDiseases: diseasesData?.map(d => d.disease) || []
+          };
+        }));
+
+        setDecryptedNotesWithDiseases(notesWithDecryption);
+      }
+    };
+
+    fetchAndDecryptNotes();
   }, [patientNotes, sortOrder]);
 
   // Subscription para notas
