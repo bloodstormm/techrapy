@@ -124,7 +124,7 @@ export default function PatientNoteContainer({ patientId, patientData }: Patient
   // Subscription para notas
   useEffect(() => {
     const notesSubscription = supabase
-      .channel('notes_changes')
+      .channel(`notes_changes_${patientId}`)
       .on(
         'postgres_changes',
         {
@@ -134,14 +134,13 @@ export default function PatientNoteContainer({ patientId, patientData }: Patient
           filter: `patient_id=eq.${patientId}`
         },
         async () => {
-          await fetchNotes(); // Usar a função fetchNotes aqui também
+          await fetchNotes();
         }
       )
       .subscribe();
 
-    // Subscription para mudanças na tabela diseases
     const diseasesSubscription = supabase
-      .channel('diseases_changes')
+      .channel(`diseases_changes_${patientId}`)
       .on(
         'postgres_changes',
         {
@@ -158,8 +157,8 @@ export default function PatientNoteContainer({ patientId, patientData }: Patient
       .subscribe();
 
     return () => {
-      notesSubscription.unsubscribe();
-      diseasesSubscription.unsubscribe();
+      supabase.removeChannel(notesSubscription);
+      supabase.removeChannel(diseasesSubscription);
     };
   }, [patientId]);
 

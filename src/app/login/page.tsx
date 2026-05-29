@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { Login_Image } from "../../../public/images";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabaseClient';
 import { PasswordInput } from "@/components/ui/passwordInput";
 import { AuthError } from '@supabase/supabase-js';
 
@@ -32,7 +32,6 @@ const Login = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const supabase = createClientComponentClient();
 
     useEffect(() => {
         const checkUser = async () => {

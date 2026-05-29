@@ -1,43 +1,46 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient, type CookieMethodsServer } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-    const res = NextResponse.next();
-    const supabase = createMiddlewareClient({ req, res });
-    
-    try {
-        const {
-            data: { session },
-        } = await supabase.auth.getSession();
+    let supabaseResponse = NextResponse.next({ request: req });
 
-        // Se estiver na página de login e tiver sessão, redireciona para home
-        if (req.nextUrl.pathname === '/login' && session) {
-            return NextResponse.redirect(new URL('/', req.url));
-        }
+    const cookies: CookieMethodsServer = {
+        getAll() {
+            return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
+            supabaseResponse = NextResponse.next({ request: req });
+            cookiesToSet.forEach(({ name, value, options }) =>
+                supabaseResponse.cookies.set(name, value, options)
+            );
+        },
+    };
 
-        // Se não tiver sessão e não estiver em uma rota pública
-        if (!session && !isPublicRoute(req.nextUrl.pathname)) {
-            return NextResponse.redirect(new URL('/login', req.url));
-        }
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        { cookies } satisfies { cookies: CookieMethodsServer }
+    );
 
-        return res;
-    } catch (error) {
-        console.error('Erro no middleware:', error);
-        return NextResponse.redirect(new URL('/login', req.url));
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (req.nextUrl.pathname === '/login' && user) {
+        return NextResponse.redirect(new URL('/', req.url));
     }
+
+    if (!user && !isPublicRoute(req.nextUrl.pathname)) {
+        const url = req.nextUrl.clone();
+        url.pathname = '/login';
+        return NextResponse.redirect(url);
+    }
+
+    return supabaseResponse;
 }
 
-// Função auxiliar para verificar rotas públicas
 function isPublicRoute(pathname: string) {
-    const publicRoutes = [
-        '/login',
-        '/register',
-        '/api',
-        '/_next',
-        '/favicon.ico'
-    ];
-    
+    const publicRoutes = ['/login', '/register', '/api', '/_next', '/favicon.ico'];
     return publicRoutes.some(route => pathname.startsWith(route));
 }
 

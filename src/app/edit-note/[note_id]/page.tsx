@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { use, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { ArrowTopLeftIcon } from '@radix-ui/react-icons';
@@ -12,7 +12,8 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import ImageUploader from '@/components/imageUploader';
 
-const EditNote = ({ params }: { params: { note_id: string } }) => {
+const EditNote = ({ params }: { params: Promise<{ note_id: string }> }) => {
+  const { note_id } = use(params);
   const router = useRouter();
   const [note, setNote] = useState('');
   const [patientId, setPatientId] = useState<string>('');
@@ -27,9 +28,9 @@ const EditNote = ({ params }: { params: { note_id: string } }) => {
     const checkUserAndFetchNote = async () => {
       try {
         setIsLoading(true);
-        console.log('Iniciando busca da nota:', params.note_id);
+        console.log('Iniciando busca da nota:', note_id);
 
-        if (!params.note_id) {
+        if (!note_id) {
           console.error('note_id não fornecido');
           toast.error('ID da nota não encontrado');
           router.push('/all-patients');
@@ -50,7 +51,7 @@ const EditNote = ({ params }: { params: { note_id: string } }) => {
           const { data: noteData, error } = await supabase
             .from('patient_notes')
             .select('*')
-            .eq('note_id', params.note_id)
+            .eq('note_id', note_id)
             .single();
 
           if (error) {
@@ -87,7 +88,7 @@ const EditNote = ({ params }: { params: { note_id: string } }) => {
     };
 
     checkUserAndFetchNote();
-  }, [params.note_id, router]);
+  }, [note_id, router]);
 
   const handleFileChange = (selectedFile: File | null) => {
     if (selectedFile) {
@@ -165,7 +166,7 @@ const EditNote = ({ params }: { params: { note_id: string } }) => {
           note: encryptedNote,
           image_url: uploadedFileURL,
         })
-        .eq('note_id', params.note_id);
+        .eq('note_id', note_id);
 
       if (error) throw error;
 
@@ -195,7 +196,7 @@ const EditNote = ({ params }: { params: { note_id: string } }) => {
         .update({
           image_url: null
         })
-        .eq('note_id', params.note_id);
+        .eq('note_id', note_id);
 
       if (error) throw error;
 

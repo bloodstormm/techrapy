@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { PatientData } from "@/types/patientData";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,8 @@ import LoadingSpinner from "@/components/loadingSpinner";
 import PatientNoteContainer from "@/components/patient-notes/PatientNoteContainer";
 import PatientInfoSidebar from "@/components/patient-notes/PatientInfoSidebar";
 
-export default function PatientSummaries({ params }: { params: { patient_id: string } }) {
+export default function PatientSummaries({ params }: { params: Promise<{ patient_id: string }> }) {
+  const { patient_id } = use(params);
   const router = useRouter();
   const [patientData, setPatientData] = useState<PatientData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +28,7 @@ export default function PatientSummaries({ params }: { params: { patient_id: str
         const { data: patient, error: patientError } = await supabase
           .from('patients')
           .select('*')
-          .eq('patient_id', params.patient_id)
+          .eq('patient_id', patient_id)
           .eq('therapist_owner', user.id)
           .single();
 
@@ -47,7 +48,7 @@ export default function PatientSummaries({ params }: { params: { patient_id: str
     };
 
     checkAuthAndOwnership();
-  }, [params.patient_id, router]);
+  }, [patient_id, router]);
 
   if (loading) return <LoadingSpinner mensagem="Carregando dados do paciente..." />;
   if (error) return <div className="flex justify-center items-center h-screen">
@@ -59,8 +60,8 @@ export default function PatientSummaries({ params }: { params: { patient_id: str
 
   return (
     <div className="container mx-auto px-4 md:px-8 xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-10 mb-32">
-      <PatientInfoSidebar patientData={patientData} patientId={params.patient_id} />
-      <PatientNoteContainer patientData={patientData} patientId={params.patient_id} />
+      <PatientInfoSidebar patientData={patientData} patientId={patient_id} />
+      <PatientNoteContainer patientData={patientData} patientId={patient_id} />
     </div>
   );
 }

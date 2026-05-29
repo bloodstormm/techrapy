@@ -382,8 +382,8 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
 
         {patientData.more_info_about_patient && (
           <Drawer>
-            <DrawerTrigger className="text-orange-400 dark:text-foreground mt-4">
-              <Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">
+            <DrawerTrigger asChild>
+              <Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl mt-4">
                 Mais informações do paciente
               </Button>
             </DrawerTrigger>
@@ -400,7 +400,7 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
                       className="w-full p-2 border border-border bg-foreground/5 text-foreground rounded-md min-h-[150px] text-sm"
                     />
                   ) : (
-                    <p className="text-foreground text-sm">{patientData.more_info_about_patient}</p>
+                    <span className="text-foreground text-sm">{patientData.more_info_about_patient}</span>
                   )}
                 </DrawerDescription>
                 <DrawerFooter>
@@ -441,8 +441,8 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
 
         {patientData.more_info_about_diseases && (
           <Drawer>
-            <DrawerTrigger className="text-orange-400 dark:text-foreground mt-4">
-              <Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl">
+            <DrawerTrigger asChild>
+              <Button variant="outline" className="w-full whitespace-normal h-full hover:bg-orange-50 p-3 rounded-xl mt-4">
                 Mais informações sobre doenças
               </Button>
             </DrawerTrigger>
@@ -459,7 +459,7 @@ export default function PatientInfoSidebar({ patientData, patientId }: PatientIn
                       className="w-full p-2 border border-border bg-foreground/5 text-foreground rounded-md min-h-[150px] text-sm"
                     />
                   ) : (
-                    <p className="text-foreground text-sm">{patientData.more_info_about_diseases}</p>
+                    <span className="text-foreground text-sm">{patientData.more_info_about_diseases}</span>
                   )}
                 </DrawerDescription>
                 <DrawerFooter>

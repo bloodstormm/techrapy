@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabaseClient';
 
 interface ForgotPasswordData {
     email: string;
@@ -16,7 +16,6 @@ const ForgotPassword = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<ForgotPasswordData>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
-    const supabase = createClientComponentClient();
 
     const onSubmit = async (data: ForgotPasswordData) => {
         setIsSubmitting(true);

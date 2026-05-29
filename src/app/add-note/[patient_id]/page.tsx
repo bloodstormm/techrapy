@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { use, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { navigate } from './actions';
 import Link from 'next/link';
@@ -12,7 +12,8 @@ import { encryptText } from '@/lib/encryption';
 import { Input } from '@/components/ui/input';
 import ImageUploader from '@/components/imageUploader';
 
-const AddNote = ({ params }: { params: { patient_id: string } }) => {
+const AddNote = ({ params }: { params: Promise<{ patient_id: string }> }) => {
+	const { patient_id } = use(params);
 	const [note, setNote] = useState('');
 	const [isSaving, setIsSaving] = useState(false);
 	const [file, setFile] = useState<File | null>(null);
@@ -99,11 +100,11 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 		}
 
 		try {
-			const result = await navigate(encryptedNote, params.patient_id, uploadedFileURL);
+			const result = await navigate(encryptedNote, patient_id, uploadedFileURL);
 			setIsSaving(false);
 
 			if (result.success) {
-				window.location.href = `/patient-notes/${params.patient_id}`;
+				window.location.href = `/patient-notes/${patient_id}`;
 			} else {
 				toast.error('Erro ao adicionar a nota');
 			}
@@ -130,7 +131,7 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 			.update({
 			  image_url: null
 			})
-			.eq('note_id', params.patient_id);
+			.eq('note_id', patient_id);
 	
 		  if (error) throw error;
 	
@@ -147,7 +148,7 @@ const AddNote = ({ params }: { params: { patient_id: string } }) => {
 	return (
 		<form onSubmit={handleSubmit} className="w-full h-full px-4 sm:px-0 flex flex-col container mx-auto justify-center mt-12">
 			<Link
-				href={`/patient-notes/${params.patient_id}`}
+				href={`/patient-notes/${patient_id}`}
 				className="flex items-center gap-1 hover:gap-3 transition-all"
 			>
 				<ArrowTopLeftIcon className="w-4 h-4" />

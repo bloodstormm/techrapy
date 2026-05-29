@@ -1,4 +1,4 @@
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '@/lib/supabaseClient'
 
 export interface TherapistData {
     therapist_name: string;
@@ -7,8 +7,6 @@ export interface TherapistData {
 }
 
 export const createTherapist = async (data: TherapistData) => {
-    const supabase = createClientComponentClient();
-
     try {
         // 1. Criar o usuário na autenticação do Supabase
         const { data: authData, error: authError } = await supabase.auth.signUp({

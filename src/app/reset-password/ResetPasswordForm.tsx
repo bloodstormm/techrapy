@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabaseClient';
 
 interface ResetPasswordData {
     password: string;
@@ -17,7 +17,6 @@ const ResetPassword = () => {
     const { register, handleSubmit, formState: { errors }, watch } = useForm<ResetPasswordData>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
-    const supabase = createClientComponentClient();
     const searchParams = useSearchParams();
     const code = searchParams.get('code');
 
