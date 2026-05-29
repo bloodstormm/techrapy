@@ -1,12 +1,11 @@
-/** @type {import('next').NextConfig} */
 import createNextIntlPlugin from 'next-intl/plugin';
- 
+
 const withNextIntl = createNextIntlPlugin();
- 
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    transpilePackages: ['uuid'],
     images: {
-        domains: ['daksieipotgpcyeoulhh.supabase.co'],
         remotePatterns: [
             {
                 protocol: 'https',
@@ -14,9 +13,6 @@ const nextConfig = {
             },
         ],
     },
-    eslint: {
-        ignoreDuringBuilds: true,
-    },
 };
- 
+
 export default withNextIntl(nextConfig);

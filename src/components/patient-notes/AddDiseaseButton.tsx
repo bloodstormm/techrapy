@@ -17,7 +17,7 @@ const AddDiseaseButton = ({ patientId, decryptedNotes }: AddDiseaseProps) => {
     return (
         <>
             <DropdownMenu>
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="text-orange-400 w-full whitespace-normal">
                         Adicionar uma nova doença
                     </Button>
